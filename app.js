@@ -335,7 +335,7 @@ function showInfo(result) {
   if (result) {
     const p = document.createElement("p");
     p.className = `result ${result.ok ? "good" : "bad"}`;
-    p.textContent = result.ok ? "✓ Correct with a hint" : `✗ You picked ${result.picked}`;
+    p.textContent = result.ok ? "✓ Right pick — but a hint counts as a miss" : `✗ You picked ${result.picked}`;
     $("details").append(p);
   }
   if (window.renderDetails) window.renderDetails(s, $("details"));
@@ -377,7 +377,7 @@ function hint() {
 
 function choose(chosen) {
   const ok = chosen === card.s;
-  record(ok ? "hint" : "wrong");
+  record("wrong"); // any answer that needed a hint counts as a miss
   showInfo({ ok, picked: chosen.name });
   setPanels({ after: true });
 }
