@@ -68,15 +68,15 @@ def pick(recordings):
     """Choose the best few recordings: regional, compressed, short, good quality."""
     usable = []
     for r in recordings:
-        secs = seconds(r.get("length", "0"))
-        is_mp3 = r.get("file-name", "").lower().endswith(".mp3")
+        secs = seconds(r.get("length") or "0")
+        is_mp3 = (r.get("file-name") or "").lower().endswith(".mp3")
         if not r.get("file") or secs == 0 or secs > MAX_SECONDS:
             continue
         if not is_mp3 and secs > MAX_WAV_SECONDS:
             continue
-        noisy = any(w in r.get("type", "").lower() for w in ("people", "aircraft", "traffic", "background"))
+        noisy = any(w in (r.get("type") or "").lower() for w in ("people", "aircraft", "traffic", "background"))
         score = (r.get("cnt") in REGION) * 4 + is_mp3 * 2 + (r.get("q") == "A") + (secs <= 40) - noisy * 3
-        r["type"] = sound_type(r.get("type", ""))
+        r["type"] = sound_type(r.get("type") or "")
         usable.append((score, r))
     usable.sort(key=lambda x: -x[0])
 
