@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>SA Bird Flashcards</title>
   <meta name="description" content="Flashcards for learning the birds of Southern Africa">
   <meta name="theme-color" content="#1b2a22">
@@ -18,32 +18,32 @@
 <body>
   <header class="bar">
     <h1>SA Birds</h1>
-    <div class="modes" id="modes" role="radiogroup" aria-label="Card type">
-      <button type="button" role="radio" data-mode="mixed">Mixed</button>
-      <button type="button" role="radio" data-mode="photo">Photos</button>
-      <button type="button" role="radio" data-mode="call">Calls</button>
-    </div>
+    <button class="filters" id="openSettings" type="button" aria-label="Settings">
+      <span id="filterSummary">All birds</span> <span aria-hidden="true">⚙</span>
+    </button>
     <div class="score" id="score" aria-live="polite">0 / 0</div>
   </header>
 
   <main class="card" id="card">
-    <figure class="media" id="media">
-      <img id="photo" alt="A bird to identify">
-      <div class="loading" id="loading">Loading…</div>
+    <section class="media" id="media">
+      <div class="carousel" id="carousel" aria-label="Bird photos"></div>
+      <div class="dots" id="dots" aria-hidden="true"></div>
       <div class="sound" id="sound" hidden>
         <button class="play" id="play" type="button" aria-label="Play call">▶</button>
         <p id="soundType"></p>
+        <button class="other" id="otherCall" type="button">Another recording</button>
       </div>
-      <button class="other" id="other" type="button">Another photo</button>
-      <figcaption id="credit"></figcaption>
-    </figure>
+    </section>
     <audio id="audio" preload="none"></audio>
 
-    <section class="answer" id="answer" hidden>
+    <section class="info" id="info" hidden>
       <h2 id="name"></h2>
       <p class="sci" id="sci"></p>
       <p class="family" id="family"></p>
+      <div class="tags" id="tags"></div>
       <button class="btn ghost small" id="hearCall" type="button" hidden>▶ Hear call</button>
+      <div id="details"></div>
+      <p class="credits" id="credits"></p>
     </section>
 
     <div class="choices" id="choices" hidden></div>
@@ -52,16 +52,42 @@
       <button class="btn ghost" id="hint" type="button">Hint</button>
       <button class="btn primary" id="reveal" type="button">Reveal</button>
     </div>
-
     <div class="actions" id="grade" hidden>
       <button class="btn bad" id="missed" type="button">Missed it</button>
       <button class="btn good" id="gotIt" type="button">Got it</button>
     </div>
-
     <div class="actions" id="after" hidden>
       <button class="btn primary" id="next" type="button">Next bird</button>
     </div>
   </main>
+
+  <dialog class="sheet" id="settings">
+    <form method="dialog">
+      <h2>Study set</h2>
+      <fieldset>
+        <legend>Cards</legend>
+        <div class="chips" id="modeChips">
+          <label><input type="radio" name="mode" value="mixed"> Mixed</label>
+          <label><input type="radio" name="mode" value="photo"> Photos</label>
+          <label><input type="radio" name="mode" value="call"> Calls</label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Level</legend>
+        <div class="chips" id="levelChips">
+          <label><input type="checkbox" name="level" value="easy"> Easy</label>
+          <label><input type="checkbox" name="level" value="medium"> Medium</label>
+          <label><input type="checkbox" name="level" value="hard"> Hard</label>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Seen in</legend>
+        <div class="chips" id="countryChips"></div>
+      </fieldset>
+      <p class="count" id="setCount"></p>
+      <button class="btn primary" type="submit">Done</button>
+    </form>
+  </dialog>
 
   <script src="app.js"></script>
 </body>

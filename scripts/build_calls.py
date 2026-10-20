@@ -132,6 +132,8 @@ def main():
     out = DATA / "calls.json"
     keep = "--missing-only" in sys.argv and out.exists()
     calls, missing = (json.loads(out.read_text()) if keep else {}), []
+    ids = {str(s["id"]) for s in species}
+    calls = {k: v for k, v in calls.items() if k in ids}  # drop birds no longer on the list
     for i, s in enumerate(species, 1):
         if str(s["id"]) in calls:
             continue
