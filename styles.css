@@ -81,7 +81,84 @@ body {
   background: linear-gradient(transparent, rgba(0,0,0,.7));
 }
 
+.modes {
+  display: flex;
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 3px;
+}
+.modes button {
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: .8rem;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+.modes button[aria-checked="true"] { background: var(--accent); color: #1b1b1b; font-weight: 600; }
+
+.sound {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: radial-gradient(circle, #2f4a3b, #101a14);
+}
+.sound[hidden] { display: none; }
+.sound p { margin: 0; color: var(--muted); }
+.play {
+  width: 120px;
+  height: 120px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #1b1b1b;
+  font-size: 2.6rem;
+  cursor: pointer;
+}
+.play.playing { background: var(--good); color: var(--text); }
+
+.other {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font: inherit;
+  font-size: .8rem;
+  color: var(--text);
+  background: rgba(0,0,0,.55);
+}
+.other[hidden] { display: none; }
+
+.choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.choices[hidden] { display: none; }
+.choices button {
+  min-height: 56px;
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  padding: 6px 8px;
+  font: inherit;
+  font-size: .95rem;
+  color: var(--text);
+  background: var(--surface);
+}
+.choices button.correct { background: var(--good); }
+.choices button.wrong { background: var(--bad); }
+.choices button:disabled:not(.correct):not(.wrong) { opacity: .5; }
+
 .answer { text-align: center; }
+.answer .small { min-height: 40px; margin-top: 8px; padding: 0 18px; flex: none; }
+.answer .small[hidden] { display: none; }
 .answer h2 { margin: 0; font-size: 1.6rem; color: var(--accent); }
 .answer p { margin: 4px 0 0; color: var(--muted); }
 .answer .sci { font-style: italic; }
