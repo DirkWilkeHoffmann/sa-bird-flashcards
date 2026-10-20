@@ -219,6 +219,9 @@ body {
   gap: 8px;
 }
 .card.revealed .choices { display: none; }
+.choices .prompt { grid-column: 1 / -1; margin: 0; text-align: center; color: var(--muted); font-size: .95rem; }
+.choices button.correct { background: var(--good); }
+.choices button.wrong { background: var(--bad); opacity: .8; }
 .choices button {
   min-height: 52px;
   border: 0;

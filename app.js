@@ -92,6 +92,7 @@ function makeCard(exclude) {
   // Warm the cache: first photo and info of each upcoming card.
   new Image().src = photoUrl(photos[0], "medium");
   loadInfo(s);
+  loadWiki(s);
   return c;
 }
 
@@ -335,7 +336,8 @@ function showInfo(result) {
   if (result) {
     const p = document.createElement("p");
     p.className = `result ${result.ok ? "good" : "bad"}`;
-    p.textContent = result.ok ? "✓ Right pick — but a hint counts as a miss" : `✗ You picked ${result.picked}`;
+    p.textContent = result.message
+      || (result.ok ? "✓ Right pick — but a hint counts as a miss" : `✗ You picked ${result.picked}`);
     $("details").append(p);
   }
   if (window.renderDetails) window.renderDetails(s, $("details"));
@@ -362,23 +364,73 @@ function reveal() {
   setPanels({ grade: true });
 }
 
-function hint() {
+// "What kind of bird": the last word of the English name, so Blacksmith Lapwing -> Lapwing.
+// Capitalised compounds use their last part (Fish-Eagle -> Eagle); Bee-eater, White-eye stay whole.
+const KIND_ALIASES = {
+  "Sugar-bird": "Sugarbird", "Rock-jumper": "Rockjumper", "Widow-bird": "Widowbird",
+  Loerie: "Turaco", Lourie: "Turaco", Dikkop: "Thick-knee", Neddicky: "Cisticola", Bokmakierie: "Bushshrike",
+  Mallard: "Duck", Shoveler: "Duck", Pochard: "Duck", Shelduck: "Duck", Stonechat: "Chat", Whinchat: "Chat",
+  Chaffinch: "Finch", Quailfinch: "Finch", Vleiloerie: "Coucal", Rockjumper: "Rockjumper",
+};
+
+function kindOf(s) {
+  const last = s.name.split(" ").pop();
+  if (KIND_ALIASES[last]) return KIND_ALIASES[last];
+  const tail = last.split("-").pop();
+  return /^[A-Z]/.test(tail) ? tail : last;
+}
+
+function choiceButtons(prompt, options, label, onPick) {
   const box = $("choices");
   box.replaceChildren();
-  for (const s of shuffle([card.s, ...similar(card.s)])) {
+  const p = document.createElement("p");
+  p.className = "prompt";
+  p.textContent = prompt;
+  box.append(p);
+  for (const o of options) {
     const b = document.createElement("button");
     b.type = "button";
-    b.textContent = s.name;
-    b.addEventListener("click", () => choose(s));
+    b.textContent = label(o);
+    b.addEventListener("click", () => onPick(o, b));
     box.append(b);
   }
   setPanels({ choices: true });
 }
 
-function choose(chosen) {
+// Step 1: guess the kind of bird until right. Distractors get harder: same family, same order, anything.
+function hint() {
+  const kind = kindOf(card.s);
+  const others = [];
+  const tiers = [(s) => s.family === card.s.family, (s) => s.order === card.s.order, () => true];
+  for (const inTier of tiers) {
+    const kinds = shuffle([...new Set(species.filter(inTier).map(kindOf))])
+      .filter((k) => k !== kind && !others.includes(k));
+    if (kinds.length) others.push(kinds[0]);
+  }
+  while (others.length < 3) {
+    const k = kindOf(species[Math.floor(Math.random() * species.length)]);
+    if (k !== kind && !others.includes(k)) others.push(k);
+  }
+  choiceButtons("What kind of bird is it?", shuffle([kind, ...others]), (k) => k, (k, b) => {
+    if (k !== kind) { b.classList.add("wrong"); b.disabled = true; return; }
+    b.classList.add("correct");
+    for (const other of $("choices").querySelectorAll("button")) other.disabled = true;
+    setTimeout(() => whichOne(kind), 600);
+  });
+}
+
+// Step 2: which bird of that kind. Fill up with look-alikes if the kind has fewer than four birds.
+function whichOne(kind) {
+  const same = shuffle(species.filter((s) => s !== card.s && kindOf(s) === kind)).slice(0, 3);
+  if (!same.length) { choose(card.s, `✓ It's the only ${kind} — but a hint counts as a miss`); return; }
+  const fill = similar(card.s).filter((s) => !same.includes(s)).slice(0, 3 - same.length);
+  choiceButtons(`Which ${kind}?`, shuffle([card.s, ...same, ...fill]), (s) => s.name, (s) => choose(s));
+}
+
+function choose(chosen, message) {
   const ok = chosen === card.s;
   record("wrong"); // any answer that needed a hint counts as a miss
-  showInfo({ ok, picked: chosen.name });
+  showInfo({ ok, picked: chosen.name, message });
   setPanels({ after: true });
 }
 
@@ -455,32 +507,52 @@ function section(title, ...children) {
   return [h, ...children];
 }
 
-window.renderDetails = async (s, el) => {
-  const [info, map] = await Promise.all([loadInfo(s), loadMap()]);
-  if (!info || card?.s !== s) return;
-  if (info.summary) {
-    const p = document.createElement("p");
-    p.textContent = info.summary;
-    el.append(...section("About", p));
+const wikiCache = new Map();
+
+function loadWiki(s) {
+  if (!wikiCache.has(s.id)) {
+    wikiCache.set(s.id, fetch(`data/wiki/${s.id}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
   }
-  if (map && info.cells.length) {
+  return wikiCache.get(s.id);
+}
+
+const para = (text) => {
+  const p = document.createElement("p");
+  p.textContent = text;
+  return p;
+};
+
+window.renderDetails = async (s, el) => {
+  const [info, wiki, map] = await Promise.all([loadInfo(s), loadWiki(s), loadMap()]);
+  if (card?.s !== s) return;
+  const wikiSection = (h) => wiki?.sections.find((x) => x.h === h);
+  const about = wiki?.intro || info?.summary;
+  if (about) el.append(...section("About", para(about)));
+  if (wikiSection("Description")) el.append(...section("Description", para(wikiSection("Description").text)));
+  if (map && info?.cells.length) {
     const note = document.createElement("p");
     note.className = "note";
     note.textContent = "Shaded where it has been recorded — brighter means more records.";
     el.append(...section("Range in Southern Africa", rangeMap(map, info.cells), note));
   }
-  if (info.months.some(Boolean)) {
-    el.append(...section("Records by month", monthChart(info.months)));
+  if (wikiSection("Distribution & habitat")) {
+    el.append(...section("Distribution & habitat", para(wikiSection("Distribution & habitat").text)));
   }
-  if (info.wiki) {
+  if (info?.months.some(Boolean)) el.append(...section("Records by month", monthChart(info.months)));
+  for (const h of ["Behaviour", "Diet", "Breeding", "Voice"]) {
+    if (wikiSection(h)) el.append(...section(h, para(wikiSection(h).text)));
+  }
+  const url = wiki?.url || info?.wiki;
+  if (url) {
     const a = document.createElement("a");
-    a.href = info.wiki;
+    a.href = url;
     a.target = "_blank";
     a.rel = "noopener";
     a.textContent = "Read more on Wikipedia →";
     a.className = "wiki";
     el.append(a);
   }
+  if (wiki) $("credits").textContent += " Text: Wikipedia (CC BY-SA 4.0).";
 };
 
 /* ---------- Settings sheet ---------- */

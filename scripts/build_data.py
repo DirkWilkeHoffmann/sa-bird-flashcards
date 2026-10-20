@@ -32,7 +32,7 @@ EASY, MEDIUM = 150, 300     # most-recorded 150 = easy, next 300 = medium, rest 
 PHOTOS_PER_SPECIES = 8
 # Corrections the data can't make by itself.
 ALWAYS_INCLUDE = {3017}    # Rock Pigeon: established, but most records are marked "domestic"
-ALWAYS_EXCLUDE = {14110}   # Zebra Finch: escaped cage bird whose records aren't flagged introduced
+ALWAYS_EXCLUDE = {14110, 20504, 1204}  # Zebra Finch, Emu, Indian Peafowl: escaped or kept birds
 LICENSES = "cc0,cc-by,cc-by-sa,cc-by-nc,cc-by-nc-sa,cc-by-nd,cc-by-nc-nd"
 
 
