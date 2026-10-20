@@ -509,11 +509,66 @@ function section(title, ...children) {
 
 const wikiCache = new Map();
 
+// Prebuilt text (data/wiki) if we have it, otherwise the phone asks Wikipedia directly.
 function loadWiki(s) {
   if (!wikiCache.has(s.id)) {
-    wikiCache.set(s.id, fetch(`data/wiki/${s.id}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null));
+    wikiCache.set(s.id, fetch(`data/wiki/${s.id}.json`)
+      .then((r) => (r.ok ? r.json() : liveWiki(s)))
+      .catch(() => liveWiki(s))
+      .catch(() => null));
   }
   return wikiCache.get(s.id);
+}
+
+const WIKI_SECTIONS = [
+  ["Description", ["description", "identification", "appearance", "plumage"]],
+  ["Distribution & habitat", ["distribution", "habitat", "range"]],
+  ["Behaviour", ["behaviour", "behavior", "ecology"]],
+  ["Diet", ["diet", "feeding", "food"]],
+  ["Breeding", ["breeding", "nesting", "reproduction"]],
+  ["Voice", ["voice", "call", "vocal"]],
+];
+
+// Cut at the last full sentence before `limit` characters.
+function trimText(text, limit) {
+  text = text.replace(/\s+/g, " ").trim();
+  if (text.length <= limit) return text;
+  const cut = text.slice(0, limit);
+  const end = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "), cut.lastIndexOf("? "));
+  return end > limit / 3 ? cut.slice(0, end + 1) : cut.slice(0, cut.lastIndexOf(" ")) + "…";
+}
+
+async function wikiExtract(title) {
+  const params = new URLSearchParams({
+    action: "query", format: "json", formatversion: "2", redirects: "1", prop: "extracts",
+    explaintext: "1", exsectionformat: "wiki", titles: title, origin: "*",
+  });
+  const r = await fetch(`https://en.wikipedia.org/w/api.php?${params}`);
+  const page = (await r.json()).query?.pages?.[0];
+  return page && !page.missing && page.extract ? page : null;
+}
+
+async function liveWiki(s) {
+  const title = decodeURIComponent((s.wiki || "").split("/wiki/").pop() || "").replace(/_/g, " ");
+  const page = (title && await wikiExtract(title)) || await wikiExtract(s.name);
+  if (!page) return null;
+  const parts = ("\n" + page.extract).split(/\n==\s*([^=\n]+?)\s*==\n/);
+  const found = [];
+  for (let i = 1; i < parts.length; i += 2) {
+    found.push([parts[i], parts[i + 1].replace(/\n=+\s*[^=\n]+?\s*=+\n/g, "\n")]);
+  }
+  const used = new Set();
+  const sections = [];
+  for (const [ours, words] of WIKI_SECTIONS) {
+    const hit = found.find(([h, body]) => !used.has(h) && body.trim() && words.some((w) => h.toLowerCase().includes(w)));
+    if (hit) { used.add(hit[0]); sections.push({ h: ours, text: trimText(hit[1], 900) }); }
+  }
+  return {
+    title: page.title,
+    url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, "_"))}`,
+    intro: trimText(parts[0], 700),
+    sections,
+  };
 }
 
 const para = (text) => {

@@ -1,8 +1,9 @@
 // Service worker: keeps the app and every bird photo you've seen on the phone.
 // App files: network first (so updates arrive), falling back to the cache offline.
 // Photos: cache first, so a photo is only ever downloaded once.
-const APP_CACHE = "sabirds-app-v3";
+const APP_CACHE = "sabirds-app-v4";
 const PHOTO_CACHE = "sabirds-photos-v1";
+const WIKI_CACHE = "sabirds-wiki-v1";
 const MAX_PHOTOS = 1500;
 let puts = 0;
 const APP_FILES = [
@@ -40,6 +41,16 @@ async function photo(request) {
   return response;
 }
 
+// Wikipedia text: fetched once per bird, then read from the phone.
+async function cacheFirst(name, request) {
+  const cache = await caches.open(name);
+  const hit = await cache.match(request);
+  if (hit) return hit;
+  const response = await fetch(request);
+  if (response.ok) cache.put(request, response.clone());
+  return response;
+}
+
 async function appFile(request) {
   const cache = await caches.open(APP_CACHE);
   try {
@@ -56,6 +67,8 @@ self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   if (url.hostname === "inaturalist-open-data.s3.amazonaws.com" || url.hostname === "static.inaturalist.org") {
     e.respondWith(photo(e.request));
+  } else if (url.hostname === "en.wikipedia.org") {
+    e.respondWith(cacheFirst(WIKI_CACHE, e.request));
   } else if (url.origin === self.location.origin) {
     e.respondWith(appFile(e.request));
   }
