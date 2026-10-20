@@ -3,8 +3,9 @@
 in data/species.json.
 
 Needs a free xeno-canto API key (https://xeno-canto.org, account page):
-    XC_API_KEY=your-key python3 scripts/build_calls.py
+    XC_API_KEY=your-key python3 scripts/build_calls.py [--missing-only]
 """
+import difflib
 import json
 import os
 import re
@@ -102,22 +103,46 @@ def pick(recordings):
     } for r in chosen]
 
 
+def norm(name):
+    name = name.lower().replace("-", " ").replace("korhaan", "bustard")
+    return " ".join(name.split())
+
+
+def same_bird(ours, theirs):
+    return difflib.SequenceMatcher(None, norm(ours), norm(theirs)).ratio() >= 0.85
+
+
+def find_recordings(s, key):
+    recs = search(f'sp:"{s["sci"]}" q:">C"', key) or search(f'en:"{s["name"]}" q:">C"', key)
+    if not recs:
+        # Names differ between iNaturalist and xeno-canto (e.g. African Fish-Eagle is
+        # Icthyophaga in one, Haliaeetus in the other). Search the species epithet and
+        # keep only recordings whose English name matches ours.
+        epithet = s["sci"].split()[-1]
+        recs = [r for r in search(f'sp:{epithet} q:">C"', key) if same_bird(s["name"], r.get("en") or "")]
+    return recs
+
+
 def main():
     key = os.environ.get("XC_API_KEY")
     if not key:
         sys.exit("Set XC_API_KEY to your xeno-canto API key.")
     species = json.loads((DATA / "species.json").read_text())
-    calls, missing = {}, []
+    # --missing-only keeps existing results and only retries species without calls.
+    out = DATA / "calls.json"
+    keep = "--missing-only" in sys.argv and out.exists()
+    calls, missing = (json.loads(out.read_text()) if keep else {}), []
     for i, s in enumerate(species, 1):
-        recs = search(f'sp:"{s["sci"]}" q:">C"', key) or search(f'en:"{s["name"]}" q:">C"', key)
-        chosen = pick(recs)
+        if str(s["id"]) in calls:
+            continue
+        chosen = pick(find_recordings(s, key))
         if chosen:
             calls[str(s["id"])] = chosen
         else:
             missing.append(s["name"])
         if i % 50 == 0:
             print(f"{i}/{len(species)} species, {len(calls)} with calls")
-    (DATA / "calls.json").write_text(json.dumps(calls, ensure_ascii=False, separators=(",", ":")))
+    out.write_text(json.dumps(calls, ensure_ascii=False, separators=(",", ":")))
     print(f"wrote calls for {len(calls)} of {len(species)} species")
     print(f"no usable recordings for {len(missing)}: {', '.join(missing)}")
 

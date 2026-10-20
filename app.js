@@ -198,8 +198,16 @@ $("photo").addEventListener("error", () => {
   if (!$("photo").getAttribute("src")) return;
   $("loading").textContent = "Photo failed to load — tap Another photo";
 });
-$("audio").addEventListener("play", () => { $("play").classList.add("playing"); $("play").textContent = "❚❚"; });
-$("audio").addEventListener("pause", () => { $("play").classList.remove("playing"); $("play").textContent = "▶"; });
+$("audio").addEventListener("play", () => {
+  $("play").classList.add("playing");
+  $("play").textContent = "❚❚";
+  $("hearCall").textContent = "❚❚ Pause call";
+});
+$("audio").addEventListener("pause", () => {
+  $("play").classList.remove("playing");
+  $("play").textContent = "▶";
+  $("hearCall").textContent = "▶ Hear call";
+});
 $("play").addEventListener("click", () => playCall(callIndex));
 $("hearCall").addEventListener("click", () => playCall(callIndex));
 $("other").addEventListener("click", () => {
