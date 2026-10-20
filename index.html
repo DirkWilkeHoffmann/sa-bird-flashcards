@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SA Bird Flashcards</title>
+  <meta name="description" content="Flashcards for learning the birds of Southern Africa">
+  <meta name="theme-color" content="#1b2a22">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SA Birds">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="bar">
+    <h1>SA Birds</h1>
+    <div class="score" id="score" aria-live="polite">0 / 0</div>
+  </header>
+
+  <main class="card" id="card">
+    <figure class="media" id="media">
+      <img id="photo" alt="A bird to identify">
+      <div class="loading" id="loading">Loading…</div>
+      <figcaption id="credit"></figcaption>
+    </figure>
+
+    <section class="answer" id="answer" hidden>
+      <h2 id="name"></h2>
+      <p class="sci" id="sci"></p>
+      <p class="family" id="family"></p>
+    </section>
+
+    <div class="actions" id="ask">
+      <button class="btn ghost" id="otherPhoto" type="button">Another photo</button>
+      <button class="btn primary" id="reveal" type="button">Reveal</button>
+    </div>
+
+    <div class="actions" id="grade" hidden>
+      <button class="btn bad" id="missed" type="button">Missed it</button>
+      <button class="btn good" id="gotIt" type="button">Got it</button>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
