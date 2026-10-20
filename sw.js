@@ -7,7 +7,7 @@ const MAX_PHOTOS = 1500;
 let puts = 0;
 const APP_FILES = [
   "./", "index.html", "styles.css", "app.js", "manifest.webmanifest",
-  "data/species.json", "data/calls.json", "icons/icon-192.png",
+  "data/species.json", "data/calls.json", "data/map.json", "icons/icon-192.png",
 ];
 
 self.addEventListener("install", (e) => {

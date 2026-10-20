@@ -13,31 +13,41 @@ It is a Progressive Web App: no App Store needed.
 
 ## How it works
 
-- A random bird photo or call appears (switch between **Mixed**, **Photos** and **Calls** at the top).
+- A random bird photo or call appears. Swipe sideways through all its photos; pinch or double-tap to zoom.
 - Think of the name, then tap **Reveal** and mark yourself **Got it** or **Missed it**.
 - Stuck? Tap **Hint** for four look-alike birds (same genus, then family) and pick one.
+- After each bird you get its level, the countries it's seen in, a short description,
+  a range map of Southern Africa, records by month and the photo/recording credits.
+- Tap the **⚙ bar** at the top to choose Mixed / Photos / Calls, Easy / Medium / Hard
+  and which countries to study.
 - Missed birds, and birds you needed a hint for, come back more often.
-- **Another photo / Another recording** shows a different example of the same bird.
+- Photos you've seen are stored on the phone, so they load instantly next time.
 
 ## Data
 
-`data/species.json` is built by `scripts/build_data.py` from
-[iNaturalist](https://www.inaturalist.org) research-grade observations
-(species seen at least twice in the region) and Creative Commons licensed photos.
+`scripts/build_data.py` builds `data/species.json` from [iNaturalist](https://www.inaturalist.org):
+wild, research-grade records in South Africa, Namibia, Botswana, Zimbabwe, Lesotho, Eswatini
+and Mozambique south of the Zambezi.
 
-`data/calls.json` is built by `scripts/build_calls.py` from
-[xeno-canto](https://xeno-canto.org) recordings (quality A/B, preferring
-Southern African recordings and compressed MP3 files). Calls stream from xeno-canto.
+- Vagrants (fewer than 5 records) and escaped cage birds are left out.
+- Levels: the 150 most-recorded birds are Easy, the next 300 Medium, the rest Hard.
+- Photos are the best-voted Creative Commons photos taken in the region.
 
-Every photo and recording shows its author and licence.
+`scripts/build_calls.py` builds `data/calls.json` from [xeno-canto](https://xeno-canto.org)
+(quality A/B, preferring Southern African recordings and MP3 files). Calls stream from xeno-canto.
+
+`scripts/build_info.py` builds `data/info/` (description, range-map cells, records by month)
+and `data/map.json` (country outlines).
 
 To rebuild:
 
     python3 scripts/build_data.py
-    XC_API_KEY=your-key python3 scripts/build_calls.py   # add --missing-only to retry gaps
+    XC_API_KEY=your-key python3 scripts/build_calls.py --missing-only
+    python3 scripts/build_info.py
 
 ## Roadmap
 
 - [x] Sprint 1 — photo flashcards, full species list, installable on iPhone
 - [x] Sprint 2 — bird calls from xeno-canto, multiple-choice hints of similar birds
-- [ ] Sprint 3 — offline support, progress stats
+- [x] Sprint 3 — regional photos, carousel and zoom, levels and countries, info screen, photo caching
+- [ ] Next — progress screen, full offline mode

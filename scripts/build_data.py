@@ -30,6 +30,9 @@ MIN_IN_COUNTRY = 2          # records needed for a bird to count as "seen in" a 
 ESTABLISHED_INTRODUCED = 100  # introduced birds with this many records count as established
 EASY, MEDIUM = 150, 300     # most-recorded 150 = easy, next 300 = medium, rest = hard
 PHOTOS_PER_SPECIES = 8
+# Corrections the data can't make by itself.
+ALWAYS_INCLUDE = {3017}    # Rock Pigeon: established, but most records are marked "domestic"
+ALWAYS_EXCLUDE = {14110}   # Zebra Finch: escaped cage bird whose records aren't flagged introduced
 LICENSES = "cc0,cc-by,cc-by-sa,cc-by-nc,cc-by-nc-sa,cc-by-nd,cc-by-nc-nd"
 
 
@@ -72,7 +75,7 @@ def ancestor(t, rank):
 
 def english_name(t):
     """iNaturalist sometimes prefers an Afrikaans name for SA; make sure it is English."""
-    english = [n["name"] for n in t.get("names", []) if n.get("lexicon") == "English"]
+    english = [n["name"] for n in t.get("names", []) if (n.get("lexicon") or "").lower() == "english"]
     preferred = t.get("preferred_common_name")
     if preferred and (not english or preferred in english):
         return preferred
@@ -116,7 +119,13 @@ def main():
     escapees = {tid for tid, c in introduced.items()
                 if c >= 0.5 * totals.get(tid, 0) and totals.get(tid, 0) < ESTABLISHED_INTRODUCED}
 
-    ids = [tid for tid, c in totals.items() if c >= MIN_OBSERVATIONS and tid not in escapees]
+    for tid in ALWAYS_INCLUDE:  # count every record, domestic or not, so it ranks fairly
+        for code, q in COUNTRIES.items():
+            per_country[code][tid] = get("observations", taxon_id=tid, quality_grade="research",
+                                         per_page=0, **q)["total_results"]
+        totals[tid] = sum(per_country[c][tid] for c in COUNTRIES)
+    ids = [tid for tid, c in totals.items()
+           if (c >= MIN_OBSERVATIONS and tid not in escapees and tid not in ALWAYS_EXCLUDE) or tid in ALWAYS_INCLUDE]
     print(f"{len(totals)} species recorded; {len(escapees)} escapees and "
           f"{sum(1 for c in totals.values() if c < MIN_OBSERVATIONS)} vagrants removed; {len(ids)} kept")
 
