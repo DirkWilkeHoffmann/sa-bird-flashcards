@@ -309,6 +309,7 @@ function nextCard() {
   card = queue.shift();
   fillQueue();
   $("card").classList.remove("revealed");
+  $("media").style.flexBasis = "";
   $("info").hidden = true;
   $("info").scrollTop = 0;
   buildCarousel(card.photos);
@@ -350,8 +351,17 @@ function showInfo(result) {
   resetZoom();
   $("card").classList.add("revealed");
   $("info").hidden = false;
+  $("info").scrollTop = 0; // only works once visible: always open at the name
+  $("media").style.flexBasis = "";
   recentre();
 }
+
+// Scrolling the info panel shrinks the photo, so the text and map get the whole screen.
+$("info").addEventListener("scroll", () => {
+  if (!$("card").classList.contains("revealed")) return;
+  const full = $("card").clientHeight * 0.38;
+  $("media").style.flexBasis = `${Math.max(0, full - $("info").scrollTop)}px`;
+}, { passive: true });
 
 // The photo area changes size on reveal and on rotation; keep the current photo in view.
 function recentre() {

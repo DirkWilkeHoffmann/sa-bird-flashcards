@@ -84,7 +84,7 @@ body {
   border-radius: var(--radius);
   overflow: hidden;
 }
-.card.revealed .media { flex: 0 0 38%; }
+.card.revealed .media { flex: 0 0 38%; min-height: 0; }
 
 .carousel {
   position: absolute;
