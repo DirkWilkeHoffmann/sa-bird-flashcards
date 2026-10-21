@@ -338,7 +338,7 @@ function showInfo(result) {
     const p = document.createElement("p");
     p.className = `result ${result.ok ? "good" : "bad"}`;
     p.textContent = result.message
-      || (result.ok ? "✓ Right pick — but a hint counts as a miss" : `✗ You picked ${result.picked}`);
+      || (result.ok ? "✓ Correct!" : `✗ You picked ${result.picked}`);
     $("details").append(p);
   }
   if (window.renderDetails) window.renderDetails(s, $("details"));
@@ -432,7 +432,7 @@ function hint() {
 // Step 2: which bird of that kind. Fill up with look-alikes if the kind has fewer than four birds.
 function whichOne(kind) {
   const same = shuffle(species.filter((s) => s !== card.s && kindOf(s) === kind)).slice(0, 3);
-  if (!same.length) { choose(card.s, `✓ It's the only ${kind} — but a hint counts as a miss`); return; }
+  if (!same.length) { choose(card.s, "✓ Correct!"); return; }
   const fill = similar(card.s).filter((s) => !same.includes(s)).slice(0, 3 - same.length);
   choiceButtons(`Which ${kind}?`, shuffle([card.s, ...same, ...fill]), (s) => s.name, (s) => choose(s));
 }
