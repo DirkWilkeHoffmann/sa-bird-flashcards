@@ -613,7 +613,7 @@ window.renderDetails = async (s, el) => {
   const about = wiki?.intro || info?.summary;
   if (about) el.append(...section("About", para(about)));
   if (wikiSection("Description")) el.append(...section("Description", para(wikiSection("Description").text)));
-  if (s.similar.length) el.append(...section("Easily confused with", lookalikes(s)));
+  if (s.similar.length) el.append(...section("Easily confused with", ...lookalikes(s)));
   if (map && info?.cells.length) {
     const note = document.createElement("p");
     note.className = "note";
