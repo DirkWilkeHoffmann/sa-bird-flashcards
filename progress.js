@@ -210,12 +210,16 @@ async function useOtherCode() {
   if (code.length < 20) { alert("That code looks too short. Copy the whole code from the other device."); return; }
   if (code === syncCode()) return;
   if (!confirm("Use this code on this phone? Progress from this phone will be added to it.")) return;
-  // Keep what this phone has learned: mark it all to be sent under the new code.
+  $("otherCode").value = "";
+  await adoptCode(code);
+}
+
+// Switch this phone to another sync code, keeping what it has learned (it is sent under the new code).
+async function adoptCode(code) {
   Object.keys(stats).forEach((id) => dirty.add(id));
   save(SYNC_CODE_KEY, code);
-  $("otherCode").value = "";
   await syncNow();
-  renderProgress();
+  if ($("progress").open) renderProgress();
 }
 
 /* ---------- Progress screen ---------- */

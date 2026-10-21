@@ -109,16 +109,24 @@
 
   <dialog class="sheet" id="progress">
     <form method="dialog">
+      <div class="account" id="account">
+        <p class="note" id="accountStatus"></p>
+        <button class="btn google" id="signIn" type="button"><span aria-hidden="true">G</span> Sign in with Google</button>
+        <button class="btn ghost small" id="signOut" type="button" hidden>Sign out</button>
+      </div>
       <h2>Your progress</h2>
       <div id="progressBody"></div>
-      <h2 class="sync-title">Sync between devices</h2>
-      <p class="note">Your progress is saved online under this private code. Enter the same code on another
-        device to share progress. Keep it to yourself, like a password.</p>
+      <h2 class="sync-title">Other devices without an account</h2>
+      <details class="sync-details">
+        <summary>Sync code (without signing in)</summary>
+      <p class="note">Your progress is also saved online under this private code. Enter the same code on another
+        device to share progress without an account. Keep it to yourself, like a password.</p>
       <p class="sync-code"><code id="syncCode"></code> <button class="btn ghost small" id="copyCode" type="button">Copy</button></p>
       <p class="sync-use">
         <input class="select" id="otherCode" placeholder="Code from another device" autocomplete="off" autocapitalize="off" spellcheck="false">
         <button class="btn ghost small" id="useCode" type="button">Use this code</button>
       </p>
+      </details>
       <p class="note" id="syncStatus"></p>
       <button class="btn primary" type="submit">Close</button>
     </form>
@@ -151,5 +159,7 @@
   <script src="app.js"></script>
   <script src="offline.js"></script>
   <script src="progress.js"></script>
+  <script src="vendor/supabase-2.45.4.js"></script>
+  <script src="auth.js"></script>
 </body>
 </html>

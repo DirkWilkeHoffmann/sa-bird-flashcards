@@ -2,13 +2,13 @@
 // App files: network first (so updates arrive), falling back to the cache offline.
 // Photos: cache first, so a photo is only ever downloaded once.
 // Offline downloads (offline.js) live in their own cache, which is never trimmed.
-const APP_CACHE = "sabirds-app-v8";
+const APP_CACHE = "sabirds-app-v9";
 const PHOTO_CACHE = "sabirds-photos-v1";
 const WIKI_CACHE = "sabirds-wiki-v1";
 const MAX_PHOTOS = 1500;
 let puts = 0;
 const APP_FILES = [
-  "./", "index.html", "styles.css", "app.js", "progress.js", "offline.js", "manifest.webmanifest",
+  "./", "index.html", "styles.css", "app.js", "progress.js", "offline.js", "auth.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
   "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "data/near.json", "icons/icon-192.png",
 ];
 

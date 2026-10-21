@@ -368,3 +368,11 @@ body {
 #offline .small { width: auto; }
 .offline-progress { height: 10px; border-radius: 5px; background: var(--bg); overflow: hidden; }
 .offline-progress span { display: block; height: 100%; width: 0; background: var(--good); transition: width .2s; }
+
+.btn.google { width: 100%; background: #fff; color: #1f1f1f; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.btn.google span { font-weight: 800; color: #4285f4; font-size: 1.15rem; }
+.sync-details { margin-top: 14px; }
+.sync-details summary { color: var(--muted); font-size: .9rem; cursor: pointer; }
+.account { padding: 10px 12px; margin-bottom: 14px; border-radius: 12px; background: var(--bg); }
+.account .note { margin: 0 0 8px; }
+.account .small { margin: 0; }

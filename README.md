@@ -34,8 +34,8 @@ It is a Progressive Web App: no App Store needed.
 - **Offline**: ⚙ → *Download this set for offline use* saves the chosen study set (1, 3 or all
   photos per bird, optionally a call, range data and Wikipedia text). Without signal the app shows
   only downloaded birds. Delete downloads from the same screen.
-- **Sync**: progress is stored online under a private sync code (shown on the progress
-  screen). Enter the same code on another device to share progress.
+- **Sign in with Google** (📊 screen): progress is saved to your account and follows you to any
+  device you sign in on. Without an account, a private sync code (same screen) does the same job.
 
 ## Data
 
@@ -59,6 +59,9 @@ feather, track, bone or nest (`python3 scripts/build_data.py --photos-only` refr
 Flagged photos go to the `photo-review` Edge Function (`supabase/functions/photo-review`),
 which stores them in `photo_reviews` and emails the owner through Resend (secret `RESEND_API_KEY`).
 
+Google sign-in uses Supabase Auth (`auth.js`, library pinned in `vendor/`); table `accounts`
+links each account to its sync code (row-level security: own row only).
+
 Progress sync uses a Supabase project (tables `progress`, `mixups`, `hidden_photos`, reachable
 only through the `sync_pull` / `sync_push` functions; sync codes are stored as SHA-256 hashes).
 
@@ -80,4 +83,4 @@ To rebuild:
 - [x] Sprint 3 — regional photos, carousel and zoom, levels and countries, info screen, photo caching
 - [x] Sprint A/B/C — no dead birds, easily confused with, areas and near me, progress and sync
 - [x] Offline mode — download a study set and use it without signal
-- [ ] Next — flag emails, Google login
+- [x] Flag emails with keep/remove, Google sign-in
