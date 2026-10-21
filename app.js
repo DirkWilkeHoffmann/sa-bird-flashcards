@@ -124,11 +124,13 @@ function makeCard(exclude) {
   // Offline, a card only uses the photos and call that were downloaded.
   const view = typeof offlineView === "function" ? offlineView(s) : null;
   const allPhotos = view ? view.photos : s.photos;
-  const calls = view ? view.calls : s.calls;
-  const canCall = calls.length > 0;
+  // While xeno-canto is failing, only recordings from other sources (iNaturalist) are used.
+  const allCalls = view ? view.calls : s.calls;
+  const working = xenoFailing() ? allCalls.filter((c) => !isXeno(c)) : allCalls;
+  const calls = working.length ? working : allCalls;
+  const canCall = working.length > 0;
   const kind = settings.mode === "photo" || !canCall ? "photo"
     : settings.mode === "call" ? "call"
-    : callsFailing() ? "photo"
     : Math.random() < 0.5 ? "call" : "photo";
   // Start the carousel at a random photo so repeats look different.
   const start = Math.floor(Math.random() * allPhotos.length);
@@ -342,15 +344,40 @@ function showCall() {
   $("audio").src = call.url;
 }
 
-// When xeno-canto can't deliver a recording (e.g. their site is down), say so and
-// prefer photo cards for a while instead of silent call cards.
-const CALLS_RETRY_MS = 10 * 60 * 1000;
-let callsFailedAt = 0;
-const callsFailing = () => Date.now() - callsFailedAt < CALLS_RETRY_MS;
+// Calls come from xeno-canto and iNaturalist. When a recording won't load (e.g. xeno-canto
+// is down), the next one is tried automatically, and xeno-canto is avoided for a while.
+const XENO_RETRY_MS = 30 * 60 * 1000;
+const XENO_KEY = "sabirds.xenoFailedAt.v1";
+let xenoFailedAt = load(XENO_KEY, 0);
+const isXeno = (c) => c.url.includes("xeno-canto.org");
+const xenoFailing = () => Date.now() - xenoFailedAt < XENO_RETRY_MS;
+
+// Try the next recording of this bird, preferring other sources than the one that failed.
+function nextWorkingCall() {
+  card.tried ??= new Set();
+  card.tried.add(card.callIndex);
+  const order = card.calls.map((c, i) => i).filter((i) => !card.tried.has(i));
+  order.sort((x, y) => isXeno(card.calls[x]) - isXeno(card.calls[y]));
+  return order.length ? order[0] : -1;
+}
+
+function onCallError() {
+  const failed = card.calls[card.callIndex];
+  if (failed && isXeno(failed) && navigator.onLine) {
+    xenoFailedAt = Date.now();
+    save(XENO_KEY, xenoFailedAt);
+  }
+  const next = nextWorkingCall();
+  if (next < 0) { callFailed(); return; }
+  card.callIndex = next;
+  const audio = $("audio");
+  $("soundType").textContent = card.calls[next].type;
+  audio.src = card.calls[next].url;
+  if (card.wantPlay) audio.play().catch(() => {});
+}
 
 function callFailed() {
-  callsFailedAt = Date.now();
-  $("soundType").textContent = "This recording won't load right now (the xeno-canto sound library may be down). Try Another recording, or tap Reveal.";
+  $("soundType").textContent = "None of this bird's recordings will load right now (the sound libraries may be down). Tap Reveal to see the answer.";
   $("hearCall").textContent = "Call unavailable right now";
   $("play").classList.remove("playing");
   $("play").textContent = "▶";
@@ -360,6 +387,7 @@ function playCall() {
   const audio = $("audio");
   const url = card.calls[card.callIndex].url;
   if (audio.getAttribute("src") !== url) audio.src = url;
+  card.wantPlay = audio.paused;
   if (audio.paused) audio.play().catch(() => {});
   else audio.pause();
 }
@@ -374,13 +402,39 @@ function stopAudio() {
 /* ---------- Card flow ---------- */
 
 // Skip a bird without scoring it: swipe the card up, or tap Skip.
+let skipped = null;
+let toastTimer = null;
+
 function skipCard() {
   const media = $("media");
+  skipped = card;
   media.classList.add("fly-up");
   setTimeout(() => {
     nextCard();
     media.classList.remove("fly-up");
+    showToast();
   }, 220);
+}
+
+// "Bird skipped · Undo" for a few seconds (without naming the bird).
+function showToast() {
+  $("toast").hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, 5000);
+}
+
+function hideToast() {
+  $("toast").hidden = true;
+  clearTimeout(toastTimer);
+}
+
+function undoSkip() {
+  if (!skipped) return;
+  const back = { ...skipped, tried: undefined, wantPlay: false };
+  queue.unshift(back, card);  // the skipped bird again, then the one that replaced it
+  skipped = null;
+  hideToast();
+  nextCard();
 }
 
 let swipe = null;
@@ -960,9 +1014,8 @@ $("openSettings").addEventListener("click", openSettings);
 /* ---------- Wiring ---------- */
 
 $("audio").addEventListener("error", () => {
-  if ($("audio").getAttribute("src")) callFailed();
+  if ($("audio").getAttribute("src")) onCallError();
 });
-$("audio").addEventListener("playing", () => { callsFailedAt = 0; });
 $("audio").addEventListener("play", () => {
   $("play").classList.add("playing");
   $("play").textContent = "❚❚";
@@ -985,6 +1038,8 @@ $("gotIt").addEventListener("click", () => { record("right"); nextCard(); });
 $("missed").addEventListener("click", () => { record("wrong"); nextCard(); });
 $("next").addEventListener("click", nextCard);
 $("skip").addEventListener("click", skipCard);
+$("undoSkip").addEventListener("click", undoSkip);
+for (const id of ["reveal", "hint"]) $(id).addEventListener("click", hideToast);
 $("flag").addEventListener("click", hidePhoto);
 
 // Keep the page itself from zooming or rubber-banding; only the carousel,

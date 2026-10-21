@@ -36,6 +36,10 @@
       </div>
     </section>
     <audio id="audio" preload="none"></audio>
+    <div class="toast" id="toast" role="status" hidden>
+      <span>Bird skipped</span>
+      <button type="button" id="undoSkip">Undo</button>
+    </div>
 
     <section class="info" id="info" hidden>
       <h2 id="name"></h2>
@@ -103,9 +107,9 @@
 
   <dialog class="sheet" id="rangeHint">
     <form method="dialog">
+      <button class="close-x" type="submit" aria-label="Close">✕</button>
       <h2>Range hint</h2>
       <div id="rangeHintBody"></div>
-      <button class="btn primary" type="submit">Back to guessing</button>
     </form>
   </dialog>
 
