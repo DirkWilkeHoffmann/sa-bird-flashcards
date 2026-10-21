@@ -21,6 +21,8 @@ let queue = [];                     // upcoming cards, prefetched
 let card = null;                    // { s, kind, photos, callIndex }
 let session = { right: 0, seen: 0 };
 let hiddenPhotos = new Set(load(HIDDEN_KEY, []));  // photos reported as bad (e.g. a dead bird)
+// The owner's final say on flagged photos (from the review emails), kept for offline use.
+let photoDecisions = load("sabirds.photoDecisions.v1", { removed: [], kept: [] });
 
 function load(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
@@ -145,6 +147,7 @@ function hidePhoto() {
   hiddenPhotos.add(p.id);
   save(HIDDEN_KEY, [...hiddenPhotos]);
   noteHidden(p.id, card.s.id);
+  reportPhoto(p, card.s);
   card.s.photos = card.s.photos.filter((x) => x.id !== p.id);
   card.photos = card.photos.filter((x) => x.id !== p.id);
   const at = Math.min(slideIndex, card.photos.length - 1);
@@ -909,7 +912,9 @@ Promise.all([
     if (settings.area === "near" && settings.near) nearSet = await computeNear(settings.near).catch(() => null);
     fillAreaSelect();
     species = data.map((s) => {
-      const photos = s.photos.filter((p) => !hiddenPhotos.has(p.id));
+      const removed = new Set(photoDecisions.removed);
+      const kept = new Set(photoDecisions.kept);
+      const photos = s.photos.filter((p) => removed.has(p.id) ? false : kept.has(p.id) || !hiddenPhotos.has(p.id));
       return { ...s, photos: photos.length ? photos : s.photos, calls: calls[s.id] || [] };
     });
     const byId = new Map(species.map((s) => [s.id, s]));

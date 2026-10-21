@@ -10,6 +10,8 @@ const SYNC_CODE_KEY = "sabirds.syncCode.v1";
 const SYNC_URL = "https://oenkcaswabrkqhvukcyb.supabase.co/rest/v1/rpc";
 const SYNC_API_KEY = "sb_publishable_3n_rTfWAWYptlsWuCNqyUQ_x6emNOwB"; // public by design
 const SYNC_DELAY_MS = 4000;
+const REVIEW_URL = "https://oenkcaswabrkqhvukcyb.supabase.co/functions/v1/photo-review";
+const REPORTS_KEY = "sabirds.pendingReports.v1";
 
 let mixups = load(MIXUPS_KEY, {});  // { [speciesId]: { [pickedId]: count } }
 let dirty = new Set(load("sabirds.dirty.v1", []));  // birds changed since the last successful push
@@ -89,8 +91,9 @@ function mergeRemote(remote) {
     mixups[m.id] ??= {};
     mixups[m.id][m.picked] = Math.max(mixups[m.id][m.picked] || 0, m.n);
   }
+  const kept = new Set(photoDecisions.kept);
   for (const photoId of remote.hidden || []) {
-    if (!hiddenPhotos.has(photoId)) {
+    if (!hiddenPhotos.has(photoId) && !kept.has(photoId)) {
       hiddenPhotos.add(photoId);
       for (const s of species) {
         if (s.photos.length > 1) s.photos = s.photos.filter((p) => p.id !== photoId);
@@ -127,6 +130,47 @@ async function pushDirty() {
   save("sabirds.hiddenDirty.v1", []);
 }
 
+/* ---------- Flagged photos: email the owner, apply their decisions ---------- */
+
+let pendingReports = load(REPORTS_KEY, []);  // reports made while offline
+
+function reportPhoto(photo, s) {
+  pendingReports.push({ photo_id: photo.id, species_id: s.id, species_name: s.name, photo_url: photoUrl(photo, "large") });
+  save(REPORTS_KEY, pendingReports);
+  sendReports();
+}
+
+async function sendReports() {
+  while (pendingReports.length) {
+    const r = await fetch(REVIEW_URL, {
+      method: "POST",
+      headers: { apikey: SYNC_API_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "report", ...pendingReports[0] }),
+    }).catch(() => null);
+    if (!r || r.status >= 500) return;  // offline or server trouble: try again on the next sync
+    pendingReports.shift();
+    save(REPORTS_KEY, pendingReports);
+  }
+}
+
+// Removed photos disappear for everyone; kept photos come back for whoever hid them.
+async function applyDecisions() {
+  const d = await rpc("photo_decisions", {});
+  photoDecisions = { removed: d.removed || [], kept: d.kept || [] };
+  save("sabirds.photoDecisions.v1", photoDecisions);
+  const removed = new Set(photoDecisions.removed);
+  let changed = false;
+  for (const id of photoDecisions.kept) {
+    if (hiddenPhotos.delete(id)) changed = true;
+  }
+  if (changed) save(HIDDEN_KEY, [...hiddenPhotos]);
+  for (const s of species) {
+    if (s.photos.some((p) => removed.has(p.id)) && s.photos.length > 1) {
+      s.photos = s.photos.filter((p) => !removed.has(p.id));
+    }
+  }
+}
+
 async function syncNow() {
   clearTimeout(syncTimer);
   syncTimer = null;
@@ -136,6 +180,8 @@ async function syncNow() {
     if (!load("sabirds.syncedOnce.v1", false)) Object.keys(stats).forEach((id) => dirty.add(id));
     await pushDirty();
     mergeRemote(await rpc("sync_pull", { p_key: syncCode() }));
+    await applyDecisions().catch(() => {});
+    sendReports();
     save("sabirds.syncedOnce.v1", true);
     lastSync = new Date();
     setSyncStatus(`Synced at ${lastSync.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.`);

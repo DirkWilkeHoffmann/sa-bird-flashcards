@@ -27,7 +27,8 @@ It is a Progressive Web App: no App Store needed.
   compare the two side by side. The hints use the same look-alikes.
 - **Where** in ⚙ settings: 35 named areas (Cape Town, Kruger, Okavango, Etosha…) or
   **Near me** (birds recorded within about 50 km of you).
-- **⚑** on a photo hides it (e.g. a dead bird) on all your devices.
+- **⚑** on a photo hides it (e.g. a dead bird) on all your devices and emails the owner the photo
+  with Keep / Remove buttons (`review.html`). Removed photos disappear for everyone.
 - **📊 Progress** (tap the score): each bird is New, Learning or Mastered (right 3 times in a
   row without a hint), by level and by family. Tap a family to study only those birds.
 - **Offline**: ⚙ → *Download this set for offline use* saves the chosen study set (1, 3 or all
@@ -54,6 +55,9 @@ and Mozambique south of the Zambezi.
 
 Photos prefer observations marked "alive" and skip anything marked dead or showing only a
 feather, track, bone or nest (`python3 scripts/build_data.py --photos-only` refreshes them).
+
+Flagged photos go to the `photo-review` Edge Function (`supabase/functions/photo-review`),
+which stores them in `photo_reviews` and emails the owner through Resend (secret `RESEND_API_KEY`).
 
 Progress sync uses a Supabase project (tables `progress`, `mixups`, `hidden_photos`, reachable
 only through the `sync_pull` / `sync_push` functions; sync codes are stored as SHA-256 hashes).
