@@ -3,7 +3,7 @@
 with Creative Commons photos taken in the region, taxonomy, the countries each
 bird is regularly seen in, and a difficulty level.
 
-Run from the repo root:  python3 scripts/build_data.py
+Run from the repo root:  python3 scripts/build_data.py [--photos-only]
 """
 import json
 import time
@@ -82,23 +82,50 @@ def english_name(t):
     return english[0] if english else t["name"]
 
 
+# iNaturalist annotations: "Alive or Dead" (term 17) and "Evidence of Presence" (term 22).
+ALIVE, DEAD = 18, 19
+NOT_THE_BIRD = {23, 25, 26, 27, 28, 30, 35}  # feather, scat, track, bone, molt, egg, nest only
+
+
+def usable(o):
+    values = {a.get("controlled_value_id") for a in o.get("annotations", [])}
+    return DEAD not in values and not values & NOT_THE_BIRD
+
+
 def regional_photos(taxon_id):
-    """Best-voted licensed photos from observations inside the region, one per observation."""
-    photos = []
-    for code in ("ZA", "NA,BW,ZW,LS,SZ,MZ"):
-        places = ",".join(str(COUNTRIES[c]["place_id"]) for c in code.split(","))
-        d = get("observations", taxon_id=taxon_id, place_id=places, quality_grade="research",
-                photos="true", photo_license=LICENSES, order_by="votes", per_page=30)
-        for o in d["results"]:
-            p = next((p for p in o["photos"] if p.get("license_code")), None)
-            if p and p["id"] not in {x["id"] for x in photos}:
-                base, ext = p["url"].rsplit("/", 1)[0], p["url"].rsplit(".", 1)[-1]
-                photos.append({"id": p["id"], "base": base, "ext": ext, "attr": p["attribution"]})
-            if len(photos) == PHOTOS_PER_SPECIES:
-                return photos
-        if len(photos) >= PHOTOS_PER_SPECIES // 2:
+    """Best-voted licensed photos from observations inside the region, one per observation.
+    Birds marked alive come first; anything marked dead, or only a feather/track/bone, is skipped."""
+    places = ",".join(str(c["place_id"]) for c in COUNTRIES.values())
+    common = dict(taxon_id=taxon_id, place_id=places, quality_grade="research", photos="true",
+                  photo_license=LICENSES, order_by="votes")
+    alive = get("observations", term_id=17, term_value_id=ALIVE, per_page=30, **common)["results"]
+    rest = get("observations", per_page=60, **common)["results"]
+    photos, seen = [], set()
+    for o in alive + rest:
+        if o["id"] in seen or not usable(o):
+            continue
+        seen.add(o["id"])
+        p = next((p for p in o["photos"] if p.get("license_code")), None)
+        if p:
+            base, ext = p["url"].rsplit("/", 1)[0], p["url"].rsplit(".", 1)[-1]
+            photos.append({"id": p["id"], "base": base, "ext": ext, "attr": p["attribution"]})
+        if len(photos) == PHOTOS_PER_SPECIES:
             break
     return photos
+
+
+def refresh_photos():
+    """--photos-only: re-pick photos for the existing species list, keeping everything else."""
+    species = json.loads(OUT.read_text())
+    for n, s in enumerate(species, 1):
+        photos = regional_photos(s["id"])
+        if photos:
+            s["photos"] = photos
+        if n % 50 == 0:
+            print(f"photos {n}/{len(species)}")
+            OUT.write_text(json.dumps(species, ensure_ascii=False, separators=(",", ":")))
+    OUT.write_text(json.dumps(species, ensure_ascii=False, separators=(",", ":")))
+    print(f"refreshed photos for {len(species)} species")
 
 
 def main():
@@ -172,4 +199,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    refresh_photos() if "--photos-only" in sys.argv else main()

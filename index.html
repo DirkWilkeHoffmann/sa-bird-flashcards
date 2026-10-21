@@ -28,6 +28,7 @@
     <section class="media" id="media">
       <div class="carousel" id="carousel" aria-label="Bird photos"></div>
       <div class="dots" id="dots" aria-hidden="true"></div>
+      <button class="flag" id="flag" type="button" aria-label="Hide this photo" title="Hide this photo">⚑</button>
       <div class="sound" id="sound" hidden>
         <button class="play" id="play" type="button" aria-label="Play call">▶</button>
         <p id="soundType"></p>
@@ -86,6 +87,15 @@
       </fieldset>
       <p class="count" id="setCount"></p>
       <button class="btn primary" type="submit">Done</button>
+    </form>
+  </dialog>
+
+  <dialog class="sheet compare" id="compare">
+    <form method="dialog">
+      <h2>Compare</h2>
+      <div class="compare-body" id="compareBody"></div>
+      <p class="note">Tap a photo to see another one.</p>
+      <button class="btn primary" type="submit">Close</button>
     </form>
   </dialog>
 

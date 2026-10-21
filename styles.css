@@ -285,3 +285,45 @@ body {
 .chips label:has(input:checked) { background: var(--accent); color: #1b1b1b; font-weight: 600; }
 .count { color: var(--muted); margin: 4px 0 12px; }
 .sheet .btn { width: 100%; }
+
+.flag {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  color: var(--text);
+  background: rgba(0,0,0,.45);
+  font-size: .95rem;
+  touch-action: manipulation;
+}
+
+.lookalikes { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.lookalikes button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: .8rem;
+  touch-action: manipulation;
+}
+.lookalikes img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; background: #000; }
+.lookalikes small { color: var(--muted); font-size: .68rem; }
+
+.compare { width: min(720px, 100% - 16px); padding: 14px; overflow-y: auto; }
+.compare-body { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+.compare .col { text-align: center; }
+.compare .col img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; background: #000; }
+.compare .col h3 { margin: 6px 0 0; font-size: .95rem; color: var(--accent); }
+.compare .col .sci { margin: 2px 0 6px; font-style: italic; color: var(--muted); font-size: .8rem; }
+.compare .col .small { min-height: 34px; padding: 0 12px; margin: 0 auto 6px; display: block; flex: none; font-size: .85rem; }
+.compare .col .desc { text-align: left; font-size: .8rem; line-height: 1.4; color: var(--text); opacity: .9; margin: 0; }
+.compare .note { color: var(--muted); font-size: .75rem; text-align: center; }

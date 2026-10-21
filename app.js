@@ -2,6 +2,7 @@
 
 const STATS_KEY = "sabirds.stats.v1";
 const SETTINGS_KEY = "sabirds.settings.v1";
+const HIDDEN_KEY = "sabirds.hiddenPhotos.v1";
 const COUNTRY_NAMES = {
   ZA: "South Africa", NA: "Namibia", BW: "Botswana", ZW: "Zimbabwe",
   MZ: "Mozambique", LS: "Lesotho", SZ: "Eswatini",
@@ -16,6 +17,7 @@ let settings = { mode: "mixed", levels: [], countries: [], ...load(SETTINGS_KEY,
 let queue = [];                     // upcoming cards, prefetched
 let card = null;                    // { s, kind, photos, callIndex }
 let session = { right: 0, seen: 0 };
+let hiddenPhotos = new Set(load(HIDDEN_KEY, []));  // photos reported as bad (e.g. a dead bird)
 
 function load(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
@@ -103,9 +105,9 @@ function fillQueue() {
   }
 }
 
-// Three look-alikes: same genus first, then family, then order, then anything.
+// Three look-alikes: known mix-ups first, then same genus, family, order, anything.
 function similar(target) {
-  const picked = [];
+  const picked = shuffle(target.similar.map((x) => x.s)).slice(0, 3);
   const tiers = [
     (s) => s.genus === target.genus,
     (s) => s.family === target.family,
@@ -118,6 +120,22 @@ function similar(target) {
     if (picked.length === 3) break;
   }
   return picked;
+}
+
+/* ---------- Reporting bad photos ---------- */
+
+function hidePhoto() {
+  const p = card.photos[slideIndex];
+  if (!p || card.photos.length < 2) return;
+  if (!confirm("Hide this photo? It won't be shown again.")) return;
+  hiddenPhotos.add(p.id);
+  save(HIDDEN_KEY, [...hiddenPhotos]);
+  card.s.photos = card.s.photos.filter((x) => x.id !== p.id);
+  card.photos = card.photos.filter((x) => x.id !== p.id);
+  const at = Math.min(slideIndex, card.photos.length - 1);
+  buildCarousel(card.photos);
+  carousel.scrollLeft = at * carousel.clientWidth;
+  onSlide(at);
 }
 
 /* ---------- Photo carousel with pinch zoom ---------- */
@@ -149,6 +167,7 @@ function buildCarousel(photos) {
   carousel.scrollLeft = 0;
   slideIndex = 0;
   $("dots").hidden = photos.length < 2;
+  $("flag").hidden = photos.length < 2;
   onSlide(0);
 }
 
@@ -594,6 +613,7 @@ window.renderDetails = async (s, el) => {
   const about = wiki?.intro || info?.summary;
   if (about) el.append(...section("About", para(about)));
   if (wikiSection("Description")) el.append(...section("Description", para(wikiSection("Description").text)));
+  if (s.similar.length) el.append(...section("Easily confused with", lookalikes(s)));
   if (map && info?.cells.length) {
     const note = document.createElement("p");
     note.className = "note";
@@ -619,6 +639,77 @@ window.renderDetails = async (s, el) => {
   }
   if (wiki) $("credits").textContent += " Text: Wikipedia (CC BY-SA 4.0).";
 };
+
+/* ---------- Easily confused with ---------- */
+
+function lookalikes(s) {
+  const grid = document.createElement("div");
+  grid.className = "lookalikes";
+  for (const { s: other, why } of s.similar) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = `<img alt="" loading="lazy"><span></span><small></small>`;
+    b.querySelector("img").src = photoUrl(other.photos[0], "square");
+    b.querySelector("span").textContent = other.name;
+    b.querySelector("small").textContent = why === "mixup" ? "Often mixed up" : "Close relative";
+    b.addEventListener("click", () => openCompare(s, other));
+    grid.append(b);
+  }
+  const note = document.createElement("p");
+  note.className = "note";
+  note.textContent = "Tap one to compare side by side.";
+  return [grid, note];
+}
+
+function compareColumn(s) {
+  const col = document.createElement("div");
+  col.className = "col";
+  let i = 0;
+  const img = document.createElement("img");
+  img.alt = s.name;
+  img.src = photoUrl(s.photos[0], "medium");
+  img.addEventListener("click", () => { i = (i + 1) % s.photos.length; img.src = photoUrl(s.photos[i], "medium"); });
+  const name = document.createElement("h3");
+  name.textContent = s.name;
+  const sci = document.createElement("p");
+  sci.className = "sci";
+  sci.textContent = s.sci;
+  const text = document.createElement("p");
+  text.className = "desc";
+  text.textContent = "…";
+  loadWiki(s).then((w) => {
+    const d = w?.sections.find((x) => x.h === "Description")?.text || w?.intro || "";
+    text.textContent = trimText(d, 420);
+  });
+  col.append(img, name, sci);
+  if (s.calls.length) {
+    const audio = new Audio();
+    audio.preload = "none";
+    const play = document.createElement("button");
+    play.type = "button";
+    play.className = "btn ghost small";
+    play.textContent = "▶ Call";
+    play.addEventListener("click", () => {
+      document.querySelectorAll("#compare audio, audio").forEach((a) => a !== audio && a.pause());
+      if (!audio.src) audio.src = s.calls[0].url;
+      audio.paused ? audio.play().catch(() => {}) : audio.pause();
+    });
+    audio.addEventListener("play", () => { play.textContent = "❚❚ Pause"; });
+    audio.addEventListener("pause", () => { play.textContent = "▶ Call"; });
+    col.append(audio, play);
+  }
+  col.append(text);
+  return col;
+}
+
+function openCompare(a, b) {
+  $("audio").pause();
+  const body = $("compareBody");
+  body.replaceChildren(compareColumn(a), compareColumn(b));
+  $("compare").showModal();
+}
+
+$("compare").addEventListener("close", () => $("compare").querySelectorAll("audio").forEach((a) => a.pause()));
 
 /* ---------- Settings sheet ---------- */
 
@@ -685,6 +776,7 @@ $("hint").addEventListener("click", hint);
 $("gotIt").addEventListener("click", () => { record("right"); nextCard(); });
 $("missed").addEventListener("click", () => { record("wrong"); nextCard(); });
 $("next").addEventListener("click", nextCard);
+$("flag").addEventListener("click", hidePhoto);
 
 // Keep the page itself from zooming or rubber-banding; only the carousel,
 // the info panel and the settings sheet may move.
@@ -701,9 +793,19 @@ $("filterSummary").textContent = summary();
 Promise.all([
   fetch("data/species.json").then((r) => r.json()),
   fetch("data/calls.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
+  fetch("data/similar.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
 ])
-  .then(([data, calls]) => {
-    species = data.map((s) => ({ ...s, calls: calls[s.id] || [] }));
+  .then(([data, calls, similarData]) => {
+    species = data.map((s) => {
+      const photos = s.photos.filter((p) => !hiddenPhotos.has(p.id));
+      return { ...s, photos: photos.length ? photos : s.photos, calls: calls[s.id] || [] };
+    });
+    const byId = new Map(species.map((s) => [s.id, s]));
+    for (const s of species) {
+      s.similar = (similarData[s.id] || [])
+        .filter(([id]) => byId.has(id))
+        .map(([id, why]) => ({ s: byId.get(id), why }));
+    }
     nextCard();
   })
   .catch(() => {
