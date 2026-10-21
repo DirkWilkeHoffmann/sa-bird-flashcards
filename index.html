@@ -21,7 +21,7 @@
     <button class="filters" id="openSettings" type="button" aria-label="Settings">
       <span id="filterSummary">All birds</span> <span aria-hidden="true">⚙</span>
     </button>
-    <div class="score" id="score" aria-live="polite">0 / 0</div>
+    <button class="score" id="score" type="button" aria-live="polite" aria-label="Score and progress">0 / 0 📊</button>
   </header>
 
   <main class="card" id="card">
@@ -89,6 +89,9 @@
         <legend>Seen in</legend>
         <div class="chips" id="countryChips"></div>
       </fieldset>
+      <p class="family-filter" id="familyFilter" hidden>
+        <label><input type="checkbox" id="familyOnly" checked> Only <span id="familyName"></span></label>
+      </p>
       <p class="count" id="setCount"></p>
       <button class="btn primary" type="submit">Done</button>
     </form>
@@ -103,6 +106,24 @@
     </form>
   </dialog>
 
+  <dialog class="sheet" id="progress">
+    <form method="dialog">
+      <h2>Your progress</h2>
+      <div id="progressBody"></div>
+      <h2 class="sync-title">Sync between devices</h2>
+      <p class="note">Your progress is saved online under this private code. Enter the same code on another
+        device to share progress. Keep it to yourself, like a password.</p>
+      <p class="sync-code"><code id="syncCode"></code> <button class="btn ghost small" id="copyCode" type="button">Copy</button></p>
+      <p class="sync-use">
+        <input class="select" id="otherCode" placeholder="Code from another device" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button class="btn ghost small" id="useCode" type="button">Use this code</button>
+      </p>
+      <p class="note" id="syncStatus"></p>
+      <button class="btn primary" type="submit">Close</button>
+    </form>
+  </dialog>
+
   <script src="app.js"></script>
+  <script src="progress.js"></script>
 </body>
 </html>

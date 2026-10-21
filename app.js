@@ -12,7 +12,7 @@ const PREFETCH = 3;
 const $ = (id) => document.getElementById(id);
 
 let species = [];
-let stats = load(STATS_KEY, {});   // { [speciesId]: { right, wrong, hint } }
+let stats = load(STATS_KEY, {});   // { [speciesId]: { right, wrong, hint, streak, seen, updated } }
 let settings = { mode: "mixed", levels: [], countries: [], area: "", near: null, ...load(SETTINGS_KEY, {}) };
 let areas = { areas: [], birds: {} };  // named birding areas and their bird lists
 let areaSets = {};                      // area id -> Set of bird ids
@@ -47,6 +47,7 @@ function inSet(s) {
   if (settings.levels.length && !settings.levels.includes(s.level)) return false;
   if (settings.countries.length && !s.countries.some((c) => settings.countries.includes(c))) return false;
   if (settings.mode === "call" && !s.calls.length) return false;
+  if (settings.family && s.family !== settings.family) return false;
   if (settings.area === "near" && nearSet && !nearSet.has(s.id)) return false;
   if (settings.area && settings.area !== "near" && areaSets[settings.area] && !areaSets[settings.area].has(s.id)) return false;
   return true;
@@ -59,6 +60,7 @@ function pool() {
 
 function summary() {
   const parts = [];
+  if (settings.family) parts.push(species.find((s) => s.family === settings.family)?.familyName || settings.family);
   parts.push(settings.levels.length ? settings.levels.map((l) => LEVEL_NAMES[l]).join("+") : "All levels");
   if (settings.area === "near") parts.push("Near me");
   else if (settings.area) parts.push(areas.areas.find((a) => a.id === settings.area)?.name || "");
@@ -137,6 +139,7 @@ function hidePhoto() {
   if (!confirm("Hide this photo? It won't be shown again.")) return;
   hiddenPhotos.add(p.id);
   save(HIDDEN_KEY, [...hiddenPhotos]);
+  noteHidden(p.id, card.s.id);
   card.s.photos = card.s.photos.filter((x) => x.id !== p.id);
   card.photos = card.photos.filter((x) => x.id !== p.id);
   const at = Math.min(slideIndex, card.photos.length - 1);
@@ -465,19 +468,24 @@ function whichOne(kind) {
 
 function choose(chosen, message) {
   const ok = chosen === card.s;
-  record("wrong"); // any answer that needed a hint counts as a miss
+  record("wrong", ok ? null : chosen); // any answer that needed a hint counts as a miss
   showInfo({ ok, picked: chosen.name, message });
   setPanels({ after: true });
 }
 
-function record(result) {
-  const st = stats[card.s.id] || { right: 0, wrong: 0, hint: 0 };
+// Mastered = right MASTERED_STREAK times in a row without a hint (see progress.js).
+function record(result, picked) {
+  const st = stats[card.s.id] || { right: 0, wrong: 0, hint: 0, streak: 0 };
   st[result] = (st[result] || 0) + 1;
+  st.streak = result === "right" ? (st.streak || 0) + 1 : 0;
+  st.seen = st.updated = new Date().toISOString();
   stats[card.s.id] = st;
   save(STATS_KEY, stats);
+  if (picked) noteMixup(card.s.id, picked.id);
+  markDirty(card.s.id);
   session.seen++;
   if (result === "right") session.right++;
-  $("score").textContent = `${session.right} / ${session.seen}`;
+  $("score").textContent = `${session.right} / ${session.seen} 📊`;
 }
 
 /* ---------- Info: description, range map, months ---------- */
@@ -620,7 +628,9 @@ window.renderDetails = async (s, el) => {
   const about = wiki?.intro || info?.summary;
   if (about) el.append(...section("About", para(about)));
   if (wikiSection("Description")) el.append(...section("Description", para(wikiSection("Description").text)));
-  if (s.similar.length) el.append(...section("Easily confused with", ...lookalikes(s)));
+  if (s.similar.length || Object.keys(mixups[s.id] || {}).length) {
+    el.append(...section("Easily confused with", ...lookalikes(s)));
+  }
   if (map && info?.cells.length) {
     const note = document.createElement("p");
     note.className = "note";
@@ -652,13 +662,20 @@ window.renderDetails = async (s, el) => {
 function lookalikes(s) {
   const grid = document.createElement("div");
   grid.className = "lookalikes";
-  for (const { s: other, why } of s.similar) {
+  // Birds you picked by mistake for this one come first, then the known look-alikes.
+  const mine = Object.entries((typeof mixups !== "undefined" && mixups[s.id]) || {})
+    .sort((a, b) => b[1] - a[1])
+    .map(([id, n]) => ({ s: species.find((x) => x.id === Number(id)), why: "mine", n }))
+    .filter((x) => x.s);
+  const list = [...mine, ...s.similar.filter((x) => !mine.some((m) => m.s === x.s))];
+  for (const { s: other, why, n } of list) {
     const b = document.createElement("button");
     b.type = "button";
     b.innerHTML = `<img alt="" loading="lazy"><span></span><small></small>`;
     b.querySelector("img").src = photoUrl(other.photos[0], "square");
     b.querySelector("span").textContent = other.name;
-    b.querySelector("small").textContent = why === "mixup" ? "Often mixed up" : "Close relative";
+    b.querySelector("small").textContent = why === "mine" ? `You mixed these up ${n}×`
+      : why === "mixup" ? "Often mixed up" : "Close relative";
     b.addEventListener("click", () => openCompare(s, other));
     grid.append(b);
   }
@@ -797,6 +814,9 @@ function openSettings() {
   }
   $("areaSelect").value = settings.area || "";
   pendingNear = settings.near;
+  $("familyFilter").hidden = !settings.family;
+  $("familyOnly").checked = true;
+  $("familyName").textContent = species.find((s) => s.family === settings.family)?.familyName || settings.family || "";
   updateCount();
   $("settings").showModal();
 }
@@ -806,7 +826,8 @@ function readSettings() {
   const values = (name) => [...form.elements].filter((el) => el.name === name && el.checked).map((el) => el.value);
   const area = $("areaSelect").value;
   return { mode: values("mode")[0] || "mixed", levels: values("level"), countries: values("country"),
-           area, near: area === "near" ? pendingNear : null };
+           area, near: area === "near" ? pendingNear : null,
+           family: $("familyOnly")?.checked ? settings.family : "" };
 }
 
 function updateCount() {
@@ -898,6 +919,7 @@ Promise.all([
     }
     $("filterSummary").textContent = summary();
     nextCard();
+    startSync();
   })
   .catch(() => {
     $("carousel").textContent = "Could not load bird data. Check your connection.";
