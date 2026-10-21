@@ -362,3 +362,9 @@ body {
 .sync-use { display: flex; gap: 8px; }
 .sync-use .select { flex: 1; min-width: 0; }
 .family-filter { margin: 0 0 8px; color: var(--text); }
+
+.offline-open { width: 100%; margin-bottom: 8px; }
+#offline .btn { width: 100%; margin-top: 8px; }
+#offline .small { width: auto; }
+.offline-progress { height: 10px; border-radius: 5px; background: var(--bg); overflow: hidden; }
+.offline-progress span { display: block; height: 100%; width: 0; background: var(--good); transition: width .2s; }

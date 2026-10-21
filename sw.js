@@ -1,14 +1,15 @@
 // Service worker: keeps the app and every bird photo you've seen on the phone.
 // App files: network first (so updates arrive), falling back to the cache offline.
 // Photos: cache first, so a photo is only ever downloaded once.
-const APP_CACHE = "sabirds-app-v6";
+// Offline downloads (offline.js) live in their own cache, which is never trimmed.
+const APP_CACHE = "sabirds-app-v8";
 const PHOTO_CACHE = "sabirds-photos-v1";
 const WIKI_CACHE = "sabirds-wiki-v1";
 const MAX_PHOTOS = 1500;
 let puts = 0;
 const APP_FILES = [
-  "./", "index.html", "styles.css", "app.js", "progress.js", "manifest.webmanifest",
-  "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "icons/icon-192.png",
+  "./", "index.html", "styles.css", "app.js", "progress.js", "offline.js", "manifest.webmanifest",
+  "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "data/near.json", "icons/icon-192.png",
 ];
 
 self.addEventListener("install", (e) => {
@@ -31,9 +32,9 @@ async function trimPhotos(cache) {
 }
 
 async function photo(request) {
+  const saved = await caches.match(request.url);  // offline downloads or earlier views
+  if (saved) return saved;
   const cache = await caches.open(PHOTO_CACHE);
-  const hit = await cache.match(request);
-  if (hit) return hit;
   const response = await fetch(request);
   if (response.ok || response.type === "opaque") {
     cache.put(request, response.clone()).then(() => { if (++puts % 50 === 0) trimPhotos(cache); });
@@ -58,8 +59,29 @@ async function appFile(request) {
     if (response.ok) cache.put(request, response.clone());
     return response;
   } catch {
-    return (await cache.match(request)) || Response.error();
+    return (await caches.match(request, { ignoreSearch: true })) || Response.error();
   }
+}
+
+// Downloaded calls: iPhones ask for audio in byte ranges, so answer with the requested slice.
+async function call(request) {
+  const saved = await caches.match(request.url);
+  if (!saved) return Response.error();
+  const range = request.headers.get("range");
+  if (!range) return saved;
+  const buf = await saved.arrayBuffer();
+  const m = /bytes=(\d*)-(\d*)/.exec(range) || [];
+  const start = m[1] ? Number(m[1]) : 0;
+  const end = m[2] ? Math.min(Number(m[2]), buf.byteLength - 1) : buf.byteLength - 1;
+  return new Response(buf.slice(start, end + 1), {
+    status: 206,
+    headers: {
+      "Content-Type": saved.headers.get("Content-Type") || "audio/mpeg",
+      "Content-Range": `bytes ${start}-${end}/${buf.byteLength}`,
+      "Content-Length": String(end - start + 1),
+      "Accept-Ranges": "bytes",
+    },
+  });
 }
 
 self.addEventListener("fetch", (e) => {
@@ -67,10 +89,11 @@ self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   if (url.hostname === "inaturalist-open-data.s3.amazonaws.com" || url.hostname === "static.inaturalist.org") {
     e.respondWith(photo(e.request));
+  } else if (url.origin === self.location.origin && url.pathname.includes("/offline/call-")) {
+    e.respondWith(call(e.request));
   } else if (url.hostname === "en.wikipedia.org") {
     e.respondWith(cacheFirst(WIKI_CACHE, e.request));
   } else if (url.origin === self.location.origin) {
     e.respondWith(appFile(e.request));
   }
-  // Everything else (bird calls from xeno-canto) streams straight from the network.
 });

@@ -30,6 +30,9 @@ It is a Progressive Web App: no App Store needed.
 - **⚑** on a photo hides it (e.g. a dead bird) on all your devices.
 - **📊 Progress** (tap the score): each bird is New, Learning or Mastered (right 3 times in a
   row without a hint), by level and by family. Tap a family to study only those birds.
+- **Offline**: ⚙ → *Download this set for offline use* saves the chosen study set (1, 3 or all
+  photos per bird, optionally a call, range data and Wikipedia text). Without signal the app shows
+  only downloaded birds. Delete downloads from the same screen.
 - **Sync**: progress is stored online under a private sync code (shown on the progress
   screen). Enter the same code on another device to share progress.
 
@@ -72,4 +75,5 @@ To rebuild:
 - [x] Sprint 2 — bird calls from xeno-canto, multiple-choice hints of similar birds
 - [x] Sprint 3 — regional photos, carousel and zoom, levels and countries, info screen, photo caching
 - [x] Sprint A/B/C — no dead birds, easily confused with, areas and near me, progress and sync
-- [ ] Next — full offline mode
+- [x] Offline mode — download a study set and use it without signal
+- [ ] Next — flag emails, Google login

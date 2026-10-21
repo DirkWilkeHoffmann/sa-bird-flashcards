@@ -93,6 +93,7 @@
         <label><input type="checkbox" id="familyOnly" checked> Only <span id="familyName"></span></label>
       </p>
       <p class="count" id="setCount"></p>
+      <button class="btn ghost offline-open" id="offlineOpen" type="button">⬇ Download this set for offline use</button>
       <button class="btn primary" type="submit">Done</button>
     </form>
   </dialog>
@@ -123,7 +124,32 @@
     </form>
   </dialog>
 
+  <dialog class="sheet" id="offline">
+    <form method="dialog">
+      <h2>Download for offline</h2>
+      <p class="note">Study without signal: the birds in <b id="offlineSet"></b> are saved on this phone.</p>
+      <fieldset>
+        <legend>Photos per bird</legend>
+        <div class="chips">
+          <label><input type="radio" name="photosPer" value="1"> 1</label>
+          <label><input type="radio" name="photosPer" value="3" checked> 3</label>
+          <label><input type="radio" name="photosPer" value="all"> All</label>
+        </div>
+      </fieldset>
+      <p class="family-filter"><label><input type="checkbox" id="offlineCalls" checked> Include one call per bird</label></p>
+      <p class="count" id="offlineEstimate"></p>
+      <div class="offline-progress" id="offlineProgress" hidden><span id="offlineBar"></span></div>
+      <p class="note" id="offlineStatus"></p>
+      <button class="btn primary" id="offlineStart" type="button">Download</button>
+      <button class="btn ghost" id="offlineCancel" type="button" hidden>Stop</button>
+      <p class="note" id="offlineStored"></p>
+      <button class="btn ghost small" id="offlineDelete" type="button" hidden>Delete downloaded birds</button>
+      <button class="btn primary" type="submit">Close</button>
+    </form>
+  </dialog>
+
   <script src="app.js"></script>
+  <script src="offline.js"></script>
   <script src="progress.js"></script>
 </body>
 </html>

@@ -47,6 +47,7 @@ function inSet(s) {
   if (settings.levels.length && !settings.levels.includes(s.level)) return false;
   if (settings.countries.length && !s.countries.some((c) => settings.countries.includes(c))) return false;
   if (settings.mode === "call" && !s.calls.length) return false;
+  if (typeof offlineAvailable === "function" && !offlineAvailable(s)) return false;
   if (settings.family && s.family !== settings.family) return false;
   if (settings.area === "near" && nearSet && !nearSet.has(s.id)) return false;
   if (settings.area && settings.area !== "near" && areaSets[settings.area] && !areaSets[settings.area].has(s.id)) return false;
@@ -92,14 +93,18 @@ function pickSpecies(exclude) {
 
 function makeCard(exclude) {
   const s = pickSpecies(exclude);
-  const canCall = s.calls.length > 0;
+  // Offline, a card only uses the photos and call that were downloaded.
+  const view = typeof offlineView === "function" ? offlineView(s) : null;
+  const allPhotos = view ? view.photos : s.photos;
+  const calls = view ? view.calls : s.calls;
+  const canCall = calls.length > 0;
   const kind = settings.mode === "photo" || !canCall ? "photo"
     : settings.mode === "call" ? "call"
     : Math.random() < 0.5 ? "call" : "photo";
   // Start the carousel at a random photo so repeats look different.
-  const start = Math.floor(Math.random() * s.photos.length);
-  const photos = [...s.photos.slice(start), ...s.photos.slice(0, start)];
-  const c = { s, kind, photos, callIndex: Math.floor(Math.random() * Math.max(1, s.calls.length)) };
+  const start = Math.floor(Math.random() * allPhotos.length);
+  const photos = [...allPhotos.slice(start), ...allPhotos.slice(0, start)];
+  const c = { s, kind, photos, calls, callIndex: Math.floor(Math.random() * Math.max(1, calls.length)) };
   // Warm the cache: first photo and info of each upcoming card.
   new Image().src = photoUrl(photos[0], "medium");
   loadInfo(s);
@@ -299,17 +304,17 @@ carousel.addEventListener("touchend", (e) => {
 /* ---------- Calls ---------- */
 
 function showCall() {
-  const call = card.s.calls[card.callIndex];
+  const call = card.calls[card.callIndex];
   stopAudio();
   $("sound").hidden = false;
   $("soundType").textContent = call.type;
-  $("otherCall").hidden = card.s.calls.length < 2;
+  $("otherCall").hidden = card.calls.length < 2;
   $("audio").src = call.url;
 }
 
 function playCall() {
   const audio = $("audio");
-  const url = card.s.calls[card.callIndex].url;
+  const url = card.calls[card.callIndex].url;
   if (audio.getAttribute("src") !== url) audio.src = url;
   if (audio.paused) audio.play().catch(() => {});
   else audio.pause();
@@ -336,6 +341,7 @@ function nextCard() {
   resetZoom();
   fillQueue();
   card = queue.shift();
+  card.calls ??= card.s.calls;
   fillQueue();
   $("card").classList.remove("revealed");
   $("media").style.flexBasis = "";
@@ -361,7 +367,7 @@ function showInfo(result) {
   const tags = [`<span class="level-${s.level}">${LEVEL_NAMES[s.level]}</span>`,
     ...s.countries.map((c) => `<span>${COUNTRY_NAMES[c]}</span>`)];
   $("tags").innerHTML = tags.join("");
-  $("hearCall").hidden = s.calls.length === 0;
+  $("hearCall").hidden = card.calls.length === 0;
   $("details").replaceChildren();
   if (result) {
     const p = document.createElement("p");
@@ -372,7 +378,7 @@ function showInfo(result) {
   }
   if (window.renderDetails) window.renderDetails(s, $("details"));
   const photoCredits = [...new Set(s.photos.map((p) => credit(p.attr)))].join("; ");
-  const call = s.calls[card.callIndex];
+  const call = card.calls[card.callIndex];
   $("credits").textContent = `Photos via iNaturalist: ${photoCredits}.`
     + (call ? ` Recording: ${call.attr}.` : "");
   // Learn both ways: call cards now show the photos.
@@ -867,7 +873,7 @@ $("audio").addEventListener("pause", () => {
 $("play").addEventListener("click", playCall);
 $("hearCall").addEventListener("click", playCall);
 $("otherCall").addEventListener("click", () => {
-  card.callIndex = (card.callIndex + 1) % card.s.calls.length;
+  card.callIndex = (card.callIndex + 1) % card.calls.length;
   showCall();
 });
 $("reveal").addEventListener("click", reveal);
