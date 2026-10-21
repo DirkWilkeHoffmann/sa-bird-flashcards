@@ -74,5 +74,29 @@ def main():
     print(f"wrote {len(areas)} areas")
 
 
+
+
+
+def build_near():
+    """data/near.json: for each ~0.6 degree range cell, the birds recorded there (by list index),
+    so the app can answer "what's near me" without loading every bird's info file."""
+    species = json.loads((DATA / "species.json").read_text())
+    index = {s["id"]: i for i, s in enumerate(species)}
+    cells = {}
+    for s in species:
+        own = json.loads((DATA / "info" / f"{s['id']}.json").read_text())["cells"]
+        for lat, lng, level in own:
+            # A lone square with a handful of records is usually a stray or released bird:
+            # keep a square only with 5+ records or when a neighbouring square has the bird too.
+            neighbour = any(0 < abs(lat - a) + abs(lng - b) <= 1.4 for a, b, _ in own)
+            if level >= 2 or neighbour:
+                cells.setdefault(f"{lat},{lng}", []).append(index[s["id"]])
+    order = [s["id"] for s in species]
+    (DATA / "near.json").write_text(json.dumps({"ids": order, "cells": cells}, separators=(",", ":")))
+    print(f"wrote near.json: {len(cells)} cells")
+
+
 if __name__ == "__main__":
-    main()
+    if "--near-only" not in sys.argv:
+        main()
+    build_near()

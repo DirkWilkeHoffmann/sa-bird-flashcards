@@ -1,14 +1,14 @@
 // Service worker: keeps the app and every bird photo you've seen on the phone.
 // App files: network first (so updates arrive), falling back to the cache offline.
 // Photos: cache first, so a photo is only ever downloaded once.
-const APP_CACHE = "sabirds-app-v4";
+const APP_CACHE = "sabirds-app-v5";
 const PHOTO_CACHE = "sabirds-photos-v1";
 const WIKI_CACHE = "sabirds-wiki-v1";
 const MAX_PHOTOS = 1500;
 let puts = 0;
 const APP_FILES = [
   "./", "index.html", "styles.css", "app.js", "manifest.webmanifest",
-  "data/species.json", "data/calls.json", "data/map.json", "icons/icon-192.png",
+  "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "icons/icon-192.png",
 ];
 
 self.addEventListener("install", (e) => {

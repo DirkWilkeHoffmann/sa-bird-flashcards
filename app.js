@@ -13,7 +13,10 @@ const $ = (id) => document.getElementById(id);
 
 let species = [];
 let stats = load(STATS_KEY, {});   // { [speciesId]: { right, wrong, hint } }
-let settings = { mode: "mixed", levels: [], countries: [], ...load(SETTINGS_KEY, {}) };
+let settings = { mode: "mixed", levels: [], countries: [], area: "", near: null, ...load(SETTINGS_KEY, {}) };
+let areas = { areas: [], birds: {} };  // named birding areas and their bird lists
+let areaSets = {};                      // area id -> Set of bird ids
+let nearSet = null;                     // bird ids recorded near settings.near
 let queue = [];                     // upcoming cards, prefetched
 let card = null;                    // { s, kind, photos, callIndex }
 let session = { right: 0, seen: 0 };
@@ -44,6 +47,8 @@ function inSet(s) {
   if (settings.levels.length && !settings.levels.includes(s.level)) return false;
   if (settings.countries.length && !s.countries.some((c) => settings.countries.includes(c))) return false;
   if (settings.mode === "call" && !s.calls.length) return false;
+  if (settings.area === "near" && nearSet && !nearSet.has(s.id)) return false;
+  if (settings.area && settings.area !== "near" && areaSets[settings.area] && !areaSets[settings.area].has(s.id)) return false;
   return true;
 }
 
@@ -55,6 +60,8 @@ function pool() {
 function summary() {
   const parts = [];
   parts.push(settings.levels.length ? settings.levels.map((l) => LEVEL_NAMES[l]).join("+") : "All levels");
+  if (settings.area === "near") parts.push("Near me");
+  else if (settings.area) parts.push(areas.areas.find((a) => a.id === settings.area)?.name || "");
   if (settings.countries.length) parts.push(settings.countries.join(", "));
   parts.push({ mixed: "Mixed", photo: "Photos", call: "Calls" }[settings.mode]);
   return parts.join(" · ");
@@ -711,6 +718,74 @@ function openCompare(a, b) {
 
 $("compare").addEventListener("close", () => $("compare").querySelectorAll("audio").forEach((a) => a.pause()));
 
+/* ---------- Where: named areas and near me ---------- */
+
+const NEAR_KM = 50;
+let nearData = null;
+
+function km(lat1, lng1, lat2, lng2) {
+  const r = Math.PI / 180;
+  const a = Math.sin(((lat2 - lat1) * r) / 2) ** 2
+    + Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin(((lng2 - lng1) * r) / 2) ** 2;
+  return 12742 * Math.asin(Math.sqrt(a));
+}
+
+// Birds whose range cells (~0.6 degree squares) lie within NEAR_KM of the point.
+async function computeNear(near) {
+  nearData ??= fetch("data/near.json").then((r) => r.json());
+  const { ids, cells } = await nearData;
+  const found = new Set();
+  for (const [key, list] of Object.entries(cells)) {
+    const [lat, lng] = key.split(",").map(Number);
+    if (km(near.lat, near.lng, lat, lng) <= NEAR_KM + 35) list.forEach((i) => found.add(ids[i]));
+  }
+  return found;
+}
+
+function locate() {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) { reject(new Error("no geolocation")); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      reject,
+      { enableHighAccuracy: false, timeout: 15000, maximumAge: 3600000 },
+    );
+  });
+}
+
+function fillAreaSelect() {
+  const sel = $("areaSelect");
+  sel.innerHTML = `<option value="">Anywhere</option><option value="near">📍 Near me (within ${NEAR_KM} km)</option>`;
+  for (const [code, name] of Object.entries(COUNTRY_NAMES)) {
+    const list = areas.areas.filter((a) => a.country === code);
+    if (!list.length) continue;
+    const group = document.createElement("optgroup");
+    group.label = name;
+    for (const a of list) group.append(new Option(`${a.name} (${areas.birds[a.id].length})`, a.id));
+    sel.append(group);
+  }
+}
+
+$("areaSelect").addEventListener("change", async () => {
+  if ($("areaSelect").value !== "near") return;
+  $("setCount").textContent = "Finding your location…";
+  nearPending = (async () => {
+    pendingNear = await locate();
+    nearSet = await computeNear(pendingNear);
+  })();
+  try {
+    await nearPending;
+  } catch {
+    pendingNear = null;
+    $("areaSelect").value = settings.area === "near" ? "near" : settings.area;
+    alert("Couldn't get your location. Allow location access for this app in Settings → Privacy → Location Services → Safari Websites.");
+  }
+  nearPending = null;
+  updateCount();
+});
+
+let pendingNear = null;
+
 /* ---------- Settings sheet ---------- */
 
 function openSettings() {
@@ -720,6 +795,8 @@ function openSettings() {
     if (el.name === "level") el.checked = settings.levels.includes(el.value);
     if (el.name === "country") el.checked = settings.countries.includes(el.value);
   }
+  $("areaSelect").value = settings.area || "";
+  pendingNear = settings.near;
   updateCount();
   $("settings").showModal();
 }
@@ -727,7 +804,9 @@ function openSettings() {
 function readSettings() {
   const form = $("settings").querySelector("form");
   const values = (name) => [...form.elements].filter((el) => el.name === name && el.checked).map((el) => el.value);
-  return { mode: values("mode")[0] || "mixed", levels: values("level"), countries: values("country") };
+  const area = $("areaSelect").value;
+  return { mode: values("mode")[0] || "mixed", levels: values("level"), countries: values("country"),
+           area, near: area === "near" ? pendingNear : null };
 }
 
 function updateCount() {
@@ -742,9 +821,13 @@ $("countryChips").innerHTML = Object.entries(COUNTRY_NAMES)
   .map(([code, name]) => `<label><input type="checkbox" name="country" value="${code}"> ${name}</label>`)
   .join("");
 $("settings").addEventListener("change", updateCount);
-$("settings").addEventListener("close", () => {
+let nearPending = null;  // location lookup still running when the sheet closes
+
+$("settings").addEventListener("close", async () => {
+  if (nearPending) await nearPending.catch(() => {});
   const next = readSettings();
   if (JSON.stringify(next) === JSON.stringify(settings)) return;
+  if (next.area === "near" && !next.near) next.area = "";  // location was refused
   settings = next;
   save(SETTINGS_KEY, settings);
   $("filterSummary").textContent = summary();
@@ -794,8 +877,15 @@ Promise.all([
   fetch("data/species.json").then((r) => r.json()),
   fetch("data/calls.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
   fetch("data/similar.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
+  fetch("data/areas.json").then((r) => (r.ok ? r.json() : null)).catch(() => null),
 ])
-  .then(([data, calls, similarData]) => {
+  .then(async ([data, calls, similarData, areaData]) => {
+    if (areaData) {
+      areas = areaData;
+      areaSets = Object.fromEntries(Object.entries(areas.birds).map(([id, list]) => [id, new Set(list)]));
+    }
+    if (settings.area === "near" && settings.near) nearSet = await computeNear(settings.near).catch(() => null);
+    fillAreaSelect();
     species = data.map((s) => {
       const photos = s.photos.filter((p) => !hiddenPhotos.has(p.id));
       return { ...s, photos: photos.length ? photos : s.photos, calls: calls[s.id] || [] };
@@ -806,6 +896,7 @@ Promise.all([
         .filter(([id]) => byId.has(id))
         .map(([id, why]) => ({ s: byId.get(id), why }));
     }
+    $("filterSummary").textContent = summary();
     nextCard();
   })
   .catch(() => {
