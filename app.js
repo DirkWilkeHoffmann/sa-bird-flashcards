@@ -7,7 +7,8 @@ const COUNTRY_NAMES = {
   ZA: "South Africa", NA: "Namibia", BW: "Botswana", ZW: "Zimbabwe",
   MZ: "Mozambique", LS: "Lesotho", SZ: "Eswatini",
 };
-const LEVEL_NAMES = { easy: "Easy", medium: "Medium", hard: "Hard" };
+const LEVEL_NAMES = { beginner: "Beginner", easy: "Easy", medium: "Medium", hard: "Hard" };
+const BEGINNER_COUNT = 50;  // Beginner = the 50 most-recorded birds in the chosen place
 const PREFETCH = 3;
 const $ = (id) => document.getElementById(id);
 
@@ -46,7 +47,32 @@ const photoUrl = (p, size) => `${p.base}/${size}.${p.ext}`;
 /* ---------- Study set ---------- */
 
 function inSet(s) {
-  if (settings.levels.length && !settings.levels.includes(s.level)) return false;
+  return placeOk(s) && levelOk(s);
+}
+
+function levelOk(s) {
+  if (!settings.levels.length) return true;
+  if (settings.levels.includes(s.level)) return true;
+  return settings.levels.includes("beginner") && beginnerIds().has(s.id);
+}
+
+// The most-recorded birds for the chosen place: a named area uses its own record counts,
+// anywhere else (near me, countries, everywhere) uses records across the whole region.
+let beginnerCache = { key: null, ids: new Set() };
+function beginnerIds() {
+  const key = JSON.stringify([settings.area, settings.near, settings.countries, settings.mode, settings.family, species.length]);
+  if (beginnerCache.key !== key) {
+    const byId = new Map(species.map((x) => [x.id, x]));
+    const ranked = settings.area && settings.area !== "near" && areas.birds[settings.area]
+      ? areas.birds[settings.area].map((id) => byId.get(id)).filter(Boolean)
+      : [...species].sort((x, y) => y.obs - x.obs);
+    beginnerCache = { key, ids: new Set(ranked.filter(placeOk).slice(0, BEGINNER_COUNT).map((x) => x.id)) };
+  }
+  return beginnerCache.ids;
+}
+
+// Every filter except the level.
+function placeOk(s) {
   if (settings.countries.length && !s.countries.some((c) => settings.countries.includes(c))) return false;
   if (settings.mode === "call" && !s.calls.length) return false;
   if (typeof offlineAvailable === "function" && !offlineAvailable(s)) return false;
@@ -102,6 +128,7 @@ function makeCard(exclude) {
   const canCall = calls.length > 0;
   const kind = settings.mode === "photo" || !canCall ? "photo"
     : settings.mode === "call" ? "call"
+    : callsFailing() ? "photo"
     : Math.random() < 0.5 ? "call" : "photo";
   // Start the carousel at a random photo so repeats look different.
   const start = Math.floor(Math.random() * allPhotos.length);
@@ -315,6 +342,20 @@ function showCall() {
   $("audio").src = call.url;
 }
 
+// When xeno-canto can't deliver a recording (e.g. their site is down), say so and
+// prefer photo cards for a while instead of silent call cards.
+const CALLS_RETRY_MS = 10 * 60 * 1000;
+let callsFailedAt = 0;
+const callsFailing = () => Date.now() - callsFailedAt < CALLS_RETRY_MS;
+
+function callFailed() {
+  callsFailedAt = Date.now();
+  $("soundType").textContent = "This recording won't load right now (the xeno-canto sound library may be down). Try Another recording, or tap Reveal.";
+  $("hearCall").textContent = "Call unavailable right now";
+  $("play").classList.remove("playing");
+  $("play").textContent = "▶";
+}
+
 function playCall() {
   const audio = $("audio");
   const url = card.calls[card.callIndex].url;
@@ -331,6 +372,28 @@ function stopAudio() {
 }
 
 /* ---------- Card flow ---------- */
+
+// Skip a bird without scoring it: swipe the card up, or tap Skip.
+function skipCard() {
+  const media = $("media");
+  media.classList.add("fly-up");
+  setTimeout(() => {
+    nextCard();
+    media.classList.remove("fly-up");
+  }, 220);
+}
+
+let swipe = null;
+$("media").addEventListener("touchstart", (e) => {
+  swipe = e.touches.length === 1 && zoom.scale <= 1.01 ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
+}, { passive: true });
+$("media").addEventListener("touchend", (e) => {
+  if (!swipe || e.touches.length) return;
+  const t = e.changedTouches[0];
+  const dx = t.clientX - swipe.x, dy = t.clientY - swipe.y;
+  swipe = null;
+  if (dy < -70 && Math.abs(dx) < Math.abs(dy) / 2) skipCard();
+}, { passive: true });
 
 function setPanels({ ask = false, grade = false, after = false, choices = false }) {
   $("ask").hidden = !ask;
@@ -434,7 +497,7 @@ function choiceButtons(prompt, options, label, onPick) {
   const p = document.createElement("p");
   p.className = "prompt";
   p.textContent = prompt;
-  box.append(p);
+  box.append(hintTools(), p);
   for (const o of options) {
     const b = document.createElement("button");
     b.type = "button";
@@ -443,6 +506,39 @@ function choiceButtons(prompt, options, label, onPick) {
     box.append(b);
   }
   setPanels({ choices: true });
+}
+
+// Extra clues while guessing: the call (on photo cards), a photo (on call cards) and the range.
+function hintTools() {
+  const row = document.createElement("div");
+  row.className = "hint-tools";
+  const add = (label, onClick) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = label;
+    b.addEventListener("click", onClick);
+    row.append(b);
+  };
+  if (card.kind === "photo" && card.calls.length) add("▶ Hear call", playCall);
+  if (card.kind === "call" && !$("sound").hidden) add("📷 Show photo", (e) => { $("sound").hidden = true; e.target.remove(); });
+  add("🗺 Show range", showRangeHint);
+  return row;
+}
+
+async function showRangeHint() {
+  const [info, map] = await Promise.all([loadInfo(card.s), loadMap()]);
+  const body = $("rangeHintBody");
+  body.replaceChildren();
+  if (info && map && info.cells.length) {
+    const note = document.createElement("p");
+    note.className = "note";
+    note.textContent = "Where this bird has been recorded — brighter means more records.";
+    body.append(rangeMap(map, info.cells), note);
+    if (info.months.some(Boolean)) body.append(monthChart(info.months));
+  } else {
+    body.textContent = "No range data for this bird (offline?).";
+  }
+  $("rangeHint").showModal();
 }
 
 // Step 1: guess the kind of bird until right. Distractors get harder: same family, same order, anything.
@@ -863,6 +959,10 @@ $("openSettings").addEventListener("click", openSettings);
 
 /* ---------- Wiring ---------- */
 
+$("audio").addEventListener("error", () => {
+  if ($("audio").getAttribute("src")) callFailed();
+});
+$("audio").addEventListener("playing", () => { callsFailedAt = 0; });
 $("audio").addEventListener("play", () => {
   $("play").classList.add("playing");
   $("play").textContent = "❚❚";
@@ -871,7 +971,7 @@ $("audio").addEventListener("play", () => {
 $("audio").addEventListener("pause", () => {
   $("play").classList.remove("playing");
   $("play").textContent = "▶";
-  $("hearCall").textContent = "▶ Hear call";
+  if (!$("audio").error) $("hearCall").textContent = "▶ Hear call";
 });
 $("play").addEventListener("click", playCall);
 $("hearCall").addEventListener("click", playCall);
@@ -884,6 +984,7 @@ $("hint").addEventListener("click", hint);
 $("gotIt").addEventListener("click", () => { record("right"); nextCard(); });
 $("missed").addEventListener("click", () => { record("wrong"); nextCard(); });
 $("next").addEventListener("click", nextCard);
+$("skip").addEventListener("click", skipCard);
 $("flag").addEventListener("click", hidePhoto);
 
 // Keep the page itself from zooming or rubber-banding; only the carousel,

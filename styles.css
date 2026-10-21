@@ -376,3 +376,12 @@ body {
 .account { padding: 10px 12px; margin-bottom: 14px; border-radius: 12px; background: var(--bg); }
 .account .note { margin: 0 0 8px; }
 .account .small { margin: 0; }
+
+.media { transition: transform .22s ease-in, opacity .22s ease-in; }
+.media.fly-up { transform: translateY(-110%) rotate(-4deg); opacity: 0; }
+.btn.skip { flex: 0 0 auto; padding: 0 14px; font-size: .9rem; font-weight: 500; }
+.hint-tools { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.hint-tools button { border: 0; border-radius: 999px; padding: 8px 14px; font: inherit; font-size: .85rem;
+  color: var(--text); background: var(--surface); touch-action: manipulation; }
+#rangeHint .btn { width: 100%; margin-top: 10px; }
+.level-note { color: var(--muted); font-size: .75rem; margin: -4px 0 8px; }

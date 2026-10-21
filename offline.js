@@ -152,7 +152,12 @@ async function startDownload() {
   save(OFFLINE_KEY, offlineMeta);
   $("offlineCancel").hidden = true;
   $("offlineStart").hidden = false;
-  $("offlineStatus").textContent = cancelled ? "Stopped. What was downloaded so far is kept." : "Done — this set works without signal.";
+  const wanted = withCalls ? [...plan.keys()].filter((id) => species.find((x) => x.id === id)?.calls.length).length : 0;
+  const gotCalls = [...plan.values()].filter((p) => p.call).length;
+  const callNote = wanted && gotCalls < wanted / 2
+    ? " Calls couldn't be downloaded right now (the xeno-canto sound library may be down) — download again later to add them."
+    : "";
+  $("offlineStatus").textContent = (cancelled ? "Stopped. What was downloaded so far is kept." : "Done — this set works without signal.") + callNote;
   showStorage();
 }
 

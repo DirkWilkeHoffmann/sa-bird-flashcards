@@ -62,13 +62,15 @@ def main():
         while True:
             d = get("observations/species_counts", taxon_id=3, quality_grade="research", captive="false",
                     rank="species", swlat=south, swlng=west, nelat=north, nelng=east, per_page=500, page=page)
-            found += [r["taxon"]["id"] for r in d["results"] if r["count"] >= MIN_RECORDS and r["taxon"]["id"] in ids]
+            found += [(r["count"], r["taxon"]["id"]) for r in d["results"]
+                      if r["count"] >= MIN_RECORDS and r["taxon"]["id"] in ids]
             if page * 500 >= d["total_results"]:
                 break
             page += 1
         areas.append({"id": area_id, "name": name, "country": country,
                       "center": [round((south + north) / 2, 2), round((west + east) / 2, 2)]})
-        birds[area_id] = sorted(found)
+        # Most-recorded first: the app's Beginner level takes the top of this list.
+        birds[area_id] = [tid for _, tid in sorted(found, key=lambda x: (-x[0], x[1]))]
         print(f"{name}: {len(found)} birds")
     (DATA / "areas.json").write_text(json.dumps({"areas": areas, "birds": birds}, separators=(",", ":")))
     print(f"wrote {len(areas)} areas")

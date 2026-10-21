@@ -20,6 +20,9 @@ It is a Progressive Web App: no App Store needed.
   a range map of Southern Africa, records by month and the photo/recording credits.
 - Tap the **⚙ bar** at the top to choose Mixed / Photos / Calls, Easy / Medium / Hard
   and which countries to study.
+- **Skip** a bird by swiping the card up (or the Skip button); it isn't scored.
+- While guessing with a hint you can **hear the call** or **see the range map** first.
+- Level **Beginner** = the 50 most-recorded birds in the place chosen under Where.
 - Missed birds, and birds you needed a hint for (a hint always counts as a miss), come back more often.
 - Photos you've seen are stored on the phone, so they load instantly next time.
 - **Easily confused with** on the info screen: birds people really mix up (from iNaturalist
