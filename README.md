@@ -15,13 +15,23 @@ It is a Progressive Web App: no App Store needed.
 
 - A random bird photo or call appears. Swipe sideways through all its photos; pinch or double-tap to zoom.
 - Think of the name, then tap **Reveal** and mark yourself **Got it** or **Missed it**.
-- Stuck? Tap **Hint** for four look-alike birds (same genus, then family) and pick one.
+- Stuck? Tap **Hint**: first guess what kind of bird it is (Lapwing, Weaver…), then which one.
 - After each bird you get its level, the countries it's seen in, a short description,
   a range map of Southern Africa, records by month and the photo/recording credits.
 - Tap the **⚙ bar** at the top to choose Mixed / Photos / Calls, Easy / Medium / Hard
   and which countries to study.
-- Missed birds, and birds you needed a hint for, come back more often.
+- Missed birds, and birds you needed a hint for (a hint always counts as a miss), come back more often.
 - Photos you've seen are stored on the phone, so they load instantly next time.
+- **Easily confused with** on the info screen: birds people really mix up (from iNaturalist
+  identifications), close relatives that share the range, and your own mix-ups. Tap one to
+  compare the two side by side. The hints use the same look-alikes.
+- **Where** in ⚙ settings: 35 named areas (Cape Town, Kruger, Okavango, Etosha…) or
+  **Near me** (birds recorded within about 50 km of you).
+- **⚑** on a photo hides it (e.g. a dead bird) on all your devices.
+- **📊 Progress** (tap the score): each bird is New, Learning or Mastered (right 3 times in a
+  row without a hint), by level and by family. Tap a family to study only those birds.
+- **Sync**: progress is stored online under a private sync code (shown on the progress
+  screen). Enter the same code on another device to share progress.
 
 ## Data
 
@@ -36,6 +46,15 @@ and Mozambique south of the Zambezi.
 `scripts/build_calls.py` builds `data/calls.json` from [xeno-canto](https://xeno-canto.org)
 (quality A/B, preferring Southern African recordings and MP3 files). Calls stream from xeno-canto.
 
+`scripts/build_similar.py` builds `data/similar.json` (look-alikes) and
+`scripts/build_areas.py` builds `data/areas.json` and `data/near.json` (named areas, near me).
+
+Photos prefer observations marked "alive" and skip anything marked dead or showing only a
+feather, track, bone or nest (`python3 scripts/build_data.py --photos-only` refreshes them).
+
+Progress sync uses a Supabase project (tables `progress`, `mixups`, `hidden_photos`, reachable
+only through the `sync_pull` / `sync_push` functions; sync codes are stored as SHA-256 hashes).
+
 `scripts/build_info.py` builds `data/info/` (description, range-map cells, records by month)
 and `data/map.json` (country outlines).
 
@@ -44,10 +63,13 @@ To rebuild:
     python3 scripts/build_data.py
     XC_API_KEY=your-key python3 scripts/build_calls.py --missing-only
     python3 scripts/build_info.py
+    python3 scripts/build_similar.py
+    python3 scripts/build_areas.py
 
 ## Roadmap
 
 - [x] Sprint 1 — photo flashcards, full species list, installable on iPhone
 - [x] Sprint 2 — bird calls from xeno-canto, multiple-choice hints of similar birds
 - [x] Sprint 3 — regional photos, carousel and zoom, levels and countries, info screen, photo caching
-- [ ] Next — progress screen, full offline mode
+- [x] Sprint A/B/C — no dead birds, easily confused with, areas and near me, progress and sync
+- [ ] Next — full offline mode

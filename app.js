@@ -553,14 +553,9 @@ function section(title, ...children) {
 
 const wikiCache = new Map();
 
-// Prebuilt text (data/wiki) if we have it, otherwise the phone asks Wikipedia directly.
+// The phone asks Wikipedia directly (the service worker keeps each answer).
 function loadWiki(s) {
-  if (!wikiCache.has(s.id)) {
-    wikiCache.set(s.id, fetch(`data/wiki/${s.id}.json`)
-      .then((r) => (r.ok ? r.json() : liveWiki(s)))
-      .catch(() => liveWiki(s))
-      .catch(() => null));
-  }
+  if (!wikiCache.has(s.id)) wikiCache.set(s.id, liveWiki(s).catch(() => null));
   return wikiCache.get(s.id);
 }
 
