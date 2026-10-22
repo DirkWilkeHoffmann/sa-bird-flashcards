@@ -1369,7 +1369,14 @@ function compareColumn(s) {
     audio.addEventListener("pause", () => { play.innerHTML = `${icon("play")} Call`; });
     col.append(audio, play);
   }
-  col.append(text);
+  // Where each bird has been recorded, side by side with the other's.
+  const range = document.createElement("div");
+  range.className = "cmp-range";
+  Promise.all([loadInfo(s), loadMap()]).then(([info, map]) => {
+    if (info && map && info.cells.length) range.append(rangeMap(map, info.cells));
+    else range.textContent = "No range data";
+  });
+  col.append(range, text);
   return col;
 }
 

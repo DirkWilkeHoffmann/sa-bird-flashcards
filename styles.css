@@ -913,3 +913,8 @@ body.titled .subbar { border-bottom-color: var(--separator); }
 }
 .info .snooze b { color: var(--tint); font-weight: 600; }
 .info .snooze:disabled { color: var(--label-3); }
+
+/* Compare: the two range maps side by side */
+.compare .cmp-range { margin: 0 0 10px; border-radius: var(--radius-sm); overflow: hidden; background: var(--map-bg); }
+.compare .cmp-range svg { display: block; width: 100%; height: auto; }
+.compare .cmp-range:not(:has(svg)) { padding: 10px; font-size: var(--fs-caption); color: var(--label-2); }
