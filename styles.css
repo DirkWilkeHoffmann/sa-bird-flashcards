@@ -625,6 +625,8 @@ button:disabled:active { transform: none; }
 .account { padding: 14px; margin-bottom: 18px; border-radius: var(--radius-sm); background: var(--fill); }
 .account .note { margin: 0 0 10px; color: var(--label); font-size: var(--fs-subhead); }
 .account .small { margin: 0; }
+.privacy-line { margin: 10px 0 0; font-size: var(--fs-footnote); }
+.privacy-line a { color: var(--tint); font-weight: 600; text-decoration: none; }
 .btn.google { width: 100%; color: #1f1f1f; background: #fff; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .12); }
 .btn.google span { font-weight: 800; color: #4285f4; font-size: 1.15rem; }
 .sync-title { margin-top: 22px !important; font-size: var(--fs-headline) !important; }
