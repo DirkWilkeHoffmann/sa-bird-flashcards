@@ -7,7 +7,7 @@ const OFFLINE_CACHE = IS_DEV ? "sabirds-dev-offline-v1" : "sabirds-offline-v1";
 const OFFLINE_KEY = "sabirds.offline.v1";
 const PHOTO_KB = 100, THUMB_KB = 5, CALL_KB = 550, TEXT_KB = 6; // measured averages
 const PARALLEL = 4;
-const SHELL = ["./", "index.html", "styles.css", "app.js", "progress.js", "offline.js", "auth.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
+const SHELL = ["./", "index.html", "styles.css", "motion.js", "app.js", "progress.js", "offline.js", "auth.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
   "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "data/near.json",
   "icons/icon-192.png", "icons/apple-touch-icon.png"];
 
@@ -74,7 +74,7 @@ function openOffline(list) {
   $("offlineStatus").textContent = isOffline() ? "You're offline — connect to download." : "";
   updateEstimate();
   showStorage();
-  $("offline").showModal();
+  openSheet($("offline"));
 }
 
 async function cacheUrl(cache, url, key = url) {
@@ -162,7 +162,7 @@ async function startDownload() {
 }
 
 async function deleteOffline() {
-  if (!confirm("Delete all downloaded birds from this phone?")) return;
+  if (!confirmTap($("offlineDelete"), "Tap again to delete them")) return;
   await caches.delete(OFFLINE_CACHE);
   offlineMeta = {};
   save(OFFLINE_KEY, offlineMeta);
@@ -176,7 +176,7 @@ $("offlineOpen").addEventListener("click", () => {
   settings = readSettings();
   const list = species.filter(inSet);
   settings = prev;
-  $("settings").close();
+  closeSheet($("settings"));
   openOffline(list.length ? list : species);
 });
 $("offline").addEventListener("change", updateEstimate);

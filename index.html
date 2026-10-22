@@ -62,8 +62,8 @@
     </section>
     <audio id="audio" preload="none"></audio>
     <div class="toast" id="toast" role="status" hidden>
-      <span>Bird skipped</span>
-      <button type="button" id="undoSkip"><svg class="i small"><use href="#i-undo"/></svg> Undo</button>
+      <span id="toastText">Bird skipped</span>
+      <button type="button" id="undoBtn"><svg class="i small"><use href="#i-undo"/></svg> Undo</button>
     </div>
 
     <section class="info" id="info" hidden>
@@ -94,7 +94,10 @@
 
   <dialog class="sheet" id="settings">
     <form method="dialog">
-      <h2>Study set</h2>
+      <div class="sheet-head">
+        <button class="close-x" type="submit" aria-label="Close"><svg class="i"><use href="#i-xmark"/></svg></button>
+        <h2>Study set</h2>
+      </div>
       <fieldset>
         <legend>Cards</legend>
         <div class="chips" id="modeChips">
@@ -132,29 +135,36 @@
 
   <dialog class="sheet" id="rangeHint">
     <form method="dialog">
-      <button class="close-x" type="submit" aria-label="Close"><svg class="i"><use href="#i-xmark"/></svg></button>
-      <h2>Range hint</h2>
+      <div class="sheet-head">
+        <button class="close-x" type="submit" aria-label="Close"><svg class="i"><use href="#i-xmark"/></svg></button>
+        <h2>Range hint</h2>
+      </div>
       <div id="rangeHintBody"></div>
     </form>
   </dialog>
 
   <dialog class="sheet compare" id="compare">
     <form method="dialog">
-      <h2>Compare</h2>
+      <div class="sheet-head">
+        <button class="close-x" type="submit" aria-label="Close"><svg class="i"><use href="#i-xmark"/></svg></button>
+        <h2>Compare</h2>
+      </div>
       <div class="compare-body" id="compareBody"></div>
       <p class="note">Tap a photo to see another one.</p>
-      <button class="btn primary" type="submit">Close</button>
     </form>
   </dialog>
 
   <dialog class="sheet" id="progress">
     <form method="dialog">
+      <div class="sheet-head">
+        <button class="close-x" type="submit" aria-label="Close"><svg class="i"><use href="#i-xmark"/></svg></button>
+        <h2>Your progress</h2>
+      </div>
       <div class="account" id="account">
         <p class="note" id="accountStatus"></p>
         <button class="btn google" id="signIn" type="button"><span aria-hidden="true">G</span> Sign in with Google</button>
         <button class="btn ghost small" id="signOut" type="button" hidden>Sign out</button>
       </div>
-      <h2>Your progress</h2>
       <div id="progressBody"></div>
       <h2 class="sync-title">Other devices without an account</h2>
       <details class="sync-details">
@@ -168,13 +178,15 @@
       </p>
       </details>
       <p class="note" id="syncStatus"></p>
-      <button class="btn primary" type="submit">Close</button>
     </form>
   </dialog>
 
   <dialog class="sheet" id="offline">
     <form method="dialog">
-      <h2>Download for offline</h2>
+      <div class="sheet-head">
+        <button class="close-x" type="submit" aria-label="Close"><svg class="i"><use href="#i-xmark"/></svg></button>
+        <h2>Download for offline</h2>
+      </div>
       <p class="note">Study without signal: the birds in <b id="offlineSet"></b> are saved on this phone.</p>
       <fieldset>
         <legend>Photos per bird</legend>
@@ -192,10 +204,10 @@
       <button class="btn ghost" id="offlineCancel" type="button" hidden>Stop</button>
       <p class="note" id="offlineStored"></p>
       <button class="btn ghost small" id="offlineDelete" type="button" hidden>Delete downloaded birds</button>
-      <button class="btn primary" type="submit">Close</button>
     </form>
   </dialog>
 
+  <script src="motion.js"></script>
   <script src="app.js"></script>
   <script src="offline.js"></script>
   <script src="progress.js"></script>

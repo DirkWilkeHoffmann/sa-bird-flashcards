@@ -174,17 +174,32 @@ function similar(target) {
 
 /* ---------- Reporting bad photos ---------- */
 
+// Hidden at once, with Undo; the report (email to the owner) goes out when the Undo toast goes away.
 function hidePhoto() {
   const p = card.photos[slideIndex];
   if (!p || card.photos.length < 2) return;
-  if (!confirm("Hide this photo? It won't be shown again.")) return;
+  const c = card, s = card.s;
+  const at = { s: s.photos.indexOf(p), card: c.photos.indexOf(p) };
   hiddenPhotos.add(p.id);
   save(HIDDEN_KEY, [...hiddenPhotos]);
-  noteHidden(p.id, card.s.id);
-  reportPhoto(p, card.s);
-  card.s.photos = card.s.photos.filter((x) => x.id !== p.id);
-  card.photos = card.photos.filter((x) => x.id !== p.id);
-  const at = Math.min(slideIndex, card.photos.length - 1);
+  s.photos = s.photos.filter((x) => x.id !== p.id);
+  c.photos = c.photos.filter((x) => x.id !== p.id);
+  showSlides(Math.min(slideIndex, c.photos.length - 1));
+  showToast("Photo hidden", {
+    undo: () => {
+      hiddenPhotos.delete(p.id);
+      save(HIDDEN_KEY, [...hiddenPhotos]);
+      s.photos.splice(at.s, 0, p);
+      if (card === c) {
+        c.photos.splice(at.card, 0, p);
+        showSlides(at.card);
+      }
+    },
+    commit: () => { noteHidden(p.id, s.id); reportPhoto(p, s); },
+  });
+}
+
+function showSlides(at) {
   buildCarousel(card.photos);
   carousel.scrollLeft = at * carousel.clientWidth;
   onSlide(at);
@@ -252,20 +267,52 @@ carousel.addEventListener("scroll", () => {
   if (i !== slideIndex) { resetZoom(); onSlide(i); }
 }, { passive: true });
 
-const zoom = { scale: 1, x: 0, y: 0, img: null, start: null, lastTap: 0 };
+const zoom = { scale: 1, x: 0, y: 0, img: null, start: null, lastTap: 0, track: null };
+const MAX_ZOOM = 5;
 
 function applyZoom() {
   if (zoom.img) zoom.img.style.transform = `translate(${zoom.x}px, ${zoom.y}px) scale(${zoom.scale})`;
-  carousel.classList.toggle("zoomed", zoom.scale > 1.01);
+  carousel.classList.toggle("zoomed", zoom.scale > 1.01 || Boolean(zoom.start?.dist));
 }
 
-function clampZoom() {
+// Where the photo may sit at a given zoom: edges stay on screen; smaller than the frame = centred.
+function zoomBounds(scale) {
   const w = carousel.clientWidth, h = carousel.clientHeight;
-  zoom.x = Math.min(0, Math.max(w - w * zoom.scale, zoom.x));
-  zoom.y = Math.min(0, Math.max(h - h * zoom.scale, zoom.y));
+  const bx = w - w * scale, by = h - h * scale;
+  return scale >= 1 ? { minX: bx, maxX: 0, minY: by, maxY: 0 } : { minX: bx / 2, maxX: bx / 2, minY: by / 2, maxY: by / 2 };
+}
+
+// While a finger is down, going past an edge or past full zoom stretches instead of stopping.
+function softZoom() {
+  const b = zoomBounds(zoom.scale);
+  zoom.x = soften(zoom.x, b.minX, b.maxX, carousel.clientWidth);
+  zoom.y = soften(zoom.y, b.minY, b.maxY, carousel.clientHeight);
+}
+
+// Fingers up: spring back inside the limits, carrying a pan's momentum.
+function settleZoom(velocity = { x: 0, y: 0 }) {
+  const w = carousel.clientWidth, h = carousel.clientHeight;
+  const scale = Math.min(MAX_ZOOM, Math.max(1, zoom.scale));
+  const k = scale / zoom.scale;
+  let x = w / 2 - (w / 2 - zoom.x) * k + project(velocity.x);
+  let y = h / 2 - (h / 2 - zoom.y) * k + project(velocity.y);
+  const b = zoomBounds(scale);
+  x = Math.min(b.maxX, Math.max(b.minX, x));
+  y = Math.min(b.maxY, Math.max(b.minY, y));
+  animateZoom({ scale, x, y }, velocity);
+}
+
+function animateZoom(to, velocity = {}) {
+  const img = zoom.img;
+  animate("zoom", { scale: zoom.scale, x: zoom.x, y: zoom.y }, to, {
+    velocity, response: 0.4,
+    onUpdate: (v) => { if (zoom.img === img) { Object.assign(zoom, v); applyZoom(); } },
+    onDone: () => { if (zoom.img === img && zoom.scale <= 1.01) { resetZoom(); zoom.img = img; } },
+  });
 }
 
 function resetZoom() {
+  stopAnim("zoom");
   if (zoom.img) zoom.img.style.transform = "";
   Object.assign(zoom, { scale: 1, x: 0, y: 0, img: null, start: null });
   carousel.classList.remove("zoomed");
@@ -280,6 +327,7 @@ carousel.addEventListener("touchstart", (e) => {
   const img = carousel.children[slideIndex]?.querySelector("img");
   if (!img) return;
   if (zoom.img !== img) { resetZoom(); zoom.img = img; }
+  stopAnim("zoom");  // catch a settling photo mid-flight
   const ts = [...e.touches].map(point);
   if (ts.length === 2) {
     const mid = { x: (ts[0].x + ts[1].x) / 2, y: (ts[0].y + ts[1].y) / 2 };
@@ -288,21 +336,23 @@ carousel.addEventListener("touchstart", (e) => {
     carousel.classList.add("zoomed");
   } else if (ts.length === 1) {
     const now = Date.now();
-    if (now - zoom.lastTap < 300) {           // double-tap toggles zoom
-      if (zoom.scale > 1.01) { resetZoom(); zoom.img = img; }
+    if (now - zoom.lastTap < 300) {           // double-tap zooms in on that spot, or back out
+      if (zoom.scale > 1.01) animateZoom({ scale: 1, x: 0, y: 0 });
       else {
-        zoom.scale = 2.5;
-        zoom.x = ts[0].x - ts[0].x * 2.5;
-        zoom.y = ts[0].y - ts[0].y * 2.5;
-        clampZoom();
+        const b = zoomBounds(2.5);
+        animateZoom({ scale: 2.5,
+                      x: Math.min(b.maxX, Math.max(b.minX, ts[0].x - ts[0].x * 2.5)),
+                      y: Math.min(b.maxY, Math.max(b.minY, ts[0].y - ts[0].y * 2.5)) });
       }
-      applyZoom();
+      carousel.classList.add("zoomed");
       zoom.lastTap = 0;
+      zoom.start = null;
       e.preventDefault();
       return;
     }
     zoom.lastTap = now;
     zoom.start = { pan: ts[0], x: zoom.x, y: zoom.y };
+    zoom.track = tracker();
   }
 }, { passive: false });
 
@@ -314,27 +364,34 @@ carousel.addEventListener("touchmove", (e) => {
     const dist = Math.hypot(ts[0].x - ts[1].x, ts[0].y - ts[1].y);
     const mid = { x: (ts[0].x + ts[1].x) / 2, y: (ts[0].y + ts[1].y) / 2 };
     const st = zoom.start;
-    zoom.scale = Math.min(5, Math.max(1, st.scale * dist / st.dist));
+    const raw = st.scale * dist / st.dist;
+    zoom.scale = raw > MAX_ZOOM ? MAX_ZOOM + rubberband(raw - MAX_ZOOM, 2)
+      : raw < 1 ? 1 - rubberband(1 - raw, 0.6) : raw;
     const k = zoom.scale / st.scale;
     zoom.x = mid.x - (st.mid.x - st.x) * k;
     zoom.y = mid.y - (st.mid.y - st.y) * k;
-    clampZoom();
+    softZoom();
     applyZoom();
   } else if (ts.length === 1 && zoom.scale > 1.01 && zoom.start.pan) {
     e.preventDefault();
     zoom.x = zoom.start.x + ts[0].x - zoom.start.pan.x;
     zoom.y = zoom.start.y + ts[0].y - zoom.start.pan.y;
-    clampZoom();
+    softZoom();
+    zoom.track?.add(zoom.x, zoom.y);
     applyZoom();
   }
 }, { passive: false });
 
 carousel.addEventListener("touchend", (e) => {
-  if (e.touches.length === 1 && zoom.scale > 1.01) {
+  if (e.touches.length === 1 && (zoom.scale > 1.01 || zoom.start?.dist)) {
     zoom.start = { pan: point(e.touches[0]), x: zoom.x, y: zoom.y };
+    zoom.track = tracker();
   } else if (!e.touches.length) {
+    const wasPan = zoom.start?.pan;
     zoom.start = null;
-    if (zoom.scale <= 1.01) resetZoom();
+    if (!zoom.img) return;
+    if (zoom.scale > 1.01 || zoom.scale < 0.99 || zoom.x || zoom.y) settleZoom(wasPan && zoom.track ? zoom.track.velocity() : undefined);
+    else resetZoom();
   }
 });
 
@@ -406,53 +463,134 @@ function stopAudio() {
 
 /* ---------- Card flow ---------- */
 
-// Skip a bird without scoring it: swipe the card up, or tap Skip.
+// Skip a bird without scoring it: drag the photo up and let go (or flick it), or tap Skip.
+// The card follows the finger; Undo brings the same bird back down from where it went.
 let skipped = null;
 let toastTimer = null;
+let toastActions = null;  // { undo, commit } for the toast on screen
+const cardPos = { x: 0, y: 0, r: 0, s: 1, o: 1 };
 
-function skipCard() {
-  const media = $("media");
-  skipped = card;
-  media.classList.add("fly-up");
-  setTimeout(() => {
-    nextCard();
-    media.classList.remove("fly-up");
-    showToast();
-  }, 220);
+function placeCard(v = cardPos) {
+  Object.assign(cardPos, v);
+  const m = $("media");
+  m.style.transform = cardPos.x || cardPos.y || cardPos.r || cardPos.s !== 1
+    ? `translate(${cardPos.x}px, ${cardPos.y}px) rotate(${cardPos.r}deg) scale(${cardPos.s})` : "";
+  m.style.opacity = cardPos.o === 1 ? "" : String(cardPos.o);
 }
 
-// "Bird skipped · Undo" for a few seconds (without naming the bird).
-function showToast() {
-  $("toast").hidden = false;
-  clearTimeout(toastTimer);
+// How far up the card must go to leave the screen.
+const offTop = () => -($("media").getBoundingClientRect().bottom + 40);
+
+function flyAway(velocity = { x: 0, y: -1600 }) {
+  skipped = card;
+  const r = cardPos.x / 40;
+  const gone = offTop() + 40;  // the card's bottom edge has left the screen
+  let arrived = false;
+  const next = () => {
+    if (arrived) return;
+    arrived = true;
+    stopAnim("card");
+    nextCard();
+    showToast("Bird skipped", { undo: undoSkip });
+    // The next bird rises gently from behind.
+    placeCard({ x: 0, y: 0, r: 0, s: 0.94, o: 0 });
+    animate("card", { ...cardPos }, { s: 1, o: 1 }, { response: 0.35, onUpdate: placeCard });
+  };
+  animate("card", { ...cardPos }, { x: cardPos.x + project(velocity.x) / 4, y: offTop(), r: r * 2, s: 1, o: 1 }, {
+    velocity: { x: velocity.x, y: velocity.y }, response: 0.3,
+    onUpdate: (v) => { placeCard(v); if (v.y <= gone) next(); },
+    onDone: next,
+  });
+}
+
+function skipCard() {
+  if ($("ask").hidden || anims.has("card")) return;
+  flyAway();
+}
+
+function showToast(text, actions = {}) {
+  hideToast();  // a toast already showing is settled first
+  toastActions = actions;
+  $("toastText").textContent = text;
+  $("undoBtn").hidden = !actions.undo;
+  const t = $("toast");
+  t.hidden = false;
+  animate("toast", { y: 24, o: 0 }, { y: 0, o: 1 }, {
+    response: 0.35,
+    onUpdate: ({ y, o }) => { t.style.transform = `translate(-50%, ${y}px)`; t.style.opacity = String(o); },
+  });
   toastTimer = setTimeout(hideToast, 5000);
 }
 
+// Hiding the toast without Undo makes its action final.
 function hideToast() {
-  $("toast").hidden = true;
   clearTimeout(toastTimer);
+  stopAnim("toast");
+  $("toast").hidden = true;
+  const a = toastActions;
+  toastActions = null;
+  a?.commit?.();
 }
+
+$("undoBtn").addEventListener("click", () => {
+  const a = toastActions;
+  toastActions = null;
+  hideToast();
+  a?.undo?.();
+});
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") hideToast(); });
 
 function undoSkip() {
   if (!skipped) return;
   const back = { ...skipped, tried: undefined, wantPlay: false };
   queue.unshift(back, card);  // the skipped bird again, then the one that replaced it
   skipped = null;
-  hideToast();
+  stopAnim("card");
   nextCard();
+  placeCard({ x: 0, y: offTop(), r: 0, s: 1, o: 1 });
+  animate("card", { ...cardPos }, { y: 0 }, { damping: 0.85, response: 0.4, onUpdate: placeCard });
 }
 
 let swipe = null;
 $("media").addEventListener("touchstart", (e) => {
-  swipe = e.touches.length === 1 && zoom.scale <= 1.01 ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : null;
-}, { passive: true });
-$("media").addEventListener("touchend", (e) => {
-  if (!swipe || e.touches.length) return;
-  const t = e.changedTouches[0];
-  const dx = t.clientX - swipe.x, dy = t.clientY - swipe.y;
   swipe = null;
-  if (dy < -70 && Math.abs(dx) < Math.abs(dy) / 2) skipCard();
+  if (e.touches.length !== 1 || zoom.scale > 1.01 || $("ask").hidden || anims.has("card")) return;
+  const t = e.touches[0];
+  swipe = { x: t.clientX, y: t.clientY, active: false, track: tracker() };
 }, { passive: true });
+$("media").addEventListener("touchmove", (e) => {
+  if (!swipe) return;
+  if (e.touches.length !== 1 || zoom.start?.dist) { if (swipe.active) settleCard(); swipe = null; return; }
+  const t = e.touches[0];
+  const dx = t.clientX - swipe.x, dy = t.clientY - swipe.y;
+  if (!swipe.active) {
+    if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+    if (!(dy < 0 && Math.abs(dy) > Math.abs(dx))) { swipe = null; return; }  // sideways = next photo
+    swipe.active = true;
+    swipe.x = t.clientX;
+    swipe.y = t.clientY;
+    return;
+  }
+  e.preventDefault();
+  const x = t.clientX - swipe.x, y = t.clientY - swipe.y;
+  swipe.track.add(x, y);
+  placeCard({ x, y: y < 0 ? y : rubberband(y, $("media").clientHeight), r: x / 40, s: 1, o: 1 });
+}, { passive: false });
+
+function settleCard(velocity = { x: 0, y: 0 }) {
+  animate("card", { ...cardPos }, { x: 0, y: 0, r: 0 }, { velocity, damping: 0.8, response: 0.35, onUpdate: placeCard });
+}
+
+function endSwipe() {
+  if (!swipe?.active) { swipe = null; return; }
+  const v = swipe.track.velocity();
+  swipe = null;
+  const h = $("media").clientHeight;
+  if (cardPos.y + project(v.y) < -h * 0.5 && v.y < 100) flyAway(v);
+  else settleCard(v);
+}
+$("media").addEventListener("touchend", endSwipe);
+$("media").addEventListener("touchcancel", () => { if (swipe?.active) settleCard(); swipe = null; });
 
 function setPanels({ ask = false, grade = false, after = false, choices = false }) {
   $("ask").hidden = !ask;
@@ -468,8 +606,13 @@ function nextCard() {
   card = queue.shift();
   card.calls ??= card.s.calls;
   fillQueue();
+  stopAnim("reveal");
+  stopAnim("card");
+  placeCard({ x: 0, y: 0, r: 0, s: 1, o: 1 });
   $("card").classList.remove("revealed");
   $("media").style.flexBasis = "";
+  $("info").style.transform = "";
+  $("info").style.opacity = "";
   $("info").hidden = true;
   $("info").scrollTop = 0;
   buildCarousel(card.photos);
@@ -509,16 +652,31 @@ function showInfo(result) {
   // Learn both ways: call cards now show the photos.
   $("sound").hidden = true;
   resetZoom();
+  const media = $("media"), info = $("info");
+  const wasRevealed = $("card").classList.contains("revealed");
+  const from = media.getBoundingClientRect().height;
   $("card").classList.add("revealed");
-  $("info").hidden = false;
-  $("info").scrollTop = 0; // only works once visible: always open at the name
-  $("media").style.flexBasis = "";
+  info.hidden = false;
+  info.scrollTop = 0; // only works once visible: always open at the name
+  media.style.flexBasis = "";
   recentre();
+  if (wasRevealed) return;
+  // The photo shrinks smoothly to make room, and the answer rises into the space.
+  const to = media.getBoundingClientRect().height;
+  animate("reveal", { h: from, y: 40, o: 0 }, { h: to, y: 0, o: 1 }, {
+    response: 0.45,
+    onUpdate: ({ h, y, o }) => {
+      media.style.flexBasis = `${h}px`;
+      info.style.transform = y ? `translateY(${y}px)` : "";
+      info.style.opacity = o === 1 ? "" : String(o);
+    },
+    onDone: () => { media.style.flexBasis = ""; recentre(); },
+  });
 }
 
 // Scrolling the info panel shrinks the photo, so the text and map get the whole screen.
 $("info").addEventListener("scroll", () => {
-  if (!$("card").classList.contains("revealed")) return;
+  if (!$("card").classList.contains("revealed") || anims.has("reveal")) return;
   const full = $("card").clientHeight * 0.38;
   $("media").style.flexBasis = `${Math.max(0, full - $("info").scrollTop)}px`;
 }, { passive: true });
@@ -597,7 +755,7 @@ async function showRangeHint() {
   } else {
     body.textContent = "No range data for this bird (offline?).";
   }
-  $("rangeHint").showModal();
+  openSheet($("rangeHint"));
 }
 
 // Step 1: guess the kind of bird until right. Distractors get harder: same family, same order, anything.
@@ -889,7 +1047,7 @@ function openCompare(a, b) {
   $("audio").pause();
   const body = $("compareBody");
   body.replaceChildren(compareColumn(a), compareColumn(b));
-  $("compare").showModal();
+  openSheet($("compare"));
 }
 
 $("compare").addEventListener("close", () => $("compare").querySelectorAll("audio").forEach((a) => a.pause()));
@@ -977,7 +1135,7 @@ function openSettings() {
   $("familyOnly").checked = true;
   $("familyName").textContent = species.find((s) => s.family === settings.family)?.familyName || settings.family || "";
   updateCount();
-  $("settings").showModal();
+  openSheet($("settings"));
 }
 
 function readSettings() {
@@ -1044,7 +1202,6 @@ $("gotIt").addEventListener("click", () => { record("right"); nextCard(); });
 $("missed").addEventListener("click", () => { record("wrong"); nextCard(); });
 $("next").addEventListener("click", nextCard);
 $("skip").addEventListener("click", skipCard);
-$("undoSkip").addEventListener("click", undoSkip);
 for (const id of ["reveal", "hint"]) $(id).addEventListener("click", hideToast);
 $("flag").addEventListener("click", hidePhoto);
 

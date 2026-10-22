@@ -207,9 +207,10 @@ function startSync() {
 
 async function useOtherCode() {
   const code = $("otherCode").value.trim();
-  if (code.length < 20) { alert("That code looks too short. Copy the whole code from the other device."); return; }
+  if (code.length < 20) { setSyncStatus("That code looks too short. Copy the whole code from the other device."); return; }
   if (code === syncCode()) return;
-  if (!confirm("Use this code on this phone? Progress from this phone will be added to it.")) return;
+  // Can't be undone, so ask for a second tap; this phone's progress is added to the other code.
+  if (!confirmTap($("useCode"), "Tap again to use it")) return;
   $("otherCode").value = "";
   await adoptCode(code);
 }
@@ -243,7 +244,7 @@ function row(label, list, onTap) {
 }
 
 function studyOnly(change) {
-  $("progress").close();
+  closeSheet($("progress"));
   settings = { ...settings, levels: [], family: "", ...change };
   save(SETTINGS_KEY, settings);
   $("filterSummary").textContent = summary();
@@ -264,7 +265,7 @@ function renderProgress() {
   const legend = document.createElement("p");
   legend.className = "legend";
   legend.innerHTML = `Mastered = right ${MASTERED_STREAK} times in a row without a hint.<br>
-    <i style="background:var(--good)"></i>Mastered<i style="background:var(--accent)"></i>Learning<i style="background:var(--fill-2)"></i>New`;
+    <i style="background:var(--good)"></i>Mastered<i style="background:var(--tint)"></i>Learning<i style="background:var(--fill-2)"></i>New`;
   body.append(total, legend);
 
   const h1 = document.createElement("p");
@@ -294,8 +295,7 @@ function openProgress() {
   renderProgress();
   $("syncCode").textContent = syncCode();
   setSyncStatus(lastSync ? `Synced at ${lastSync.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.` : "");
-  $("progress").showModal();
-  $("progress").querySelector("form").scrollTop = 0;
+  openSheet($("progress"));
 }
 
 $("progressBtn").addEventListener("click", openProgress);
