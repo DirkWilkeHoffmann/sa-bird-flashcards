@@ -113,6 +113,7 @@
       <fieldset>
         <legend>Level</legend>
         <div class="chips" id="levelChips">
+          <label class="path-chip"><input type="checkbox" name="level" value="path"> Learning path</label>
           <label><input type="checkbox" name="level" value="beginner"> Beginner</label>
           <label><input type="checkbox" name="level" value="easy"> Easy</label>
           <label><input type="checkbox" name="level" value="medium"> Medium</label>
@@ -130,7 +131,8 @@
       <p class="family-filter" id="familyFilter" hidden>
         <label><input type="checkbox" id="familyOnly" checked> Only <span id="familyName"></span></label>
       </p>
-      <p class="note level-note">Beginner = the 50 most often recorded birds in the place you pick under Where.</p>
+      <p class="note level-note">Learning path = start with 12 common birds; more join as you learn them, from Beginner up to Hard.
+        Beginner = the 50 most often recorded birds in the place you pick under Where.</p>
       <p class="count" id="setCount"></p>
       <button class="btn ghost offline-open" id="offlineOpen" type="button"><svg class="i"><use href="#i-download"/></svg> Download this set for offline use</button>
       <button class="btn primary" type="submit">Done</button>

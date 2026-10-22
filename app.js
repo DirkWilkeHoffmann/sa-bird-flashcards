@@ -7,7 +7,7 @@ const COUNTRY_NAMES = {
   ZA: "South Africa", NA: "Namibia", BW: "Botswana", ZW: "Zimbabwe",
   MZ: "Mozambique", LS: "Lesotho", SZ: "Eswatini",
 };
-const LEVEL_NAMES = { beginner: "Beginner", easy: "Easy", medium: "Medium", hard: "Hard" };
+const LEVEL_NAMES = { path: "Learning path", beginner: "Beginner", easy: "Easy", medium: "Medium", hard: "Hard" };
 const BEGINNER_COUNT = 50;  // Beginner = the 50 most-recorded birds in the chosen place
 const PREFETCH = 3;
 const $ = (id) => document.getElementById(id);
@@ -19,8 +19,9 @@ const storeKey = (key) => (IS_DEV ? key.replace(/^sabirds\./, "sabirds-dev.") : 
 
 let species = [];
 let stats = load(STATS_KEY, {});   // { [speciesId]: { right, wrong, hint, streak, seen, updated } }
-// First-time default: photo cards of the Beginner birds (the 50 most recorded) in South Africa.
-let settings = { mode: "photo", levels: ["beginner"], countries: ["ZA"], area: "", near: null, ...load(SETTINGS_KEY, {}) };
+// First-time default: photo cards on the learning path, for South Africa.
+let settings = { mode: "photo", levels: ["path"], countries: ["ZA"], area: "", near: null, ...load(SETTINGS_KEY, {}) };
+let lastGrowth = { added: 0 };  // what the last answer unlocked on the learning path
 let areas = { areas: [], birds: {} };  // named birding areas and their bird lists
 let areaSets = {};                      // area id -> Set of bird ids
 let nearSet = null;                     // bird ids recorded near settings.near
@@ -61,7 +62,8 @@ function inSet(s) {
 function levelOk(s) {
   if (!settings.levels.length) return true;
   if (settings.levels.includes(s.level)) return true;
-  return settings.levels.includes("beginner") && (starterActive() ? starterIds() : beginnerIds()).has(s.id);
+  if (pathActive()) return pathIds().has(s.id);
+  return settings.levels.includes("beginner") && beginnerIds().has(s.id);
 }
 
 // The most-recorded birds for the chosen place: a named area uses its own record counts,
@@ -75,41 +77,72 @@ function beginnerIds() {
       ? areas.birds[settings.area].map((id) => byId.get(id)).filter(Boolean)
       : [...species].sort((x, y) => y.obs - x.obs);
     const list = ranked.filter(placeOk).slice(0, BEGINNER_COUNT).map((x) => x.id);
-    beginnerCache = { key, list, ids: new Set(list) };
+    beginnerCache = { key, ranked, list, ids: new Set(list) };
   }
   return beginnerCache.ids;
 }
 
-// Starter group: on Beginner alone, a new player starts with the 12 most common birds.
-// When two-thirds of the group are known (right twice in a row), the next 5 join, up to all 50.
-// The group only ever grows, so a wrong answer never takes birds away.
-const STARTER_KEY = "sabirds.starterSize.v1";
-const STARTER_FIRST = 12, STARTER_STEP = 5, STARTER_KNOWN_STREAK = 2;
-let starterSize = load(STARTER_KEY, STARTER_FIRST);
+// Learning path: one growing set of birds for the chosen place, most common first, so it runs
+// Beginner -> Easy -> Medium -> Hard by itself. It starts with 12 birds; each next batch is bigger
+// (5, 10, 15, 20, ...). A batch joins when two-thirds of the latest batch are known (right twice
+// in a row) and 60% of everything unlocked is. The path only ever grows.
+const PATH_KEY = "sabirds.starterSize.v1";
+const PATH_FIRST = 12, PATH_STEP = 5, PATH_KNOWN_STREAK = 2, PATH_BATCH_SHARE = 2 / 3, PATH_ALL_SHARE = 0.6;
+const LEVEL_ORDER = { easy: 1, medium: 2, hard: 3 };
+let pathSize = load(PATH_KEY, PATH_FIRST);
 
-const starterActive = () => settings.levels.length === 1 && settings.levels[0] === "beginner" && !settings.family;
+const pathActive = () => settings.levels.includes("path") && !settings.family;
+const known = (id) => (stats[id]?.streak || 0) >= PATH_KNOWN_STREAK;
 
-function starterIds() {
+// The path in order: this place's 50 Beginner birds, then Easy, Medium and Hard, commonest first.
+let pathCache = { key: null, list: [] };
+function pathList() {
   beginnerIds();
-  return new Set(beginnerCache.list.slice(0, starterSize));
+  if (pathCache.key !== beginnerCache.key) {
+    const first = new Set(beginnerCache.list);
+    const rank = new Map(beginnerCache.ranked.map((x, i) => [x.id, i]));
+    const rest = beginnerCache.ranked.filter((x) => !first.has(x.id) && placeOk(x))
+      .sort((a, b) => (LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level]) || (rank.get(a.id) - rank.get(b.id)));
+    pathCache = { key: beginnerCache.key, list: [...beginnerCache.list, ...rest.map((x) => x.id)] };
+  }
+  return pathCache.list;
 }
 
-// Returns how many birds joined.
-function growStarter() {
-  if (!starterActive() || !species.length) return 0;
-  beginnerIds();
-  const list = beginnerCache.list;
-  const before = starterSize;
-  while (starterSize < list.length) {
-    const group = list.slice(0, starterSize);
-    const known = group.filter((id) => (stats[id]?.streak || 0) >= STARTER_KNOWN_STREAK).length;
-    if (known < Math.ceil((group.length * 2) / 3)) break;
-    starterSize = Math.min(list.length, starterSize + STARTER_STEP);
+// Where each batch starts and ends: 12, then +5, +10, +15, ...
+function pathBatch(size) {
+  let start = 0, end = PATH_FIRST, step = PATH_STEP;
+  while (end < size) { start = end; end += step; step += PATH_STEP; }
+  return { start, end, next: end + step };
+}
+
+const pathIds = () => new Set(pathList().slice(0, pathSize));
+
+// The stage the path has reached: the level of the newest bird in it.
+function pathStage(size = pathSize) {
+  const list = pathList();
+  const id = list[Math.min(size, list.length) - 1];
+  if (size <= beginnerCache.list.length) return "beginner";
+  return species.find((x) => x.id === id)?.level || "beginner";
+}
+
+// Grow the path as far as the player has earned. Returns { added, stage, levelUp }.
+function growPath() {
+  if (!pathActive() || !species.length) return { added: 0 };
+  const list = pathList();
+  const before = pathSize, stageBefore = pathStage(before);
+  while (pathSize < list.length) {
+    const { start, end, next } = pathBatch(pathSize);
+    const batch = list.slice(start, Math.min(end, pathSize, list.length));
+    const all = list.slice(0, pathSize);
+    if (batch.filter(known).length < Math.ceil(batch.length * PATH_BATCH_SHARE)) break;
+    if (all.filter(known).length < Math.ceil(all.length * PATH_ALL_SHARE)) break;
+    pathSize = Math.min(list.length, pathSize === end ? next : end);
   }
-  if (starterSize === before) return 0;
-  save(STARTER_KEY, starterSize);
+  if (pathSize === before) return { added: 0 };
+  save(PATH_KEY, pathSize);
   $("filterSummary").textContent = summary();
-  return Math.min(starterSize, list.length) - before;
+  const stage = pathStage();
+  return { added: Math.min(pathSize, list.length) - Math.min(before, list.length), stage, levelUp: stage !== stageBefore };
 }
 
 // Every filter except the level.
@@ -131,10 +164,14 @@ function pool() {
 function summary() {
   const parts = [];
   if (settings.family) parts.push(species.find((s) => s.family === settings.family)?.familyName || settings.family);
-  parts.push(settings.levels.length ? settings.levels.map((l) => LEVEL_NAMES[l]).join("+") : "All levels");
-  if (starterActive() && species.length) {
-    const total = (beginnerIds(), beginnerCache.list.length);
-    if (starterSize < total) parts.push(`${starterSize} of ${total} birds`);
+  if (pathActive()) {
+    parts.push("Learning path");
+    if (species.length) {
+      const total = pathList().length;
+      parts.push(pathSize < total ? `${LEVEL_NAMES[pathStage()]} · ${pathSize} of ${total}` : `all ${total} birds`);
+    }
+  } else {
+    parts.push(settings.levels.length ? settings.levels.map((l) => LEVEL_NAMES[l]).join("+") : "All levels");
   }
   if (settings.area === "near") parts.push("Near me");
   else if (settings.area) parts.push(areas.areas.find((a) => a.id === settings.area)?.name || "");
@@ -676,7 +713,12 @@ function grade(result) {
   record(result);
   const mastered = result === "right" && before !== "mastered" && status(card.s.id) === "mastered";
   pulseScore(result === "right");
-  if (result === "right") {
+  const levelUp = lastGrowth.levelUp ? lastGrowth.stage : null;
+  if (levelUp) {
+    haptic([12, 60, 12, 60, 12]);
+    popBadge(`⬆<small>${LEVEL_NAMES[levelUp]} birds unlocked!</small>`, "star level-up");
+    hideToast();
+  } else if (result === "right") {
     haptic(mastered ? [12, 60, 12] : 10);
     popBadge(mastered ? `★<small>Mastered</small>` : "✓", mastered ? "star" : "good");
   } else {
@@ -689,7 +731,7 @@ function grade(result) {
     $("grade").querySelectorAll("button").forEach((x) => { x.disabled = false; });
     nextCard();
     riseIn();
-  }, result === "right" ? (mastered ? 1000 : 520) : 120);
+  }, levelUp ? 1800 : result === "right" ? (mastered ? 1000 : 520) : 120);
 }
 
 // The next bird comes up gently from behind.
@@ -962,9 +1004,10 @@ function record(result, picked) {
   session.seen++;
   if (result === "right") session.right++;
   $("score").textContent = `${session.right} / ${session.seen}`;
-  const added = growStarter();
-  if (added) {
-    showToast(`${added} new birds added — ${Math.min(starterSize, beginnerCache.list.length)} of ${beginnerCache.list.length}`);
+  lastGrowth = growPath();
+  if (lastGrowth.added) {
+    const total = pathList().length;
+    showToast(`${lastGrowth.added} new birds added — ${Math.min(pathSize, total)} of ${total}`);
     queue = [];  // let the new birds come up soon
   }
 }
@@ -1336,13 +1379,22 @@ function updateCount() {
   const prev = settings;
   settings = readSettings();
   const n = species.filter(inSet).length;
+  const path = pathActive() ? pathList().length : 0;
   settings = prev;
-  $("setCount").textContent = n ? `${n} birds in this set` : "No birds match — showing all birds";
+  $("setCount").textContent = !n ? "No birds match — showing all birds"
+    : path ? `${n} of ${path} birds unlocked on your path` : `${n} birds in this set`;
 }
 
 $("countryChips").innerHTML = Object.entries(COUNTRY_NAMES)
   .map(([code, name]) => `<label><input type="checkbox" name="country" value="${code}"> ${name}</label>`)
   .join("");
+// The learning path and the fixed levels don't mix: picking one clears the other.
+$("levelChips").addEventListener("change", (e) => {
+  if (!e.target.checked) return;
+  for (const el of $("levelChips").querySelectorAll("input")) {
+    if (el !== e.target && (el.value === "path") !== (e.target.value === "path")) el.checked = false;
+  }
+});
 $("settings").addEventListener("change", updateCount);
 let nearPending = null;  // location lookup still running when the sheet closes
 
@@ -1353,7 +1405,7 @@ $("settings").addEventListener("close", async () => {
   if (next.area === "near" && !next.near) next.area = "";  // location was refused
   settings = next;
   save(SETTINGS_KEY, settings);
-  growStarter();  // a new place has its own most-common birds; catch up on those you know
+  growPath();  // a new place has its own most-common birds; catch up on those you know
   $("filterSummary").textContent = summary();
   queue = [];
   nextCard();
@@ -1430,7 +1482,7 @@ Promise.all([
         .filter(([id]) => byId.has(id))
         .map(([id, why]) => ({ s: byId.get(id), why }));
     }
-    growStarter();
+    growPath();
     $("filterSummary").textContent = summary();
     nextCard();
     startSync();

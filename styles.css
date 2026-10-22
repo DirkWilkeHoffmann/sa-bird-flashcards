@@ -862,3 +862,7 @@ body.titled .subbar { border-bottom-color: var(--separator); }
   box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
   pointer-events: none;
 }
+
+/* Learning path: the level-up badge has more to say */
+.badge.level-up { padding: 0 28px; text-align: center; }
+.badge.level-up small { font-size: var(--fs-headline); white-space: nowrap; }
