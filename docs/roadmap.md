@@ -64,18 +64,18 @@
 11. **Smaller ideas:**
     - Calls for birds that are only available offline because their photos were kept.
     - A higher daily limit than 20 flag emails if testers flag a lot.
-12. **Name and logo.** In progress (see below).
+12. **Name and logo.** Done for now: name kept, Hoopoe logo (see below).
 
-## Name and logo (in progress)
-- **Current:** "SA Birds" (home screen) / "SA Bird Flashcards" (full name). Icon: dark green
-  square with an orange sun and a bird silhouette. Dev and Tips use the same icon with a
-  red/blue band.
-- **Places a new name or logo has to change:**
-  - `index.html` (title, `apple-mobile-web-app-title`)
-  - `manifest.webmanifest` (`name`, `short_name`)
-  - the header text
+## Name and logo
+- **Name:** stays "SA Birds" (home screen) / "SA Bird Flashcards" (full name).
+- **Logo:** African Hoopoe (crest of black-tipped feathers, barred wings, curved bill) on the orange
+  sun and dark green. Source: `icons/logo.svg`. The PNGs are rendered from it, and Dev/Tips get a
+  red/blue band. The Tips icons still need updating on the `tips` branch.
+- **iPhones keep the old home-screen icon:** remove the app from the home screen and add it again
+  to see the new one. The icon links carry `?v=2` so new installs get it straight away.
+- If the name ever changes, update:
+  - `index.html` (title, `apple-mobile-web-app-title`) and the header text
+  - `manifest.webmanifest`
   - `privacy.html`
-  - the Google sign-in screen (Google Cloud → Branding → App name)
-  - icons: `icons/icon-192.png`, `icons/icon-512.png`, `icons/apple-touch-icon.png`, plus the
-    Dev/Tips versions
-  - the publishing workflow's renaming step, which matches on the current names
+  - Google Cloud → Branding → App name
+  - the publishing workflow's renaming step

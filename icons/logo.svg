@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#1b2a22"/>
+  <circle cx="256" cy="256" r="186" fill="#e0a63c"/>
+  <!-- crest: fanned feathers with black tips -->
+  <g>
+    <path d="M250 210 L188 112 L206 106 Z" fill="#c8682c"/><path d="M188 112 L198 96 L206 106 Z" fill="#1b2a22"/>
+    <path d="M258 205 L222 92 L240 90 Z" fill="#c8682c"/><path d="M222 92 L230 74 L240 90 Z" fill="#1b2a22"/>
+    <path d="M268 202 L262 84 L280 86 Z" fill="#c8682c"/><path d="M262 84 L272 66 L280 86 Z" fill="#1b2a22"/>
+    <path d="M278 204 L300 92 L316 98 Z" fill="#c8682c"/><path d="M300 92 L314 78 L316 98 Z" fill="#1b2a22"/>
+    <path d="M286 210 L334 116 L348 126 Z" fill="#c8682c"/><path d="M334 116 L350 106 L348 126 Z" fill="#1b2a22"/>
+  </g>
+  <!-- body -->
+  <path d="M190 360 C170 300 200 240 255 222 C300 210 330 240 326 285 C322 330 290 360 250 370 C225 375 202 372 190 360 Z" fill="#c8682c"/>
+  <!-- black and white barred wing -->
+  <path d="M175 365 C170 320 190 285 225 275 C245 300 245 340 230 372 Z" fill="#1b2a22"/>
+  <path d="M190 300 L232 296 M184 322 L238 320 M182 344 L236 344" stroke="#f7f4ec" stroke-width="9"/>
+  <!-- tail -->
+  <path d="M178 360 L120 420 L150 440 L205 372 Z" fill="#1b2a22"/>
+  <path d="M140 410 L168 432" stroke="#f7f4ec" stroke-width="9"/>
+  <!-- head -->
+  <circle cx="290" cy="225" r="38" fill="#c8682c"/>
+  <circle cx="300" cy="220" r="7" fill="#1b2a22"/>
+  <!-- long curved bill -->
+  <path d="M322 222 C360 228 392 250 410 282 L404 286 C386 260 356 242 320 236 Z" fill="#1b2a22"/>
+  <!-- legs -->
+  <path d="M250 368 L246 400 M268 364 L268 398" stroke="#1b2a22" stroke-width="9" stroke-linecap="round"/>
+</svg>
