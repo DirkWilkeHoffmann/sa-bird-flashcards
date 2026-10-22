@@ -897,3 +897,19 @@ body.titled .subbar { border-bottom-color: var(--separator); }
 /* Longer messages wrap on small phones instead of running off the screen. */
 .toast { width: max-content; max-width: calc(100vw - 32px); white-space: normal; line-height: 1.3; }
 .toast button { flex: none; white-space: nowrap; }
+
+/* "Seeing this bird too often? Hide it for a day" on the answer screen */
+.info .snooze {
+  display: block;
+  min-height: var(--tap);
+  margin: 4px 0 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--fs-footnote);
+  text-align: left;
+  color: var(--label-2);
+}
+.info .snooze b { color: var(--tint); font-weight: 600; }
+.info .snooze:disabled { color: var(--label-3); }
