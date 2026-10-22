@@ -19,7 +19,8 @@ const storeKey = (key) => (IS_DEV ? key.replace(/^sabirds\./, "sabirds-dev.") : 
 
 let species = [];
 let stats = load(STATS_KEY, {});   // { [speciesId]: { right, wrong, hint, streak, seen, updated } }
-let settings = { mode: "mixed", levels: [], countries: [], area: "", near: null, ...load(SETTINGS_KEY, {}) };
+// First-time default: photo cards of the Beginner birds (the 50 most recorded) in South Africa.
+let settings = { mode: "photo", levels: ["beginner"], countries: ["ZA"], area: "", near: null, ...load(SETTINGS_KEY, {}) };
 let areas = { areas: [], birds: {} };  // named birding areas and their bird lists
 let areaSets = {};                      // area id -> Set of bird ids
 let nearSet = null;                     // bird ids recorded near settings.near
@@ -98,7 +99,9 @@ function summary() {
   parts.push(settings.levels.length ? settings.levels.map((l) => LEVEL_NAMES[l]).join("+") : "All levels");
   if (settings.area === "near") parts.push("Near me");
   else if (settings.area) parts.push(areas.areas.find((a) => a.id === settings.area)?.name || "");
-  if (settings.countries.length) parts.push(settings.countries.join(", "));
+  if (settings.countries.length) {
+    parts.push(settings.countries.length === 1 ? COUNTRY_NAMES[settings.countries[0]] : settings.countries.join(", "));
+  }
   parts.push({ mixed: "Mixed", photo: "Photos", call: "Calls" }[settings.mode]);
   return parts.join(" · ");
 }
