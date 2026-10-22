@@ -7,7 +7,7 @@ const COUNTRY_NAMES = {
   ZA: "South Africa", NA: "Namibia", BW: "Botswana", ZW: "Zimbabwe",
   MZ: "Mozambique", LS: "Lesotho", SZ: "Eswatini",
 };
-const LEVEL_NAMES = { path: "Learning path", beginner: "Beginner", easy: "Easy", medium: "Medium", hard: "Hard" };
+const LEVEL_NAMES = { beginner: "Beginner", easy: "Easy", medium: "Medium", hard: "Hard" };
 const BEGINNER_COUNT = 50;  // Beginner = the 50 most-recorded birds in the chosen place
 const PREFETCH = 3;
 const $ = (id) => document.getElementById(id);
@@ -19,9 +19,11 @@ const storeKey = (key) => (IS_DEV ? key.replace(/^sabirds\./, "sabirds-dev.") : 
 
 let species = [];
 let stats = load(STATS_KEY, {});   // { [speciesId]: { right, wrong, hint, streak, seen, updated } }
-// First-time default: photo cards on the learning path, for South Africa.
-let settings = { mode: "photo", levels: ["path"], countries: ["ZA"], area: "", near: null, ...load(SETTINGS_KEY, {}) };
-let lastGrowth = { added: 0 };  // what the last answer unlocked on the learning path
+// First-time default: photo cards of the Beginner birds in South Africa.
+let settings = { mode: "photo", levels: ["beginner"], countries: ["ZA"], area: "", near: null, ...load(SETTINGS_KEY, {}) };
+// The short-lived "Learning path" level became how every level works.
+if (settings.levels.includes("path")) settings.levels = ["beginner"];
+let lastGrowth = { added: 0 };  // what the last answer unlocked
 let areas = { areas: [], birds: {} };  // named birding areas and their bird lists
 let areaSets = {};                      // area id -> Set of bird ids
 let nearSet = null;                     // bird ids recorded near settings.near
@@ -59,10 +61,15 @@ function inSet(s) {
   return placeOk(s) && levelOk(s);
 }
 
+// Within the chosen levels, only the birds unlocked so far (see "Progression" below).
 function levelOk(s) {
+  return progressive() ? pathIds().has(s.id) : levelMatch(s);
+}
+
+// The chosen levels themselves, before progression.
+function levelMatch(s) {
   if (!settings.levels.length) return true;
   if (settings.levels.includes(s.level)) return true;
-  if (pathActive()) return pathIds().has(s.id);
   return settings.levels.includes("beginner") && beginnerIds().has(s.id);
 }
 
@@ -82,28 +89,36 @@ function beginnerIds() {
   return beginnerCache.ids;
 }
 
-// Learning path: one growing set of birds for the chosen place, most common first, so it runs
-// Beginner -> Easy -> Medium -> Hard by itself. It starts with 12 birds; each next batch is bigger
-// (5, 10, 15, 20, ...). A batch joins when two-thirds of the latest batch are known (right twice
-// in a row) and 60% of everything unlocked is. The path only ever grows.
-const PATH_KEY = "sabirds.starterSize.v1";
+// Progression: whatever levels are chosen, you start with the 12 most common of those birds
+// in the chosen place, and each next batch is bigger (5, 10, 15, 20, ...), commonest first, so
+// with all levels it runs Beginner -> Easy -> Medium -> Hard. A batch joins when two-thirds of
+// the latest batch are known (right twice in a row) and 60% of everything unlocked is.
+// Each choice of levels keeps its own progress, and it only ever grows.
+const PATH_KEY = "sabirds.progression.v1";
 const PATH_FIRST = 12, PATH_STEP = 5, PATH_KNOWN_STREAK = 2, PATH_BATCH_SHARE = 2 / 3, PATH_ALL_SHARE = 0.6;
 const LEVEL_ORDER = { easy: 1, medium: 2, hard: 3 };
-let pathSize = load(PATH_KEY, PATH_FIRST);
+const pathSizes = load(PATH_KEY, {});   // { "beginner+easy": 27, "all": 62, ... }
+// Ticking every level is the same as ticking none: all birds, one shared progress.
+const pathChoice = () => (settings.levels.length >= 4 ? "all" : [...settings.levels].sort().join("+") || "all");
+const pathSizeOf = () => pathSizes[pathChoice()] ?? PATH_FIRST;
 
-const pathActive = () => settings.levels.includes("path") && !settings.family;
+// A family chosen from the progress screen is a small fixed set, studied all at once.
+const progressive = () => !settings.family;
 const known = (id) => (stats[id]?.streak || 0) >= PATH_KNOWN_STREAK;
 
-// The path in order: this place's 50 Beginner birds, then Easy, Medium and Hard, commonest first.
+// The chosen birds in order: this place's Beginner birds first, then Easy, Medium and Hard,
+// commonest first within each.
 let pathCache = { key: null, list: [] };
 function pathList() {
   beginnerIds();
-  if (pathCache.key !== beginnerCache.key) {
-    const first = new Set(beginnerCache.list);
+  const key = beginnerCache.key + pathChoice();
+  if (pathCache.key !== key) {
+    const first = beginnerCache.ids;
     const rank = new Map(beginnerCache.ranked.map((x, i) => [x.id, i]));
-    const rest = beginnerCache.ranked.filter((x) => !first.has(x.id) && placeOk(x))
-      .sort((a, b) => (LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level]) || (rank.get(a.id) - rank.get(b.id)));
-    pathCache = { key: beginnerCache.key, list: [...beginnerCache.list, ...rest.map((x) => x.id)] };
+    const list = beginnerCache.ranked.filter((x) => placeOk(x) && levelMatch(x))
+      .sort((a, b) => (first.has(b.id) - first.has(a.id)) || (LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level])
+        || (rank.get(a.id) - rank.get(b.id)));
+    pathCache = { key, list: list.map((x) => x.id) };
   }
   return pathCache.list;
 }
@@ -115,20 +130,21 @@ function pathBatch(size) {
   return { start, end, next: end + step };
 }
 
-const pathIds = () => new Set(pathList().slice(0, pathSize));
+const pathIds = () => new Set(pathList().slice(0, pathSizeOf()));
 
 // The stage the path has reached: the level of the newest bird in it.
-function pathStage(size = pathSize) {
+function pathStage(size = pathSizeOf()) {
   const list = pathList();
   const id = list[Math.min(size, list.length) - 1];
-  if (size <= beginnerCache.list.length) return "beginner";
+  if (beginnerCache.ids.has(id)) return "beginner";
   return species.find((x) => x.id === id)?.level || "beginner";
 }
 
 // Grow the path as far as the player has earned. Returns { added, stage, levelUp }.
 function growPath() {
-  if (!pathActive() || !species.length) return { added: 0 };
+  if (!progressive() || !species.length) return { added: 0 };
   const list = pathList();
+  let pathSize = pathSizeOf();
   const before = pathSize, stageBefore = pathStage(before);
   while (pathSize < list.length) {
     const { start, end, next } = pathBatch(pathSize);
@@ -139,7 +155,8 @@ function growPath() {
     pathSize = Math.min(list.length, pathSize === end ? next : end);
   }
   if (pathSize === before) return { added: 0 };
-  save(PATH_KEY, pathSize);
+  pathSizes[pathChoice()] = pathSize;
+  save(PATH_KEY, pathSizes);
   $("filterSummary").textContent = summary();
   const stage = pathStage();
   return { added: Math.min(pathSize, list.length) - Math.min(before, list.length), stage, levelUp: stage !== stageBefore };
@@ -164,14 +181,12 @@ function pool() {
 function summary() {
   const parts = [];
   if (settings.family) parts.push(species.find((s) => s.family === settings.family)?.familyName || settings.family);
-  if (pathActive()) {
-    parts.push("Learning path");
-    if (species.length) {
-      const total = pathList().length;
-      parts.push(pathSize < total ? `${LEVEL_NAMES[pathStage()]} · ${pathSize} of ${total}` : `all ${total} birds`);
-    }
-  } else {
-    parts.push(settings.levels.length ? settings.levels.map((l) => LEVEL_NAMES[l]).join("+") : "All levels");
+  parts.push(settings.levels.length ? settings.levels.map((l) => LEVEL_NAMES[l]).join("+") : "All levels");
+  if (progressive() && species.length) {
+    const total = pathList().length, size = pathSizeOf();
+    // With more than one level, say which level the new birds have reached.
+    const stage = settings.levels.length !== 1 && size < total ? `now ${LEVEL_NAMES[pathStage()]} · ` : "";
+    if (size < total) parts.push(`${stage}${size} of ${total}`);
   }
   if (settings.area === "near") parts.push("Near me");
   else if (settings.area) parts.push(areas.areas.find((a) => a.id === settings.area)?.name || "");
@@ -1007,7 +1022,7 @@ function record(result, picked) {
   lastGrowth = growPath();
   if (lastGrowth.added) {
     const total = pathList().length;
-    showToast(`${lastGrowth.added} new birds added — ${Math.min(pathSize, total)} of ${total}`);
+    showToast(`${lastGrowth.added} new birds added — ${Math.min(pathSizeOf(), total)} of ${total}`);
     queue = [];  // let the new birds come up soon
   }
 }
@@ -1379,22 +1394,15 @@ function updateCount() {
   const prev = settings;
   settings = readSettings();
   const n = species.filter(inSet).length;
-  const path = pathActive() ? pathList().length : 0;
+  const path = progressive() ? pathList().length : 0;
   settings = prev;
   $("setCount").textContent = !n ? "No birds match — showing all birds"
-    : path ? `${n} of ${path} birds unlocked on your path` : `${n} birds in this set`;
+    : path && n < path ? `${n} of ${path} birds unlocked so far` : `${n} birds in this set`;
 }
 
 $("countryChips").innerHTML = Object.entries(COUNTRY_NAMES)
   .map(([code, name]) => `<label><input type="checkbox" name="country" value="${code}"> ${name}</label>`)
   .join("");
-// The learning path and the fixed levels don't mix: picking one clears the other.
-$("levelChips").addEventListener("change", (e) => {
-  if (!e.target.checked) return;
-  for (const el of $("levelChips").querySelectorAll("input")) {
-    if (el !== e.target && (el.value === "path") !== (e.target.value === "path")) el.checked = false;
-  }
-});
 $("settings").addEventListener("change", updateCount);
 let nearPending = null;  // location lookup still running when the sheet closes
 
