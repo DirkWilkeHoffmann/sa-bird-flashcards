@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>SA Bird Flashcards</title>
   <meta name="description" content="Flashcards for learning the birds of Southern Africa">
-  <meta name="theme-color" content="#1b2a22">
+  <meta name="theme-color" content="#f2f2ec" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0d1310" media="(prefers-color-scheme: dark)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="SA Birds">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="icon" href="icons/icon-192.png">
@@ -16,21 +17,45 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- Line icons (24×24, drawn for this app), used as <svg class="i"><use href="#i-name"/></svg> -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20v-8M12 20V4M19 20v-5"/></symbol>
+      <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+      <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4M6 4h11l-2.2 4.2L17 12.5H6"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.6v12.8a.6.6 0 0 0 .9.5l10.2-6.4a.6.6 0 0 0 0-1L8.9 5.1a.6.6 0 0 0-.9.5z" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24"><rect x="7" y="5" width="3.4" height="14" rx="1" fill="currentColor" stroke="none"/><rect x="13.6" y="5" width="3.4" height="14" rx="1" fill="currentColor" stroke="none"/></symbol>
+      <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5z"/><path d="M15.5 9a4.2 4.2 0 0 1 0 6M18 6.5a7.8 7.8 0 0 1 0 11"/></symbol>
+      <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4.5 3.5 6.5v13L9 17.5l6 2 5.5-2v-13L15 6.5z"/><path d="M9 4.5v13M15 6.5v13"/></symbol>
+      <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8.5h3.2L9 6h6l1.8 2.5H20v10.5H4z"/><circle cx="12" cy="13.5" r="3.3"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M5 19.5h14"/></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s6.5-6 6.5-11.5a6.5 6.5 0 0 0-13 0C5.5 15 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></symbol>
+      <symbol id="i-xmark" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+      <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5.5M6.5 11 12 5.5l5.5 5.5"/></symbol>
+      <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></symbol>
+      <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14.5 4.5 10 9 5.5"/><path d="M4.5 10h10a5 5 0 0 1 0 10H11"/></symbol>
+      <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></symbol>
+    </defs>
+  </svg>
   <header class="bar">
     <h1>SA Birds</h1>
-    <button class="filters" id="openSettings" type="button" aria-label="Settings">
-      <span id="filterSummary">All birds</span> <span aria-hidden="true">⚙</span>
-    </button>
-    <button class="score" id="score" type="button" aria-live="polite" aria-label="Score and progress">0 / 0 📊</button>
+    <button class="icon-btn" id="progressBtn" type="button" aria-label="Your progress"><svg class="i"><use href="#i-chart"/></svg></button>
+    <button class="icon-btn" id="openSettings" type="button" aria-label="Study set"><svg class="i"><use href="#i-sliders"/></svg></button>
   </header>
+  <div class="subbar">
+    <button class="set-line" id="setLine" type="button" aria-label="Change study set">
+      <span id="filterSummary">All birds</span><svg class="i small"><use href="#i-chevron"/></svg>
+    </button>
+    <span class="score" id="score" aria-live="polite" title="Right this session">0 / 0</span>
+  </div>
 
   <main class="card" id="card">
     <section class="media" id="media">
       <div class="carousel" id="carousel" aria-label="Bird photos"></div>
       <div class="dots" id="dots" aria-hidden="true"></div>
-      <button class="flag" id="flag" type="button" aria-label="Hide this photo" title="Hide this photo">⚑</button>
+      <button class="flag" id="flag" type="button" aria-label="Hide this photo" title="Hide this photo"><svg class="i"><use href="#i-flag"/></svg></button>
       <div class="sound" id="sound" hidden>
-        <button class="play" id="play" type="button" aria-label="Play call">▶</button>
+        <button class="play" id="play" type="button" aria-label="Play call"><svg class="i"><use href="#i-play"/></svg></button>
         <p id="soundType"></p>
         <button class="other" id="otherCall" type="button">Another recording</button>
       </div>
@@ -38,7 +63,7 @@
     <audio id="audio" preload="none"></audio>
     <div class="toast" id="toast" role="status" hidden>
       <span>Bird skipped</span>
-      <button type="button" id="undoSkip">Undo</button>
+      <button type="button" id="undoSkip"><svg class="i small"><use href="#i-undo"/></svg> Undo</button>
     </div>
 
     <section class="info" id="info" hidden>
@@ -46,7 +71,7 @@
       <p class="sci" id="sci"></p>
       <p class="family" id="family"></p>
       <div class="tags" id="tags"></div>
-      <button class="btn ghost small" id="hearCall" type="button" hidden>▶ Hear call</button>
+      <button class="btn ghost small" id="hearCall" type="button" hidden><svg class="i"><use href="#i-play"/></svg> Hear call</button>
       <div id="details"></div>
       <p class="credits" id="credits"></p>
     </section>
@@ -54,8 +79,8 @@
     <div class="choices" id="choices" hidden></div>
 
     <div class="actions" id="ask">
-      <button class="btn ghost skip" id="skip" type="button" aria-label="Skip this bird">Skip ↑</button>
-      <button class="btn ghost" id="hint" type="button">Hint</button>
+      <button class="btn ghost skip" id="skip" type="button" aria-label="Skip this bird"><svg class="i"><use href="#i-arrow-up"/></svg> Skip</button>
+      <button class="btn ghost" id="hint" type="button"><svg class="i"><use href="#i-bulb"/></svg> Hint</button>
       <button class="btn primary" id="reveal" type="button">Reveal</button>
     </div>
     <div class="actions" id="grade" hidden>
@@ -100,14 +125,14 @@
       </p>
       <p class="note level-note">Beginner = the 50 most often recorded birds in the place you pick under Where.</p>
       <p class="count" id="setCount"></p>
-      <button class="btn ghost offline-open" id="offlineOpen" type="button">⬇ Download this set for offline use</button>
+      <button class="btn ghost offline-open" id="offlineOpen" type="button"><svg class="i"><use href="#i-download"/></svg> Download this set for offline use</button>
       <button class="btn primary" type="submit">Done</button>
     </form>
   </dialog>
 
   <dialog class="sheet" id="rangeHint">
     <form method="dialog">
-      <button class="close-x" type="submit" aria-label="Close">✕</button>
+      <button class="close-x" type="submit" aria-label="Close"><svg class="i"><use href="#i-xmark"/></svg></button>
       <h2>Range hint</h2>
       <div id="rangeHintBody"></div>
     </form>

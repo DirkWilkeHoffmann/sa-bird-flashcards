@@ -264,7 +264,7 @@ function renderProgress() {
   const legend = document.createElement("p");
   legend.className = "legend";
   legend.innerHTML = `Mastered = right ${MASTERED_STREAK} times in a row without a hint.<br>
-    <i style="background:var(--good)"></i>Mastered<i style="background:var(--accent)"></i>Learning<i style="background:#33463b"></i>New`;
+    <i style="background:var(--good)"></i>Mastered<i style="background:var(--accent)"></i>Learning<i style="background:var(--fill-2)"></i>New`;
   body.append(total, legend);
 
   const h1 = document.createElement("p");
@@ -298,7 +298,7 @@ function openProgress() {
   $("progress").querySelector("form").scrollTop = 0;
 }
 
-$("score").addEventListener("click", openProgress);
+$("progressBtn").addEventListener("click", openProgress);
 $("copyCode").addEventListener("click", async () => {
   try { await navigator.clipboard.writeText(syncCode()); $("copyCode").textContent = "Copied"; }
   catch { /* the code is selectable as a fallback */ }

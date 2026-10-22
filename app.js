@@ -11,6 +11,7 @@ const LEVEL_NAMES = { beginner: "Beginner", easy: "Easy", medium: "Medium", hard
 const BEGINNER_COUNT = 50;  // Beginner = the 50 most-recorded birds in the chosen place
 const PREFETCH = 3;
 const $ = (id) => document.getElementById(id);
+const icon = (name, cls = "") => `<svg class="i ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
 // The Dev build is published at …/dev/ on the same site as the main app. It keeps its own
 // saved data (progress, settings, downloads) so testing never touches the real app.
 const IS_DEV = location.pathname.includes("/dev/");
@@ -384,7 +385,7 @@ function callFailed() {
   $("soundType").textContent = "None of this bird's recordings will load right now (the sound libraries may be down). Tap Reveal to see the answer.";
   $("hearCall").textContent = "Call unavailable right now";
   $("play").classList.remove("playing");
-  $("play").textContent = "▶";
+  $("play").innerHTML = icon("play");
 }
 
 function playCall() {
@@ -573,13 +574,13 @@ function hintTools() {
   const add = (label, onClick) => {
     const b = document.createElement("button");
     b.type = "button";
-    b.textContent = label;
+    b.innerHTML = label;
     b.addEventListener("click", onClick);
     row.append(b);
   };
-  if (card.kind === "photo" && card.calls.length) add("▶ Hear call", playCall);
-  if (card.kind === "call" && !$("sound").hidden) add("📷 Show photo", (e) => { $("sound").hidden = true; e.target.remove(); });
-  add("🗺 Show range", showRangeHint);
+  if (card.kind === "photo" && card.calls.length) add(`${icon("speaker")} Hear call`, playCall);
+  if (card.kind === "call" && !$("sound").hidden) add(`${icon("camera")} Show photo`, (e) => { $("sound").hidden = true; e.currentTarget.remove(); });
+  add(`${icon("map")} Show range`, showRangeHint);
   return row;
 }
 
@@ -648,7 +649,7 @@ function record(result, picked) {
   markDirty(card.s.id);
   session.seen++;
   if (result === "right") session.right++;
-  $("score").textContent = `${session.right} / ${session.seen} 📊`;
+  $("score").textContent = `${session.right} / ${session.seen}`;
 }
 
 /* ---------- Info: description, range map, months ---------- */
@@ -870,14 +871,14 @@ function compareColumn(s) {
     const play = document.createElement("button");
     play.type = "button";
     play.className = "btn ghost small";
-    play.textContent = "▶ Call";
+    play.innerHTML = `${icon("play")} Call`;
     play.addEventListener("click", () => {
       document.querySelectorAll("#compare audio, audio").forEach((a) => a !== audio && a.pause());
       if (!audio.src) audio.src = s.calls[0].url;
       audio.paused ? audio.play().catch(() => {}) : audio.pause();
     });
-    audio.addEventListener("play", () => { play.textContent = "❚❚ Pause"; });
-    audio.addEventListener("pause", () => { play.textContent = "▶ Call"; });
+    audio.addEventListener("play", () => { play.innerHTML = `${icon("pause")} Pause`; });
+    audio.addEventListener("pause", () => { play.innerHTML = `${icon("play")} Call`; });
     col.append(audio, play);
   }
   col.append(text);
@@ -930,7 +931,7 @@ function locate() {
 
 function fillAreaSelect() {
   const sel = $("areaSelect");
-  sel.innerHTML = `<option value="">Anywhere</option><option value="near">📍 Near me (within ${NEAR_KM} km)</option>`;
+  sel.innerHTML = `<option value="">Anywhere</option><option value="near">Near me (within ${NEAR_KM} km)</option>`;
   for (const [code, name] of Object.entries(COUNTRY_NAMES)) {
     const list = areas.areas.filter((a) => a.country === code);
     if (!list.length) continue;
@@ -1014,6 +1015,7 @@ $("settings").addEventListener("close", async () => {
   nextCard();
 });
 $("openSettings").addEventListener("click", openSettings);
+$("setLine").addEventListener("click", openSettings);
 
 /* ---------- Wiring ---------- */
 
@@ -1022,13 +1024,13 @@ $("audio").addEventListener("error", () => {
 });
 $("audio").addEventListener("play", () => {
   $("play").classList.add("playing");
-  $("play").textContent = "❚❚";
-  $("hearCall").textContent = "❚❚ Pause call";
+  $("play").innerHTML = icon("pause");
+  $("hearCall").innerHTML = `${icon("pause")} Pause call`;
 });
 $("audio").addEventListener("pause", () => {
   $("play").classList.remove("playing");
-  $("play").textContent = "▶";
-  if (!$("audio").error) $("hearCall").textContent = "▶ Hear call";
+  $("play").innerHTML = icon("play");
+  if (!$("audio").error) $("hearCall").innerHTML = `${icon("play")} Hear call`;
 });
 $("play").addEventListener("click", playCall);
 $("hearCall").addEventListener("click", playCall);
@@ -1048,6 +1050,8 @@ $("flag").addEventListener("click", hidePhoto);
 
 // Keep the page itself from zooming or rubber-banding; only the carousel,
 // the info panel and the settings sheet may move.
+// iOS only shows :active (pressed) styles when the page listens for touches.
+document.addEventListener("touchstart", () => {}, { passive: true });
 document.addEventListener("gesturestart", (e) => e.preventDefault());
 document.addEventListener("touchmove", (e) => {
   if (!e.target.closest(".carousel, .info, .sheet")) e.preventDefault();

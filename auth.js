@@ -65,5 +65,5 @@ if (authClient) {
 
 $("signIn").addEventListener("click", signIn);
 $("signOut").addEventListener("click", signOut);
-$("score").addEventListener("click", renderAccount);
+$("progressBtn").addEventListener("click", renderAccount);
 renderAccount();
