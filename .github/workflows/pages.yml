@@ -1,7 +1,8 @@
 # Publishes the app to GitHub Pages:
 #   main branch -> https://dirkwilkehoffmann.github.io/sa-bird-flashcards/
 #   dev branch  -> https://dirkwilkehoffmann.github.io/sa-bird-flashcards/dev/
-# Runs on every push to either branch and always publishes both.
+# GitHub only lets main publish to Pages, so a push to dev just asks main to publish;
+# main's run always includes the latest dev branch under /dev/.
 name: Publish to GitHub Pages
 
 on:
@@ -9,18 +10,29 @@ on:
     branches: [main, dev]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  publish:
+  ask-main-to-publish:
+    if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Run this workflow on main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --repo "${{ github.repository }}" --ref main
+
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
