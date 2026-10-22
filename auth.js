@@ -38,15 +38,25 @@ async function signIn() {
   $("accountStatus").textContent = "Opening Google…";
   const { error } = await authClient.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: location.origin + location.pathname },
+    // Always let the player choose the Google account, instead of reusing the last one.
+    options: { redirectTo: location.origin + location.pathname, queryParams: { prompt: "select_account" } },
   });
   if (error) $("accountStatus").textContent = "Couldn't open Google sign-in. Please try again.";
 }
 
 async function signOut() {
+  // Make sure the account has everything before this phone starts over.
+  $("accountStatus").textContent = "Saving your progress to your account…";
+  await syncNow();
+  if (dirty.size) {
+    $("accountStatus").textContent = "Couldn't save your latest progress to your account. Connect to the internet and try again.";
+    return;
+  }
   await authClient.auth.signOut();
   account = null;
+  startFresh();
   renderAccount();
+  $("accountStatus").textContent = "Signed out. Your progress is safe in your account — sign in again to get it back.";
 }
 
 if (authClient) {

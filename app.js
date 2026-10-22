@@ -30,9 +30,9 @@ let nearSet = null;                     // bird ids recorded near settings.near
 let queue = [];                     // upcoming cards, prefetched
 let card = null;                    // { s, kind, photos, callIndex }
 let session = { right: 0, seen: 0 };
-let hiddenPhotos = new Set(load(HIDDEN_KEY, []));
+let hiddenPhotos = new Set(load(HIDDEN_KEY, []));  // photos reported as bad (e.g. a dead bird)
 const SEEN_KEY = "sabirds.seenBirds.v1";
-let seenBirds = new Set(load(SEEN_KEY, []));      // birds already shown on this phone (for the NEW tag)  // photos reported as bad (e.g. a dead bird)
+let seenBirds = new Set(load(SEEN_KEY, []));      // birds already shown on this phone (for the NEW tag)
 // The owner's final say on flagged photos (from the review emails), kept for offline use.
 let photoDecisions = load("sabirds.photoDecisions.v1", { removed: [], kept: [] });
 
@@ -91,11 +91,13 @@ function beginnerIds() {
 
 // Progression: whatever levels are chosen, you start with the 12 most common of those birds
 // in the chosen place, and each next batch is bigger (5, 10, 15, 20, ...), commonest first, so
-// with all levels it runs Beginner -> Easy -> Medium -> Hard. A batch joins when two-thirds of
-// the latest batch are known (right twice in a row) and 60% of everything unlocked is.
-// Each choice of levels keeps its own progress, and it only ever grows.
+// with all levels it runs Beginner -> Easy -> Medium -> Hard. The next batch joins once 40% of
+// the birds in play are mastered (right 3 times in a row). When every bird of the chosen levels
+// is in play, the next level up is ticked automatically. Each choice of levels keeps its own
+// progress, and it only ever grows.
 const PATH_KEY = "sabirds.progression.v1";
-const PATH_FIRST = 12, PATH_STEP = 5, PATH_KNOWN_STREAK = 2, PATH_BATCH_SHARE = 2 / 3, PATH_ALL_SHARE = 0.6;
+const PATH_FIRST = 12, PATH_STEP = 5, PATH_MASTERED_SHARE = 0.4;
+const LEVEL_STEPS = ["beginner", "easy", "medium", "hard"];
 const LEVEL_ORDER = { easy: 1, medium: 2, hard: 3 };
 const pathSizes = load(PATH_KEY, {});   // { "beginner+easy": 27, "all": 62, ... }
 // Ticking every level is the same as ticking none: all birds, one shared progress.
@@ -104,7 +106,15 @@ const pathSizeOf = () => pathSizes[pathChoice()] ?? PATH_FIRST;
 
 // A family chosen from the progress screen is a small fixed set, studied all at once.
 const progressive = () => !settings.family;
-const known = (id) => (stats[id]?.streak || 0) >= PATH_KNOWN_STREAK;
+const mastered = (id) => (stats[id]?.streak || 0) >= MASTERED_STREAK;
+
+// The level after the highest one chosen (none when all levels, or Hard, are chosen).
+function nextLevel() {
+  if (!settings.levels.length) return null;
+  const top = Math.max(...settings.levels.map((l) => LEVEL_STEPS.indexOf(l)));
+  const up = LEVEL_STEPS[top + 1];
+  return up && !settings.levels.includes(up) ? up : null;
+}
 
 // The chosen birds in order: this place's Beginner birds first, then Easy, Medium and Hard,
 // commonest first within each.
@@ -140,26 +150,39 @@ function pathStage(size = pathSizeOf()) {
   return species.find((x) => x.id === id)?.level || "beginner";
 }
 
-// Grow the path as far as the player has earned. Returns { added, stage, levelUp }.
-function growPath() {
+// Grow the set as far as the player has earned: after an answer one step at a time ({ once }),
+// otherwise (starting up, a new place or levels) catching up in one go. Only answers move up a
+// level ({ levelUp }), so unticking a level in the settings isn't undone straight away.
+// Returns { added, stage, levelUp, levelAdded }.
+function growPath({ once = false, levelUp = false } = {}) {
   if (!progressive() || !species.length) return { added: 0 };
-  const list = pathList();
-  let pathSize = pathSizeOf();
-  const before = pathSize, stageBefore = pathStage(before);
-  while (pathSize < list.length) {
-    const { start, end, next } = pathBatch(pathSize);
-    const batch = list.slice(start, Math.min(end, pathSize, list.length));
-    const all = list.slice(0, pathSize);
-    if (batch.filter(known).length < Math.ceil(batch.length * PATH_BATCH_SHARE)) break;
-    if (all.filter(known).length < Math.ceil(all.length * PATH_ALL_SHARE)) break;
-    pathSize = Math.min(list.length, pathSize === end ? next : end);
+  const stageBefore = pathStage();
+  let added = 0, levelAdded = null;
+  for (;;) {
+    const list = pathList(), size = pathSizeOf();
+    const inPlay = list.slice(0, size);
+    if (inPlay.filter(mastered).length < Math.ceil(inPlay.length * PATH_MASTERED_SHARE)) break;
+    if (size < list.length) {
+      const { end, next } = pathBatch(size);
+      const grown = Math.min(list.length, size === end ? next : end);
+      added += grown - size;
+      pathSizes[pathChoice()] = grown;
+      if (once) break;
+      continue;
+    }
+    // Every bird of these levels is in play: tick the next level, keeping the progress made.
+    const up = levelUp && !levelAdded && nextLevel();
+    if (!up) break;
+    settings = { ...settings, levels: [...settings.levels, up] };
+    save(SETTINGS_KEY, settings);
+    levelAdded = up;
+    pathSizes[pathChoice()] = Math.max(pathSizes[pathChoice()] ?? 0, size);
   }
-  if (pathSize === before) return { added: 0 };
-  pathSizes[pathChoice()] = pathSize;
+  if (!added && !levelAdded) return { added: 0 };
   save(PATH_KEY, pathSizes);
   $("filterSummary").textContent = summary();
-  const stage = pathStage();
-  return { added: Math.min(pathSize, list.length) - Math.min(before, list.length), stage, levelUp: stage !== stageBefore };
+  const stage = levelAdded || pathStage();
+  return { added, stage, levelAdded, levelUp: Boolean(levelAdded) || stage !== stageBefore };
 }
 
 // Every filter except the level.
@@ -731,8 +754,8 @@ function grade(result) {
   const levelUp = lastGrowth.levelUp ? lastGrowth.stage : null;
   if (levelUp) {
     haptic([12, 60, 12, 60, 12]);
-    popBadge(`⬆<small>${LEVEL_NAMES[levelUp]} birds unlocked!</small>`, "star level-up");
-    hideToast();
+    popBadge(`⬆<small>${LEVEL_NAMES[levelUp]} birds ${lastGrowth.levelAdded ? "added" : "unlocked"}!</small>`, "star level-up");
+    if (!lastGrowth.levelAdded) hideToast();  // keep the "now ticked too" explanation
   } else if (result === "right") {
     haptic(mastered ? [12, 60, 12] : 10);
     popBadge(mastered ? `★<small>Mastered</small>` : "✓", mastered ? "star" : "good");
@@ -1019,8 +1042,11 @@ function record(result, picked) {
   session.seen++;
   if (result === "right") session.right++;
   $("score").textContent = `${session.right} / ${session.seen}`;
-  lastGrowth = growPath();
-  if (lastGrowth.added) {
+  lastGrowth = growPath({ once: true, levelUp: true });
+  if (lastGrowth.levelAdded) {
+    showToast(`You know these birds well — ${LEVEL_NAMES[lastGrowth.levelAdded]} is now ticked too`);
+    queue = [];
+  } else if (lastGrowth.added) {
     const total = pathList().length;
     showToast(`${lastGrowth.added} new birds added — ${Math.min(pathSizeOf(), total)} of ${total}`);
     queue = [];  // let the new birds come up soon

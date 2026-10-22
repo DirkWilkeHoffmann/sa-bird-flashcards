@@ -180,6 +180,7 @@ async function syncNow() {
     if (!load("sabirds.syncedOnce.v1", false)) Object.keys(stats).forEach((id) => dirty.add(id));
     await pushDirty();
     mergeRemote(await rpc("sync_pull", { p_key: syncCode() }));
+    if (growPath().added) queue = [];  // progress from another device unlocks birds here too
     await applyDecisions().catch(() => {});
     sendReports();
     save("sabirds.syncedOnce.v1", true);
@@ -213,6 +214,30 @@ async function useOtherCode() {
   if (!confirmTap($("useCode"), "Tap again to use it")) return;
   $("otherCode").value = "";
   await adoptCode(code);
+}
+
+// After signing out, this phone starts over under a new private code. The account keeps
+// everything it learned and brings it back on the next sign-in, so a different account
+// starts clean instead of sharing the first one's progress.
+function startFresh() {
+  stats = {};
+  save(STATS_KEY, stats);
+  mixups = {};
+  save(MIXUPS_KEY, mixups);
+  dirty.clear();
+  save("sabirds.dirty.v1", []);
+  try { localStorage.removeItem(storeKey(SYNC_CODE_KEY)); } catch { /* private mode */ }
+  save("sabirds.syncedOnce.v1", false);
+  seenBirds = new Set();
+  save(SEEN_KEY, []);
+  for (const k of Object.keys(pathSizes)) delete pathSizes[k];
+  save(PATH_KEY, pathSizes);
+  session = { right: 0, seen: 0 };
+  $("score").textContent = "0 / 0";
+  $("filterSummary").textContent = summary();
+  queue = [];
+  nextCard();
+  if ($("progress").open) renderProgress();
 }
 
 // Switch this phone to another sync code, keeping what it has learned (it is sent under the new code).
