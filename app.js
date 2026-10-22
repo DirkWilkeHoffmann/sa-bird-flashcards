@@ -1204,7 +1204,7 @@ function lookalikes(s) {
   const note = document.createElement("p");
   note.className = "note";
   note.textContent = "Tap one to compare side by side.";
-  return [grid, note];
+  return [grid, note, tellApart(s, list.map((x) => x.s))];
 }
 
 // A bird's photos side by side: swipe through them, or tap for the next one.
@@ -1277,6 +1277,7 @@ function openCompare(a, b) {
   $("audio").pause();
   const body = $("compareBody");
   body.replaceChildren(compareColumn(a), compareColumn(b));
+  compareTips(a, b);
   openSheet($("compare"));
 }
 

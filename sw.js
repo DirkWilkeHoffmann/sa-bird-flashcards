@@ -5,13 +5,13 @@
 // Test builds (…/dev/, …/tips/) share this site with the main app, so their caches get their own names.
 const ENV = /\/(dev|tips)\//.exec(self.registration.scope)?.[1] || "";
 const PREFIX = ENV ? `sabirds-${ENV}-` : "sabirds-";
-const APP_CACHE = `${PREFIX}app-v19`;
+const APP_CACHE = `${PREFIX}app-v20`;
 const PHOTO_CACHE = `${PREFIX}photos-v1`;
 const WIKI_CACHE = `${PREFIX}wiki-v1`;
 const INFO_CACHE = `${PREFIX}info-v1`;  // each bird's range/months file, kept across app updates
 const APP_FILES = [
-  "./", "index.html", "styles.css", "motion.js", "app.js", "progress.js", "offline.js", "auth.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
-  "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "data/near.json", "icons/icon-192.png",
+  "./", "index.html", "styles.css", "motion.js", "app.js", "progress.js", "tips.js", "offline.js", "auth.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
+  "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "data/near.json", "data/tips.json", "icons/icon-192.png",
 ];
 
 self.addEventListener("install", (e) => {

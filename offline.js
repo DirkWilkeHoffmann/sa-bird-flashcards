@@ -9,8 +9,8 @@ const PHOTO_CACHE = `${CACHE_PREFIX}photos-v1`;  // every photo seen while study
 const OFFLINE_KEY = "sabirds.offline.v1";
 const PHOTO_KB = 100, THUMB_KB = 5, CALL_KB = 550, TEXT_KB = 6; // measured averages
 const PARALLEL = 4;
-const SHELL = ["./", "index.html", "styles.css", "motion.js", "app.js", "progress.js", "offline.js", "auth.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
-  "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "data/near.json",
+const SHELL = ["./", "index.html", "styles.css", "motion.js", "app.js", "progress.js", "tips.js", "offline.js", "auth.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
+  "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "data/near.json", "data/tips.json",
   "icons/icon-192.png", "icons/apple-touch-icon.png"];
 
 let offlineMeta = load(OFFLINE_KEY, {});  // { [speciesId]: { photos: [photoId], call: url | null } }
