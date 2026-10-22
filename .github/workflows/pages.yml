@@ -38,10 +38,14 @@ jobs:
           ref: dev
           path: dev
 
-      - name: Put dev under /dev/
+      - name: Put dev under /dev/ as "SA Birds Dev"
         run: |
           if [ -d dev ]; then
             rm -rf dev/.git site/dev
+            # Dev gets its own home-screen name and icon so the two apps are easy to tell apart.
+            sed -i 's/"name": "SA Bird Flashcards"/"name": "SA Birds Dev"/; s/"short_name": "SA Birds"/"short_name": "Birds Dev"/' dev/manifest.webmanifest
+            sed -i 's/content="SA Birds"/content="Birds Dev"/; s/<title>SA Bird Flashcards<\/title>/<title>SA Birds Dev<\/title>/' dev/index.html
+            if [ -d dev/icons/dev ]; then cp dev/icons/dev/*.png dev/icons/; fi
             mv dev site/dev
           fi
           rm -rf site/.git
