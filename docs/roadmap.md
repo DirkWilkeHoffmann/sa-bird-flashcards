@@ -68,11 +68,11 @@
 
 ## Name and logo
 - **Name:** stays "SA Birds" (home screen) / "SA Bird Flashcards" (full name).
-- **Logo:** African Hoopoe (crest of black-tipped feathers, barred wings, curved bill) on the orange
-  sun and dark green. Source: `icons/logo.svg`. The PNGs are rendered from it, and Dev/Tips get a
+- **Logo:** African Hoopoe (crest of black-tipped feathers, barred wings, curved bill), large, on a white
+  background (mockup B, chosen for standing out on home screens). Source: `icons/logo.svg`. The PNGs are rendered from it, and Dev/Tips get a
   red/blue band. The Tips icons still need updating on the `tips` branch.
 - **iPhones keep the old home-screen icon:** remove the app from the home screen and add it again
-  to see the new one. The icon links carry `?v=2` so new installs get it straight away.
+  to see the new one. The icon links carry `?v=3` so new installs get it straight away.
 - If the name ever changes, update:
   - `index.html` (title, `apple-mobile-web-app-title`) and the header text
   - `manifest.webmanifest`

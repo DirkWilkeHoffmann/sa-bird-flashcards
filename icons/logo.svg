@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#1b2a22"/>
-  <circle cx="256" cy="256" r="186" fill="#e0a63c"/>
-  <!-- crest: fanned feathers with black tips -->
+  <rect width="512" height="512" fill="#ffffff"/>
+  
+  <g transform="translate(0 0) translate(256 256) scale(1.22) translate(-256 -256)"><!-- crest: fanned feathers with black tips -->
   <g>
     <path d="M250 210 L188 112 L206 106 Z" fill="#c8682c"/><path d="M188 112 L198 96 L206 106 Z" fill="#1b2a22"/>
     <path d="M258 205 L222 92 L240 90 Z" fill="#c8682c"/><path d="M222 92 L230 74 L240 90 Z" fill="#1b2a22"/>
@@ -24,4 +24,5 @@
   <path d="M322 222 C360 228 392 250 410 282 L404 286 C386 260 356 242 320 236 Z" fill="#1b2a22"/>
   <!-- legs -->
   <path d="M250 368 L246 400 M268 364 L268 398" stroke="#1b2a22" stroke-width="9" stroke-linecap="round"/>
+</g>
 </svg>
