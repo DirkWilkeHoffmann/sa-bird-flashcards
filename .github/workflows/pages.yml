@@ -1,0 +1,56 @@
+# Publishes the app to GitHub Pages:
+#   main branch -> https://dirkwilkehoffmann.github.io/sa-bird-flashcards/
+#   dev branch  -> https://dirkwilkehoffmann.github.io/sa-bird-flashcards/dev/
+# Runs on every push to either branch and always publishes both.
+name: Publish to GitHub Pages
+
+on:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: site
+
+      - name: Check out dev (if it exists)
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          ref: dev
+          path: dev
+
+      - name: Put dev under /dev/
+        run: |
+          if [ -d dev ]; then
+            rm -rf dev/.git site/dev
+            mv dev site/dev
+          fi
+          rm -rf site/.git
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
