@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>SA Birds Privacy</title>
+  <meta name="description" content="Privacy policy for SA Birds, a flashcard app for learning the birds of Southern Africa">
+  <meta name="theme-color" content="#f2f2ec" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0d1310" media="(prefers-color-scheme: dark)">
+  <link rel="icon" href="icons/icon-192.png">
+  <style>
+    /* Same colours and type as the app (styles.css), light and dark. */
+    :root { --bg: #f2f2ec; --label: #161a17; --label-2: rgba(22, 26, 23, .64); --tint: #d47a0b; color-scheme: light dark; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #0d1310; --label: #f2f4ef; --label-2: rgba(232, 238, 230, .66); --tint: #f2a93b; }
+    }
+    * { box-sizing: border-box; }
+    html { font: -apple-system-body; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+    body { margin: 0; background: var(--bg); color: var(--label); line-height: 1.5;
+      padding: calc(24px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom)); }
+    main { max-width: 640px; margin: 0 auto; }
+    h1 { margin: 0 0 4px; font-size: 1.65rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
+    h2 { margin: 28px 0 6px; font-size: 1.05rem; font-weight: 600; }
+    p, li { color: var(--label-2); }
+    ul { padding-left: 20px; }
+    li { margin: 4px 0; }
+    b { color: var(--label); font-weight: 600; }
+    a { color: var(--tint); font-weight: 600; text-decoration: none; }
+    .updated { margin: 0 0 20px; font-size: .88rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Privacy policy</h1>
+    <p class="updated">SA Birds · last updated 22 October 2026</p>
+
+    <p>SA Birds is a free flashcard app for learning the birds of Southern Africa, made by Dirk.
+      It collects as little as possible, and nothing is sold, shared for advertising or used to track you.</p>
+
+    <h2>What is kept on your phone</h2>
+    <p>Your progress, settings, the photos you have seen and any birds you download for offline use are stored on
+      your own device. You can delete downloads and saved photos from the app's Offline screen, or remove everything
+      by deleting the app from your home screen.</p>
+
+    <h2>Your location</h2>
+    <p>If you choose <b>Near me</b>, the app asks your phone for your approximate location to pick the birds recorded
+      nearby. This is worked out on your phone. Your location is never sent to us or anyone else.</p>
+
+    <h2>What is saved online</h2>
+    <ul>
+      <li><b>Progress.</b> For each bird: how often you got it right, wrong or needed a hint, and when. Also which birds
+        you mixed up and which photos you hid. This is saved under a random private sync code so your progress can
+        follow you to other devices.</li>
+      <li><b>Google sign-in (optional).</b> If you sign in with Google, we receive your name, email address and a
+        Google account ID, and link your account to your sync code. We do not get your password or access to anything
+        else in your Google account.</li>
+      <li><b>Flagged photos.</b> When you flag a photo, we receive which photo and which bird it shows, so the photo
+        can be reviewed. Nothing about you is included.</li>
+    </ul>
+    <p>This information is stored with <a href="https://supabase.com/privacy">Supabase</a> (our database provider, servers
+      in London). Flag reports are emailed to the app's owner through <a href="https://resend.com/legal/privacy-policy">Resend</a>.</p>
+
+    <h2>Photos, sounds and text</h2>
+    <p>Bird photos come from <a href="https://www.inaturalist.org/pages/privacy">iNaturalist</a>, recordings from
+      <a href="https://xeno-canto.org/about/terms">xeno-canto</a> and iNaturalist, and descriptions from
+      <a href="https://foundation.wikimedia.org/wiki/Policy:Privacy_policy">Wikipedia</a>. Your phone fetches these directly
+      from them, so they see the usual technical details of any web request (such as your IP address), under their own
+      privacy policies. The app itself is hosted on GitHub Pages.</p>
+
+    <h2>No ads, no analytics</h2>
+    <p>The app has no advertising and no analytics or tracking tools.</p>
+
+    <h2>Deleting your data</h2>
+    <p>To have your online progress and account removed, email
+      <a href="mailto:wilkehoffmann@gmail.com">wilkehoffmann@gmail.com</a> and it will be deleted.
+      Signing out stops your progress being linked to your Google account on that device.</p>
+
+    <h2>Children</h2>
+    <p>The app is suitable for all ages. It doesn't knowingly collect more than described above from anyone.</p>
+
+    <h2>Changes and contact</h2>
+    <p>If this policy changes, the new version will be posted on this page. Questions:
+      <a href="mailto:wilkehoffmann@gmail.com">wilkehoffmann@gmail.com</a>.</p>
+
+    <p><a href="./">Open SA Birds</a></p>
+  </main>
+</body>
+</html>
