@@ -11,6 +11,10 @@ const LEVEL_NAMES = { beginner: "Beginner", easy: "Easy", medium: "Medium", hard
 const BEGINNER_COUNT = 50;  // Beginner = the 50 most-recorded birds in the chosen place
 const PREFETCH = 3;
 const $ = (id) => document.getElementById(id);
+// The Dev build is published at …/dev/ on the same site as the main app. It keeps its own
+// saved data (progress, settings, downloads) so testing never touches the real app.
+const IS_DEV = location.pathname.includes("/dev/");
+const storeKey = (key) => (IS_DEV ? key.replace(/^sabirds\./, "sabirds-dev.") : key);
 
 let species = [];
 let stats = load(STATS_KEY, {});   // { [speciesId]: { right, wrong, hint, streak, seen, updated } }
@@ -26,12 +30,12 @@ let hiddenPhotos = new Set(load(HIDDEN_KEY, []));  // photos reported as bad (e.
 let photoDecisions = load("sabirds.photoDecisions.v1", { removed: [], kept: [] });
 
 function load(key, fallback) {
-  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
+  try { return JSON.parse(localStorage.getItem(storeKey(key))) ?? fallback; }
   catch { return fallback; }
 }
 
 function save(key, value) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* private mode */ }
+  try { localStorage.setItem(storeKey(key), JSON.stringify(value)); } catch { /* private mode */ }
 }
 
 const shuffle = (a) => {

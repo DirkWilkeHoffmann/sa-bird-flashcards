@@ -4,8 +4,11 @@
 // Without the library (e.g. offline on first launch) the app simply works signed out.
 
 const SUPABASE_URL = "https://oenkcaswabrkqhvukcyb.supabase.co";
+// The Dev build signs in separately and links accounts in its own table.
+const ACCOUNTS_TABLE = IS_DEV ? "accounts_dev" : "accounts";
 const authClient = window.supabase?.createClient(SUPABASE_URL, SYNC_API_KEY, {
-  auth: { flowType: "pkce", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+  auth: { flowType: "pkce", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true,
+          ...(IS_DEV ? { storageKey: "sabirds-dev-auth" } : {}) },
 });
 let account = null;  // the signed-in user, if any
 
@@ -21,12 +24,12 @@ function renderAccount() {
 // Link this account and this phone: an existing account brings its progress here,
 // a new one takes over the progress already on this phone.
 async function linkAccount(user) {
-  const { data, error } = await authClient.from("accounts").select("sync_code").eq("user_id", user.id).maybeSingle();
+  const { data, error } = await authClient.from(ACCOUNTS_TABLE).select("sync_code").eq("user_id", user.id).maybeSingle();
   if (error) throw error;
   if (data?.sync_code) {
     if (data.sync_code !== syncCode()) await adoptCode(data.sync_code);
   } else {
-    const { error: insertError } = await authClient.from("accounts").insert({ user_id: user.id, sync_code: syncCode() });
+    const { error: insertError } = await authClient.from(ACCOUNTS_TABLE).insert({ user_id: user.id, sync_code: syncCode() });
     if (insertError) throw insertError;
   }
 }

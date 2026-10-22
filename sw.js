@@ -2,9 +2,11 @@
 // App files: network first (so updates arrive), falling back to the cache offline.
 // Photos: cache first, so a photo is only ever downloaded once.
 // Offline downloads (offline.js) live in their own cache, which is never trimmed.
-const APP_CACHE = "sabirds-app-v11";
-const PHOTO_CACHE = "sabirds-photos-v1";
-const WIKI_CACHE = "sabirds-wiki-v1";
+// The Dev build (…/dev/) shares this site with the main app, so its caches get their own names.
+const PREFIX = self.registration.scope.includes("/dev/") ? "sabirds-dev-" : "sabirds-";
+const APP_CACHE = `${PREFIX}app-v12`;
+const PHOTO_CACHE = `${PREFIX}photos-v1`;
+const WIKI_CACHE = `${PREFIX}wiki-v1`;
 const MAX_PHOTOS = 1500;
 let puts = 0;
 const APP_FILES = [
@@ -20,7 +22,7 @@ self.addEventListener("activate", (e) => {
   e.waitUntil(
     caches.keys()
       .then((keys) => Promise.all(keys
-        .filter((k) => k.startsWith("sabirds-app-") && k !== APP_CACHE)
+        .filter((k) => k.startsWith(`${PREFIX}app-`) && k !== APP_CACHE)
         .map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
