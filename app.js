@@ -206,11 +206,9 @@ function summary() {
   const parts = [];
   if (settings.family) parts.push(species.find((s) => s.family === settings.family)?.familyName || settings.family);
   parts.push(settings.levels.length ? settings.levels.map((l) => LEVEL_NAMES[l]).join("+") : "All levels");
-  if (progressive() && species.length) {
-    const total = pathList().length, size = pathSizeOf();
-    // With more than one level, say which level the new birds have reached.
-    const stage = settings.levels.length !== 1 && size < total ? `now ${LEVEL_NAMES[pathStage()]} · ` : "";
-    if (size < total) parts.push(`${stage}${size} of ${total}`);
+  // With more than one level, say which level the new birds have reached.
+  if (progressive() && species.length && settings.levels.length !== 1 && pathSizeOf() < pathList().length) {
+    parts.push(`now ${LEVEL_NAMES[pathStage()]}`);
   }
   if (settings.area === "near") parts.push("Near me");
   else if (settings.area) parts.push(areas.areas.find((a) => a.id === settings.area)?.name || "");

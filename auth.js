@@ -14,9 +14,14 @@ let account = null;  // the signed-in user, if any
 
 function renderAccount() {
   const signedIn = Boolean(account);
-  $("accountStatus").textContent = !authClient ? "Sign-in isn't available right now (offline?)."
-    : signedIn ? `Signed in as ${account.email}. Your progress is saved to this account.`
-    : "Sign in to keep your progress safe and use it on any device.";
+  const status = $("accountStatus");
+  status.textContent = !authClient ? "Sign-in isn't available right now (offline?)."
+    : signedIn ? "" : "Sign in to keep your progress safe and use it on any device.";
+  if (signedIn) {
+    const email = document.createElement("b");
+    email.textContent = account.email;
+    status.append("Signed in as ", email, ". Your progress is saved to this account.");
+  }
   $("signIn").hidden = signedIn || !authClient;
   $("signOut").hidden = !signedIn;
 }

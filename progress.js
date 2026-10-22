@@ -257,24 +257,15 @@ function bar(list) {
   return { m, l, html: `<span class="prog-bar"><span class="m" style="width:${(m / n) * 100}%"></span><span class="l" style="width:${(l / n) * 100}%"></span></span>` };
 }
 
-function row(label, list, onTap) {
-  const b = document.createElement("button");
-  b.type = "button";
+// One level or family with its progress bar. (Tapping a row to study just those birds was
+// taken out for now: changing the study set belongs in the settings sheet.)
+function row(label, list) {
+  const b = document.createElement("div");
   b.className = "prog-row";
   const { m, l, html } = bar(list);
   b.innerHTML = `<span></span><small>${m} of ${list.length} mastered${l ? ` · ${l} learning` : ""}</small>${html}`;
   b.querySelector("span").textContent = label;
-  if (onTap) b.addEventListener("click", onTap);
   return b;
-}
-
-function studyOnly(change) {
-  closeSheet($("progress"));
-  settings = { ...settings, levels: [], family: "", ...change };
-  save(SETTINGS_KEY, settings);
-  $("filterSummary").textContent = summary();
-  queue = [];
-  nextCard();
 }
 
 function renderProgress() {
@@ -286,11 +277,11 @@ function renderProgress() {
   total.className = "prog-total";
   total.innerHTML = `<div class="m"><b>${counts.mastered}</b><span>Mastered</span></div>
     <div class="l"><b>${counts.learning}</b><span>Learning</span></div>
-    <div><b>${counts.new}</b><span>New</span></div>`;
+    <div><b>${counts.new}</b><span>To unlock</span></div>`;
   const legend = document.createElement("p");
   legend.className = "legend";
   legend.innerHTML = `Mastered = right ${MASTERED_STREAK} times in a row without a hint.<br>
-    <i style="background:var(--good)"></i>Mastered<i style="background:var(--tint)"></i>Learning<i style="background:var(--fill-2)"></i>New`;
+    <i style="background:var(--good)"></i>Mastered<i style="background:var(--tint)"></i>Learning<i style="background:var(--fill-2)"></i>To unlock`;
   body.append(total, legend);
 
   const h1 = document.createElement("p");
@@ -298,12 +289,12 @@ function renderProgress() {
   h1.textContent = "By level";
   body.append(h1);
   for (const level of ["easy", "medium", "hard"]) {
-    body.append(row(LEVEL_NAMES[level], species.filter((s) => s.level === level), () => studyOnly({ levels: [level] })));
+    body.append(row(LEVEL_NAMES[level], species.filter((s) => s.level === level)));
   }
 
   const h2 = document.createElement("p");
   h2.className = "prog-h";
-  h2.textContent = "By family — tap one to study only those birds";
+  h2.textContent = "By family";
   body.append(h2);
   const families = new Map();
   for (const s of species) {
@@ -312,7 +303,7 @@ function renderProgress() {
   }
   const sorted = [...families.entries()].sort((a, b) => b[1].length - a[1].length);
   for (const [family, list] of sorted) {
-    body.append(row(list[0].familyName || family, list, () => studyOnly({ family })));
+    body.append(row(list[0].familyName || family, list));
   }
 }
 

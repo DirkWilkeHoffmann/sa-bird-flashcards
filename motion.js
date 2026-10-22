@@ -108,6 +108,9 @@ function openSheet(d) {
   stopAnim(d.id);
   delete d.dataset.closing;
   if (!d.open) d.showModal();
+  // Focus the sheet itself, so the ✕ doesn't open with a focus ring around it.
+  d.tabIndex = -1;
+  d.focus({ preventScroll: true });
   d.scrollTop = 0;
   const h = d.offsetHeight;
   setSheetY(d, h);
