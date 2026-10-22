@@ -644,13 +644,15 @@ function showToast(text, actions = {}) {
   toastActions = actions;
   $("toastText").textContent = text;
   $("undoBtn").hidden = !actions.undo;
+  $("toastAction").hidden = !actions.action;
+  if (actions.action) $("toastAction").textContent = actions.action.label;
   const t = $("toast");
   t.hidden = false;
   animate("toast", { y: 24, o: 0 }, { y: 0, o: 1 }, {
     response: 0.35,
     onUpdate: ({ y, o }) => { t.style.transform = `translate(-50%, ${y}px)`; t.style.opacity = String(o); },
   });
-  toastTimer = setTimeout(hideToast, 5000);
+  toastTimer = setTimeout(hideToast, actions.ms || 5000);
 }
 
 // Hiding the toast without Undo makes its action final.
@@ -668,6 +670,11 @@ $("undoBtn").addEventListener("click", () => {
   toastActions = null;
   hideToast();
   a?.undo?.();
+});
+$("toastAction").addEventListener("click", () => {
+  const a = toastActions;
+  hideToast();
+  a?.action?.run();
 });
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") hideToast(); });
 
@@ -1048,7 +1055,19 @@ function record(result, picked) {
   } else if (lastGrowth.added) {
     showToast(`${lastGrowth.added} new birds added — ${PRAISE[Math.floor(Math.random() * PRAISE.length)]}`);
     queue = [];  // let the new birds come up soon
+  } else {
+    nudgeSignIn();
   }
+}
+
+// Once, after the first 10 answers on this phone: a reminder to sign in so progress isn't lost.
+const NUDGE_KEY = "sabirds.signInNudged.v1";
+function nudgeSignIn() {
+  if (typeof account === "undefined" || account || !authClient || load(NUDGE_KEY, false)) return;
+  const answers = Object.values(stats).reduce((n, st) => n + (st.right || 0) + (st.wrong || 0), 0);
+  if (answers < 10) return;
+  save(NUDGE_KEY, true);
+  showToast("Sign in to keep your progress safe", { action: { label: "Sign in", run: signIn }, ms: 8000 });
 }
 
 /* ---------- Info: description, range map, months ---------- */

@@ -40,6 +40,7 @@
   <header class="bar">
     <h1>SA Birds</h1>
     <span class="bar-title" id="barTitle" aria-hidden="true"></span>
+    <button class="sign-in-link" id="barSignIn" type="button" hidden>Sign in</button>
     <button class="icon-btn" id="progressBtn" type="button" aria-label="Your progress"><svg class="i"><use href="#i-chart"/></svg></button>
     <button class="icon-btn" id="openSettings" type="button" aria-label="Study set"><svg class="i"><use href="#i-sliders"/></svg></button>
   </header>
@@ -67,6 +68,7 @@
     <div class="toast" id="toast" role="status" hidden>
       <span id="toastText">Bird skipped</span>
       <button type="button" id="undoBtn"><svg class="i small"><use href="#i-undo"/></svg> Undo</button>
+      <button type="button" id="toastAction" hidden></button>
     </div>
 
     <section class="info" id="info" hidden>
@@ -164,6 +166,7 @@
       <div class="sheet-head">
         <button class="close-x" type="submit" aria-label="Close"><svg class="i"><use href="#i-xmark"/></svg></button>
         <h2>Your progress</h2>
+        <button class="sign-in-link" id="sheetSignIn" type="button" hidden>Sign in</button>
       </div>
       <div class="account" id="account">
         <p class="note" id="accountStatus"></p>

@@ -24,6 +24,9 @@ function renderAccount() {
   }
   $("signIn").hidden = signedIn || !authClient;
   $("signOut").hidden = !signedIn;
+  // While signed out, "Sign in" sits in the top bar and on the progress page.
+  $("barSignIn").hidden = signedIn || !authClient;
+  $("sheetSignIn").hidden = signedIn || !authClient;
 }
 
 // Link this account and this phone: an existing account brings its progress here,
@@ -79,6 +82,8 @@ if (authClient) {
 }
 
 $("signIn").addEventListener("click", signIn);
+$("barSignIn").addEventListener("click", signIn);
+$("sheetSignIn").addEventListener("click", signIn);
 $("signOut").addEventListener("click", signOut);
 $("progressBtn").addEventListener("click", renderAccount);
 renderAccount();

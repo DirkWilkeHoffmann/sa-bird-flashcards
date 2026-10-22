@@ -866,3 +866,34 @@ body.titled .subbar { border-bottom-color: var(--separator); }
 /* Learning path: the level-up badge has more to say */
 .badge.level-up { padding: 0 28px; text-align: center; }
 .badge.level-up small { font-size: var(--fs-headline); white-space: nowrap; }
+
+/* "Sign in" while signed out: plain words in the tint colour, no button shape */
+.sign-in-link {
+  min-height: var(--tap);
+  padding: 0 8px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--fs-headline);
+  font-weight: 700;
+  color: var(--tint);
+  white-space: nowrap;
+}
+.sign-in-link:active { opacity: .6; }
+.sheet-head .sign-in-link { margin-left: auto; }
+#toastAction {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--on-tint);
+  background: var(--tint);
+}
+.bar:has(#barSignIn:not([hidden])) .bar-title { right: 190px; }
+/* Longer messages wrap on small phones instead of running off the screen. */
+.toast { width: max-content; max-width: calc(100vw - 32px); white-space: normal; line-height: 1.3; }
+.toast button { flex: none; white-space: nowrap; }
