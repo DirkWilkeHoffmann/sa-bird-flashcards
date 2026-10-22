@@ -39,6 +39,7 @@
   </svg>
   <header class="bar">
     <h1>SA Birds</h1>
+    <span class="bar-title" id="barTitle" aria-hidden="true"></span>
     <button class="icon-btn" id="progressBtn" type="button" aria-label="Your progress"><svg class="i"><use href="#i-chart"/></svg></button>
     <button class="icon-btn" id="openSettings" type="button" aria-label="Study set"><svg class="i"><use href="#i-sliders"/></svg></button>
   </header>
@@ -53,6 +54,7 @@
     <section class="media" id="media">
       <div class="carousel" id="carousel" aria-label="Bird photos"></div>
       <div class="dots" id="dots" aria-hidden="true"></div>
+      <div class="badge" id="badge" hidden aria-live="polite"></div>
       <button class="flag" id="flag" type="button" aria-label="Hide this photo" title="Hide this photo"><svg class="i"><use href="#i-flag"/></svg></button>
       <div class="sound" id="sound" hidden>
         <button class="play" id="play" type="button" aria-label="Play call"><svg class="i"><use href="#i-play"/></svg></button>
@@ -67,6 +69,7 @@
     </div>
 
     <section class="info" id="info" hidden>
+      <p class="result" id="result" hidden></p>
       <h2 id="name"></h2>
       <p class="sci" id="sci"></p>
       <p class="family" id="family"></p>
@@ -204,6 +207,8 @@
       <button class="btn ghost" id="offlineCancel" type="button" hidden>Stop</button>
       <p class="note" id="offlineStored"></p>
       <button class="btn ghost small" id="offlineDelete" type="button" hidden>Delete downloaded birds</button>
+      <p class="note" id="photoStore"></p>
+      <button class="btn ghost small" id="photoClear" type="button" hidden>Clear saved photos</button>
     </form>
   </dialog>
 

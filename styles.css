@@ -357,11 +357,20 @@ button:disabled:active { transform: none; }
 .months div { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; }
 .months span { width: 100%; background: var(--data); border-radius: 4px 4px 1px 1px; }
 .months b { font-size: var(--fs-caption); font-weight: 500; color: var(--label-3); }
+.months .now span { background: var(--tint); }
+.months .now b { color: var(--tint); font-weight: 700; }
 .wiki { display: inline-block; margin-top: 18px; color: var(--tint); font-weight: 600; text-decoration: none; }
 .credits { margin-top: 20px !important; font-size: var(--fs-footnote) !important; line-height: 1.4; color: var(--label-3) !important; }
-.result { font-weight: 600; font-size: var(--fs-headline) !important; margin-top: 12px !important; }
-.result.good { color: var(--good) !important; }
-.result.bad { color: var(--bad) !important; }
+.info .result {
+  display: inline-block;
+  margin: 2px 0 10px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: var(--fs-subhead);
+  font-weight: 600;
+}
+.info .result.good { color: var(--good); background: color-mix(in srgb, var(--good) 15%, transparent); }
+.info .result.bad { color: var(--bad); background: color-mix(in srgb, var(--bad) 13%, transparent); }
 
 /* ---------- Choices (hint) ---------- */
 .choices {
@@ -710,4 +719,91 @@ button:disabled:active { transform: none; }
     --fill-2: rgba(170, 195, 178, .34);
     --separator: rgba(255, 255, 255, .3);
   }
+}
+
+/* ---------- Sprint 3: feedback ---------- */
+.badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  min-width: 96px;
+  height: 96px;
+  padding: 0 22px;
+  border-radius: 48px;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  backdrop-filter: blur(18px) saturate(170%);
+  box-shadow: var(--shadow);
+}
+.badge.good { background: color-mix(in srgb, var(--good) 82%, transparent); }
+.badge.star { font-size: 2.4rem; height: 112px; border-radius: 56px; background: color-mix(in srgb, var(--tint) 86%, transparent); color: var(--on-tint); }
+.badge small { display: block; margin-top: 4px; font-size: var(--fs-subhead); font-weight: 700; letter-spacing: .02em; }
+.score { transition: color 600ms ease-out; transform-origin: right center; }
+.score.good { color: var(--good); transition: none; }
+.score.bad { color: var(--bad); transition: none; }
+.choices > button { transition: background-color 160ms ease-out, color 160ms ease-out; }
+
+/* ---------- Sprint 3: header title and see-through toolbar ---------- */
+.bar { position: relative; }
+.bar h1 { transition: opacity 200ms ease-out; }
+.bar-title {
+  position: absolute;
+  left: 64px;
+  right: 108px;
+  top: 6px;
+  height: var(--tap);
+  line-height: var(--tap);
+  text-align: left;
+  font-size: var(--fs-headline);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
+  pointer-events: none;
+}
+body.titled .bar h1 { opacity: 0; }
+body.titled .bar-title { opacity: 1; transform: none; left: 16px; }
+.subbar { border-bottom: .5px solid transparent; transition: border-color 200ms; }
+body.titled .subbar { border-bottom-color: var(--separator); }
+
+/* After the reveal, the answer runs all the way down, under a frosted toolbar. */
+.card.revealed .info { padding-bottom: 88px; margin-bottom: -12px; }
+.card.revealed #grade, .card.revealed #after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  padding: 10px 16px 12px;
+  border-top: .5px solid transparent;
+  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  backdrop-filter: blur(22px) saturate(180%);
+  transition: border-color 200ms;
+}
+.card.revealed.more-below #grade, .card.revealed.more-below #after { border-top-color: var(--separator); }
+/* Buttons on the frosted bar are solid, so the text underneath doesn't show through them. */
+.card.revealed .btn.good { background: color-mix(in srgb, var(--good) 16%, var(--bg)); }
+.card.revealed .btn.bad { background: color-mix(in srgb, var(--bad) 14%, var(--bg)); }
+.card.revealed .btn.good:active { background: color-mix(in srgb, var(--good) 26%, var(--bg)); }
+.card.revealed .btn.bad:active { background: color-mix(in srgb, var(--bad) 24%, var(--bg)); }
+@media (prefers-reduced-transparency: reduce) {
+  .card.revealed #grade, .card.revealed #after { background: var(--bg); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .badge { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .badge.good { background: var(--good); }
+  .badge.star { background: var(--tint); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bar h1, .bar-title { transition: none; }
 }

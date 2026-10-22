@@ -1,14 +1,12 @@
 // Service worker: keeps the app and every bird photo you've seen on the phone.
 // App files: network first (so updates arrive), falling back to the cache offline.
-// Photos: cache first, so a photo is only ever downloaded once.
+// Photos: cache first, and kept for good, so a photo is only ever downloaded once.
 // Offline downloads (offline.js) live in their own cache, which is never trimmed.
 // The Dev build (…/dev/) shares this site with the main app, so its caches get their own names.
 const PREFIX = self.registration.scope.includes("/dev/") ? "sabirds-dev-" : "sabirds-";
-const APP_CACHE = `${PREFIX}app-v13`;
+const APP_CACHE = `${PREFIX}app-v14`;
 const PHOTO_CACHE = `${PREFIX}photos-v1`;
 const WIKI_CACHE = `${PREFIX}wiki-v1`;
-const MAX_PHOTOS = 1500;
-let puts = 0;
 const APP_FILES = [
   "./", "index.html", "styles.css", "motion.js", "app.js", "progress.js", "offline.js", "auth.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
   "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "data/near.json", "icons/icon-192.png",
@@ -28,19 +26,16 @@ self.addEventListener("activate", (e) => {
   );
 });
 
-async function trimPhotos(cache) {
-  const keys = await cache.keys();
-  for (const k of keys.slice(0, Math.max(0, keys.length - MAX_PHOTOS))) await cache.delete(k);
-}
-
+// Photos are fetched with CORS (iNaturalist allows it), so the phone stores them at their real
+// size; "opaque" copies would each count as several MB against the storage allowance.
 async function photo(request) {
   const saved = await caches.match(request.url);  // offline downloads or earlier views
   if (saved) return saved;
   const cache = await caches.open(PHOTO_CACHE);
-  const response = await fetch(request);
-  if (response.ok || response.type === "opaque") {
-    cache.put(request, response.clone()).then(() => { if (++puts % 50 === 0) trimPhotos(cache); });
-  }
+  let response;
+  try { response = await fetch(request.url, { mode: "cors", credentials: "omit" }); }
+  catch { response = await fetch(request); }
+  if (response.ok) cache.put(request.url, response.clone());
   return response;
 }
 
@@ -89,7 +84,8 @@ async function call(request) {
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET") return;
-  if (url.hostname === "inaturalist-open-data.s3.amazonaws.com" || url.hostname === "static.inaturalist.org") {
+  if ((url.hostname === "inaturalist-open-data.s3.amazonaws.com" || url.hostname === "static.inaturalist.org")
+      && url.pathname.includes("/photos/")) {
     e.respondWith(photo(e.request));
   } else if (url.origin === self.location.origin && url.pathname.includes("/offline/call-")) {
     e.respondWith(call(e.request));

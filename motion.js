@@ -9,11 +9,11 @@ const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").match
 // response (roughly how quickly the target is reached, in seconds).
 const anims = new Map();
 
-function animate(key, from, to, { velocity = {}, damping = 1, response = 0.35, onUpdate, onDone } = {}) {
+function animate(key, from, to, { velocity = {}, damping = 1, response = 0.35, precision, onUpdate, onDone } = {}) {
   stopAnim(key);
   const props = Object.keys(to).map((k) => ({
     k, x: from[k], v: velocity[k] || 0, to: to[k],
-    rest: 0.001 * Math.max(1, Math.abs(to[k] - from[k])),
+    rest: precision ?? 0.001 * Math.max(1, Math.abs(to[k] - from[k])),
   }));
   const values = () => Object.fromEntries(props.map((p) => [p.k, p.x]));
   const finish = () => {
@@ -207,4 +207,36 @@ function confirmTap(btn, prompt) {
     btn.classList.remove("armed");
   }, 4000));
   return false;
+}
+
+/* ---------- Feedback ---------- */
+
+// A short wobble that says "no": a spring kicked sideways that settles back where it was.
+function shake(el) {
+  animate(`shake-${el.id || el.textContent}`, { x: 0 }, { x: 0 }, {
+    velocity: { x: 700 }, damping: 0.3, response: 0.22, precision: 0.3,
+    onUpdate: ({ x }) => { el.style.transform = x ? `translateX(${x}px)` : ""; },
+  });
+}
+
+// A small tap from the phone. iPhones have no vibration API for web pages, but Safari
+// (iOS 18+) ticks when a switch is toggled, so a hidden switch is flipped.
+const hapticSwitch = (() => {
+  const label = document.createElement("label");
+  label.setAttribute("aria-hidden", "true");
+  label.style.display = "none";
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.setAttribute("switch", "");
+  input.tabIndex = -1;
+  label.append(input);
+  document.body.append(label);
+  return label;
+})();
+
+function haptic(pattern = 10) {
+  try {
+    if (navigator.vibrate) navigator.vibrate(pattern);
+    else hapticSwitch.click();
+  } catch { /* no haptics here */ }
 }

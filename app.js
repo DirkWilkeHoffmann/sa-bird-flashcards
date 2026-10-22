@@ -142,7 +142,7 @@ function makeCard(exclude) {
   const photos = [...allPhotos.slice(start), ...allPhotos.slice(0, start)];
   const c = { s, kind, photos, calls, callIndex: Math.floor(Math.random() * Math.max(1, calls.length)) };
   // Warm the cache: first photo and info of each upcoming card.
-  new Image().src = photoUrl(photos[0], "medium");
+  warmPhotos(photos.slice(0, 1));
   loadInfo(s);
   loadWiki(s);
   return c;
@@ -236,6 +236,19 @@ function buildCarousel(photos) {
   $("dots").hidden = photos.length < 2;
   $("flag").hidden = photos.length < 2;
   onSlide(0);
+  // Load every photo of this bird now, so swiping through them never waits.
+  photos.forEach((p, i) => loadSlide(i));
+}
+
+// Fetch photos into the phone's photo store ahead of time, a few at once.
+const warmed = new Set();
+function warmPhotos(photos, size = "medium") {
+  for (const p of photos) {
+    const url = photoUrl(p, size);
+    if (warmed.has(url)) continue;
+    warmed.add(url);
+    new Image().src = url;
+  }
 }
 
 function loadSlide(i) {
@@ -258,6 +271,7 @@ function onSlide(i) {
   loadSlide(i);
   loadSlide(i + 1);
   loadSlide(i - 1);
+  if (card.photos[i + 1]) warmPhotos([card.photos[i + 1]], "large");  // the sharp version of the next photo too
   const img = carousel.children[i]?.querySelector("img");
   if (img?.complete && img.naturalWidth) upgrade(img, card.photos[i]);
 }
@@ -492,9 +506,7 @@ function flyAway(velocity = { x: 0, y: -1600 }) {
     stopAnim("card");
     nextCard();
     showToast("Bird skipped", { undo: undoSkip });
-    // The next bird rises gently from behind.
-    placeCard({ x: 0, y: 0, r: 0, s: 0.94, o: 0 });
-    animate("card", { ...cardPos }, { s: 1, o: 1 }, { response: 0.35, onUpdate: placeCard });
+    riseIn();
   };
   animate("card", { ...cardPos }, { x: cardPos.x + project(velocity.x) / 4, y: offTop(), r: r * 2, s: 1, o: 1 }, {
     velocity: { x: velocity.x, y: velocity.y }, response: 0.3,
@@ -592,6 +604,66 @@ function endSwipe() {
 $("media").addEventListener("touchend", endSwipe);
 $("media").addEventListener("touchcancel", () => { if (swipe?.active) settleCard(); swipe = null; });
 
+/* ---------- Feedback ---------- */
+
+// A badge that pops onto the photo: "✓" for a right answer, a star when a bird becomes mastered.
+function popBadge(html, cls) {
+  const b = $("badge");
+  b.innerHTML = html;
+  b.className = `badge ${cls}`;
+  b.hidden = false;
+  animate("badge", { s: 0.5, o: 0 }, { s: 1, o: 1 }, {
+    damping: 0.6, response: 0.35,
+    onUpdate: ({ s, o }) => { b.style.transform = `translate(-50%, -50%) scale(${s})`; b.style.opacity = String(Math.min(1, o)); },
+  });
+}
+
+function hideBadge() {
+  stopAnim("badge");
+  $("badge").hidden = true;
+}
+
+// Got it / Missed it: a moment of feedback, then the next bird rises in.
+let grading = false;
+function grade(result) {
+  if (grading) return;
+  const before = status(card.s.id);
+  record(result);
+  const mastered = result === "right" && before !== "mastered" && status(card.s.id) === "mastered";
+  pulseScore(result === "right");
+  if (result === "right") {
+    haptic(mastered ? [12, 60, 12] : 10);
+    popBadge(mastered ? `★<small>Mastered</small>` : "✓", mastered ? "star" : "good");
+  } else {
+    haptic(10);
+  }
+  grading = true;
+  $("grade").querySelectorAll("button").forEach((x) => { x.disabled = true; });
+  setTimeout(() => {
+    grading = false;
+    $("grade").querySelectorAll("button").forEach((x) => { x.disabled = false; });
+    nextCard();
+    riseIn();
+  }, result === "right" ? (mastered ? 1000 : 520) : 120);
+}
+
+// The next bird comes up gently from behind.
+function riseIn() {
+  placeCard({ x: 0, y: 0, r: 0, s: 0.94, o: 0 });
+  animate("card", { ...cardPos }, { s: 1, o: 1 }, { response: 0.35, onUpdate: placeCard });
+}
+
+function pulseScore(good) {
+  const el = $("score");
+  el.classList.remove("good", "bad");
+  void el.offsetWidth;  // restart the colour flash
+  el.classList.add(good ? "good" : "bad");
+  animate("score", { s: 1.25 }, { s: 1 }, {
+    damping: 0.5, response: 0.3,
+    onUpdate: ({ s }) => { el.style.transform = s === 1 ? "" : `scale(${s})`; },
+  });
+}
+
 function setPanels({ ask = false, grade = false, after = false, choices = false }) {
   $("ask").hidden = !ask;
   $("grade").hidden = !grade;
@@ -606,8 +678,14 @@ function nextCard() {
   card = queue.shift();
   card.calls ??= card.s.calls;
   fillQueue();
+  // Once this bird's photos have had a head start, fetch all of the next bird's too.
+  const upcoming = queue[0];
+  setTimeout(() => warmPhotos(upcoming.photos), 1500);
   stopAnim("reveal");
   stopAnim("card");
+  hideBadge();
+  document.body.classList.remove("titled");
+  $("card").classList.remove("more-below");
   placeCard({ x: 0, y: 0, r: 0, s: 1, o: 1 });
   $("card").classList.remove("revealed");
   $("media").style.flexBasis = "";
@@ -637,12 +715,13 @@ function showInfo(result) {
   $("tags").innerHTML = tags.join("");
   $("hearCall").hidden = card.calls.length === 0;
   $("details").replaceChildren();
+  // How the guess went, as a banner above the name.
+  const res = $("result");
+  res.hidden = !result;
   if (result) {
-    const p = document.createElement("p");
-    p.className = `result ${result.ok ? "good" : "bad"}`;
-    p.textContent = result.message
+    res.className = `result ${result.ok ? "good" : "bad"}`;
+    res.textContent = result.message
       || (result.ok ? "✓ Correct!" : `✗ You picked ${result.picked}`);
-    $("details").append(p);
   }
   if (window.renderDetails) window.renderDetails(s, $("details"));
   const photoCredits = [...new Set(s.photos.map((p) => credit(p.attr)))].join("; ");
@@ -658,6 +737,7 @@ function showInfo(result) {
   $("card").classList.add("revealed");
   info.hidden = false;
   info.scrollTop = 0; // only works once visible: always open at the name
+  $("barTitle").textContent = s.name;
   media.style.flexBasis = "";
   recentre();
   if (wasRevealed) return;
@@ -670,16 +750,28 @@ function showInfo(result) {
       info.style.transform = y ? `translateY(${y}px)` : "";
       info.style.opacity = o === 1 ? "" : String(o);
     },
-    onDone: () => { media.style.flexBasis = ""; recentre(); },
+    onDone: () => { media.style.flexBasis = ""; recentre(); scrollEdges(); },
   });
 }
 
 // Scrolling the info panel shrinks the photo, so the text and map get the whole screen.
+// Once the name has scrolled away, it appears small in the header (like iOS titles do), and the
+// see-through toolbar gets its edge line only while there is more text underneath it.
 $("info").addEventListener("scroll", () => {
-  if (!$("card").classList.contains("revealed") || anims.has("reveal")) return;
+  if (!$("card").classList.contains("revealed")) return;
+  scrollEdges();
+  if (anims.has("reveal")) return;
   const full = $("card").clientHeight * 0.38;
   $("media").style.flexBasis = `${Math.max(0, full - $("info").scrollTop)}px`;
 }, { passive: true });
+
+function scrollEdges() {
+  const info = $("info");
+  const revealed = $("card").classList.contains("revealed");
+  const titled = revealed && $("name").getBoundingClientRect().bottom < info.getBoundingClientRect().top + 4;
+  document.body.classList.toggle("titled", titled);
+  $("card").classList.toggle("more-below", revealed && info.scrollHeight - info.scrollTop - info.clientHeight > 2);
+}
 
 // The photo area changes size on reveal and on rotation; keep the current photo in view.
 function recentre() {
@@ -773,8 +865,9 @@ function hint() {
     if (k !== kind && !others.includes(k)) others.push(k);
   }
   choiceButtons("What kind of bird is it?", shuffle([kind, ...others]), (k) => k, (k, b) => {
-    if (k !== kind) { b.classList.add("wrong"); b.disabled = true; return; }
+    if (k !== kind) { b.classList.add("wrong"); b.disabled = true; shake(b); haptic(10); return; }
     b.classList.add("correct");
+    haptic(10);
     for (const other of $("choices").querySelectorAll("button")) other.disabled = true;
     setTimeout(() => whichOne(kind), 600);
   });
@@ -785,7 +878,18 @@ function whichOne(kind) {
   const same = shuffle(species.filter((s) => s !== card.s && kindOf(s) === kind)).slice(0, 3);
   if (!same.length) { choose(card.s, "✓ Correct!"); return; }
   const fill = similar(card.s).filter((s) => !same.includes(s)).slice(0, 3 - same.length);
-  choiceButtons(`Which ${kind}?`, shuffle([card.s, ...same, ...fill]), (s) => s.name, (s) => choose(s));
+  choiceButtons(`Which ${kind}?`, shuffle([card.s, ...same, ...fill]), (s) => s.name, (s, b) => {
+    // Show at once whether the pick was right, then the answer.
+    const ok = s === card.s;
+    b.classList.add(ok ? "correct" : "wrong");
+    if (!ok) {
+      shake(b);
+      [...$("choices").querySelectorAll("button")].find((x) => x.textContent === card.s.name)?.classList.add("correct");
+    }
+    haptic(10);
+    for (const other of $("choices").querySelectorAll("button")) other.disabled = true;
+    setTimeout(() => choose(s), ok ? 450 : 900);
+  });
 }
 
 function choose(chosen, message) {
@@ -861,6 +965,7 @@ function monthChart(months) {
   wrap.className = "months";
   "JFMAMJJASOND".split("").forEach((m, i) => {
     const col = document.createElement("div");
+    if (i === new Date().getMonth()) { col.className = "now"; col.title = "This month"; }
     col.innerHTML = `<span style="height:${Math.max(3, (months[i] / max) * 100)}%"></span><b>${m}</b>`;
     wrap.append(col);
   });
@@ -1198,8 +1303,8 @@ $("otherCall").addEventListener("click", () => {
 });
 $("reveal").addEventListener("click", reveal);
 $("hint").addEventListener("click", hint);
-$("gotIt").addEventListener("click", () => { record("right"); nextCard(); });
-$("missed").addEventListener("click", () => { record("wrong"); nextCard(); });
+$("gotIt").addEventListener("click", () => grade("right"));
+$("missed").addEventListener("click", () => grade("wrong"));
 $("next").addEventListener("click", nextCard);
 $("skip").addEventListener("click", skipCard);
 for (const id of ["reveal", "hint"]) $(id).addEventListener("click", hideToast);

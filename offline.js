@@ -4,6 +4,7 @@
 // signal, only downloaded birds and photos are shown.
 
 const OFFLINE_CACHE = IS_DEV ? "sabirds-dev-offline-v1" : "sabirds-offline-v1";
+const PHOTO_CACHE = IS_DEV ? "sabirds-dev-photos-v1" : "sabirds-photos-v1";  // every photo seen while studying (sw.js)
 const OFFLINE_KEY = "sabirds.offline.v1";
 const PHOTO_KB = 100, THUMB_KB = 5, CALL_KB = 550, TEXT_KB = 6; // measured averages
 const PARALLEL = 4;
@@ -63,6 +64,16 @@ async function showStorage() {
   } catch { /* not supported */ }
   $("offlineStored").textContent = n ? `${n} birds are downloaded on this phone.${used}` : `Nothing downloaded yet.${used}`;
   $("offlineDelete").hidden = !n;
+  const saved = await caches.open(PHOTO_CACHE).then((c) => c.keys()).then((k) => k.length).catch(() => 0);
+  $("photoStore").textContent = saved
+    ? `${saved} photos you've already seen are kept on this phone, so they never download twice.` : "";
+  $("photoClear").hidden = !saved;
+}
+
+async function clearPhotos() {
+  if (!confirmTap($("photoClear"), "Tap again to clear them")) return;
+  await caches.delete(PHOTO_CACHE);
+  showStorage();
 }
 
 function openOffline(list) {
@@ -183,5 +194,8 @@ $("offline").addEventListener("change", updateEstimate);
 $("offlineStart").addEventListener("click", startDownload);
 $("offlineCancel").addEventListener("click", () => { cancelled = true; });
 $("offlineDelete").addEventListener("click", deleteOffline);
+$("photoClear").addEventListener("click", clearPhotos);
+// Ask the phone not to clear our saved photos and downloads when space runs low.
+navigator.storage?.persist?.().catch(() => {});
 window.addEventListener("online", () => { queue = []; });
 window.addEventListener("offline", () => { queue = []; });
