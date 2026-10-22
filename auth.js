@@ -8,7 +8,7 @@ const SUPABASE_URL = "https://oenkcaswabrkqhvukcyb.supabase.co";
 const ACCOUNTS_TABLE = IS_DEV ? "accounts_dev" : "accounts";
 const authClient = window.supabase?.createClient(SUPABASE_URL, SYNC_API_KEY, {
   auth: { flowType: "pkce", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true,
-          ...(IS_DEV ? { storageKey: "sabirds-dev-auth" } : {}) },
+          ...(IS_DEV ? { storageKey: `sabirds-${ENV}-auth` } : {}) },
 });
 let account = null;  // the signed-in user, if any
 

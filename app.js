@@ -14,8 +14,10 @@ const $ = (id) => document.getElementById(id);
 const icon = (name, cls = "") => `<svg class="i ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
 // The Dev build is published at …/dev/ on the same site as the main app. It keeps its own
 // saved data (progress, settings, downloads) so testing never touches the real app.
-const IS_DEV = location.pathname.includes("/dev/");
-const storeKey = (key) => (IS_DEV ? key.replace(/^sabirds\./, "sabirds-dev.") : key);
+// Test builds (…/dev/, …/tips/) work the same way, each with its own saved data.
+const ENV = /\/(dev|tips)\//.exec(location.pathname)?.[1] || "";
+const IS_DEV = Boolean(ENV);
+const storeKey = (key) => (ENV ? key.replace(/^sabirds\./, `sabirds-${ENV}.`) : key);
 
 let species = [];
 let stats = load(STATS_KEY, {});   // { [speciesId]: { right, wrong, hint, streak, seen, updated } }

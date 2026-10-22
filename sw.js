@@ -2,8 +2,9 @@
 // App files: network first (so updates arrive), falling back to the cache offline.
 // Photos: cache first, and kept for good, so a photo is only ever downloaded once.
 // Offline downloads (offline.js) live in their own cache, which is never trimmed.
-// The Dev build (…/dev/) shares this site with the main app, so its caches get their own names.
-const PREFIX = self.registration.scope.includes("/dev/") ? "sabirds-dev-" : "sabirds-";
+// Test builds (…/dev/, …/tips/) share this site with the main app, so their caches get their own names.
+const ENV = /\/(dev|tips)\//.exec(self.registration.scope)?.[1] || "";
+const PREFIX = ENV ? `sabirds-${ENV}-` : "sabirds-";
 const APP_CACHE = `${PREFIX}app-v19`;
 const PHOTO_CACHE = `${PREFIX}photos-v1`;
 const WIKI_CACHE = `${PREFIX}wiki-v1`;

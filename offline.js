@@ -3,8 +3,9 @@
 // Wikipedia text per bird) into a cache the service worker serves from. With no
 // signal, only downloaded birds and photos are shown.
 
-const OFFLINE_CACHE = IS_DEV ? "sabirds-dev-offline-v1" : "sabirds-offline-v1";
-const PHOTO_CACHE = IS_DEV ? "sabirds-dev-photos-v1" : "sabirds-photos-v1";  // every photo seen while studying (sw.js)
+const CACHE_PREFIX = ENV ? `sabirds-${ENV}-` : "sabirds-";
+const OFFLINE_CACHE = `${CACHE_PREFIX}offline-v1`;
+const PHOTO_CACHE = `${CACHE_PREFIX}photos-v1`;  // every photo seen while studying (sw.js)
 const OFFLINE_KEY = "sabirds.offline.v1";
 const PHOTO_KB = 100, THUMB_KB = 5, CALL_KB = 550, TEXT_KB = 6; // measured averages
 const PARALLEL = 4;
