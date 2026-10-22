@@ -21,17 +21,36 @@ const isOffline = () => !navigator.onLine;
 const localCallUrl = (url) => new URL(`offline/call-${url.split("/").filter(Boolean).at(-2)}.mp3`, location.href).href;
 const fmtMB = (kb) => (kb >= 1024 ? `${(kb / 1024).toFixed(kb >= 10240 ? 0 : 1)} MB` : `${Math.round(kb)} KB`);
 
-// What a card may show right now: everything online, only downloaded media offline.
+// Photos already kept on the phone from studying (sw.js stores every photo you see).
+// A bird with at least one kept photo can be studied offline too, as a photo card.
+const keptPhotos = new Set();
+const photoIdOf = (url) => Number(/\/photos\/(\d+)\/medium\./.exec(url)?.[1]) || 0;
+
+async function loadKeptPhotos() {
+  try {
+    const keys = await caches.open(PHOTO_CACHE).then((c) => c.keys());
+    keys.forEach((k) => { const id = photoIdOf(k.url); if (id) keptPhotos.add(id); });
+  } catch { /* no cache storage */ }
+}
+
+// Called when a photo has loaded; it is only kept if the service worker saved it.
+function notePhotoKept(p) {
+  if (navigator.serviceWorker?.controller) keptPhotos.add(p.id);
+}
+
+// What a card may show right now: everything online; offline, only downloaded or kept media.
 function offlineView(s) {
+  if (!isOffline()) return null;
   const meta = offlineMeta[s.id];
-  if (!isOffline() || !meta) return null;
-  const photos = s.photos.filter((p) => meta.photos.includes(p.id));
+  const have = (p) => keptPhotos.has(p.id) || Boolean(meta?.photos.includes(p.id));
+  const photos = s.photos.filter(have);
+  if (!meta && !photos.length) return null;
   return { photos: photos.length ? photos : s.photos.slice(0, 1),
-           calls: meta.call ? s.calls.filter((c) => c.url === meta.call).map((c) => ({ ...c, url: localCallUrl(c.url) })) : [] };
+           calls: meta?.call ? s.calls.filter((c) => c.url === meta.call).map((c) => ({ ...c, url: localCallUrl(c.url) })) : [] };
 }
 
 function offlineAvailable(s) {
-  return !isOffline() || Boolean(offlineMeta[s.id]);
+  return !isOffline() || Boolean(offlineMeta[s.id]) || s.photos.some((p) => keptPhotos.has(p.id));
 }
 
 /* ---------- Download screen ---------- */
@@ -65,14 +84,19 @@ async function showStorage() {
   $("offlineStored").textContent = n ? `${n} birds are downloaded on this phone.${used}` : `Nothing downloaded yet.${used}`;
   $("offlineDelete").hidden = !n;
   const saved = await caches.open(PHOTO_CACHE).then((c) => c.keys()).then((k) => k.length).catch(() => 0);
+  await loadKeptPhotos();
+  const keptBirds = species.filter((s) => !offlineMeta[s.id] && s.photos.some((p) => keptPhotos.has(p.id))).length;
   $("photoStore").textContent = saved
-    ? `${saved} photos you've already seen are kept on this phone, so they never download twice.` : "";
+    ? `${saved} photos you've already seen are kept on this phone, so they never download twice.`
+      + (keptBirds ? ` That also makes ${keptBirds} more birds available offline (as photo cards).` : "")
+    : "";
   $("photoClear").hidden = !saved;
 }
 
 async function clearPhotos() {
   if (!confirmTap($("photoClear"), "Tap again to clear them")) return;
   await caches.delete(PHOTO_CACHE);
+  keptPhotos.clear();
   showStorage();
 }
 
@@ -195,6 +219,7 @@ $("offlineStart").addEventListener("click", startDownload);
 $("offlineCancel").addEventListener("click", () => { cancelled = true; });
 $("offlineDelete").addEventListener("click", deleteOffline);
 $("photoClear").addEventListener("click", clearPhotos);
+loadKeptPhotos();
 // Ask the phone not to clear our saved photos and downloads when space runs low.
 navigator.storage?.persist?.().catch(() => {});
 window.addEventListener("online", () => { queue = []; });

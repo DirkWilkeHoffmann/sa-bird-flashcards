@@ -225,6 +225,7 @@ function buildCarousel(photos) {
     spin.textContent = "Loading…";
     img.addEventListener("load", () => {
       spin.hidden = true;
+      notePhotoKept(p);
       if (Number(img.dataset.i) === slideIndex) upgrade(img, p);
     });
     slide.append(spin, img);
@@ -247,7 +248,9 @@ function warmPhotos(photos, size = "medium") {
     const url = photoUrl(p, size);
     if (warmed.has(url)) continue;
     warmed.add(url);
-    new Image().src = url;
+    const img = new Image();
+    if (size === "medium") img.onload = () => notePhotoKept(p);
+    img.src = url;
   }
 }
 

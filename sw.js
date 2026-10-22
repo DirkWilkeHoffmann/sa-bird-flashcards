@@ -4,9 +4,10 @@
 // Offline downloads (offline.js) live in their own cache, which is never trimmed.
 // The Dev build (…/dev/) shares this site with the main app, so its caches get their own names.
 const PREFIX = self.registration.scope.includes("/dev/") ? "sabirds-dev-" : "sabirds-";
-const APP_CACHE = `${PREFIX}app-v14`;
+const APP_CACHE = `${PREFIX}app-v15`;
 const PHOTO_CACHE = `${PREFIX}photos-v1`;
 const WIKI_CACHE = `${PREFIX}wiki-v1`;
+const INFO_CACHE = `${PREFIX}info-v1`;  // each bird's range/months file, kept across app updates
 const APP_FILES = [
   "./", "index.html", "styles.css", "motion.js", "app.js", "progress.js", "offline.js", "auth.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
   "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "data/near.json", "icons/icon-192.png",
@@ -60,6 +61,18 @@ async function appFile(request) {
   }
 }
 
+// Bird info files: fresh when online, kept (unlike app files) when the app updates.
+async function infoFile(request) {
+  const cache = await caches.open(INFO_CACHE);
+  try {
+    const response = await fetch(request);
+    if (response.ok) cache.put(request, response.clone());
+    return response;
+  } catch {
+    return (await caches.match(request, { ignoreSearch: true })) || Response.error();
+  }
+}
+
 // Downloaded calls: iPhones ask for audio in byte ranges, so answer with the requested slice.
 async function call(request) {
   const saved = await caches.match(request.url);
@@ -91,6 +104,8 @@ self.addEventListener("fetch", (e) => {
     e.respondWith(call(e.request));
   } else if (url.hostname === "en.wikipedia.org") {
     e.respondWith(cacheFirst(WIKI_CACHE, e.request));
+  } else if (url.origin === self.location.origin && url.pathname.includes("/data/info/")) {
+    e.respondWith(infoFile(e.request));
   } else if (url.origin === self.location.origin) {
     e.respondWith(appFile(e.request));
   }
