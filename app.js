@@ -24,6 +24,7 @@ let settings = { mode: "photo", levels: ["beginner"], countries: ["ZA"], area: "
 // The short-lived "Learning path" level became how every level works.
 if (settings.levels.includes("path")) settings.levels = ["beginner"];
 let lastGrowth = { added: 0 };  // what the last answer unlocked
+const PRAISE = ["Well done!", "You're doing great!", "Nice work!", "Keep it up!"];
 let areas = { areas: [], birds: {} };  // named birding areas and their bird lists
 let areaSets = {};                      // area id -> Set of bird ids
 let nearSet = null;                     // bird ids recorded near settings.near
@@ -89,20 +90,20 @@ function beginnerIds() {
   return beginnerCache.ids;
 }
 
-// Progression: whatever levels are chosen, you start with the 12 most common of those birds
+// Progression: whatever levels are chosen, you start with the 20 most common of those birds
 // in the chosen place, and each next batch is bigger (5, 10, 15, 20, ...), commonest first, so
 // with all levels it runs Beginner -> Easy -> Medium -> Hard. The next batch joins once 40% of
 // the birds in play are mastered (right 3 times in a row). When every bird of the chosen levels
 // is in play, the next level up is ticked automatically. Each choice of levels keeps its own
 // progress, and it only ever grows.
 const PATH_KEY = "sabirds.progression.v1";
-const PATH_FIRST = 12, PATH_STEP = 5, PATH_MASTERED_SHARE = 0.4;
+const PATH_FIRST = 20, PATH_STEP = 5, PATH_MASTERED_SHARE = 0.4;
 const LEVEL_STEPS = ["beginner", "easy", "medium", "hard"];
 const LEVEL_ORDER = { easy: 1, medium: 2, hard: 3 };
 const pathSizes = load(PATH_KEY, {});   // { "beginner+easy": 27, "all": 62, ... }
 // Ticking every level is the same as ticking none: all birds, one shared progress.
 const pathChoice = () => (settings.levels.length >= 4 ? "all" : [...settings.levels].sort().join("+") || "all");
-const pathSizeOf = () => pathSizes[pathChoice()] ?? PATH_FIRST;
+const pathSizeOf = () => Math.max(pathSizes[pathChoice()] ?? 0, PATH_FIRST);
 
 // A family chosen from the progress screen is a small fixed set, studied all at once.
 const progressive = () => !settings.family;
@@ -133,7 +134,7 @@ function pathList() {
   return pathCache.list;
 }
 
-// Where each batch starts and ends: 12, then +5, +10, +15, ...
+// Where each batch starts and ends: 20, then +5, +10, +15, ...
 function pathBatch(size) {
   let start = 0, end = PATH_FIRST, step = PATH_STEP;
   while (end < size) { start = end; end += step; step += PATH_STEP; }
@@ -1044,11 +1045,10 @@ function record(result, picked) {
   $("score").textContent = `${session.right} / ${session.seen}`;
   lastGrowth = growPath({ once: true, levelUp: true });
   if (lastGrowth.levelAdded) {
-    showToast(`You know these birds well — ${LEVEL_NAMES[lastGrowth.levelAdded]} is now ticked too`);
+    showToast(`You're doing great! ${LEVEL_NAMES[lastGrowth.levelAdded]} birds are now in your set too`);
     queue = [];
   } else if (lastGrowth.added) {
-    const total = pathList().length;
-    showToast(`${lastGrowth.added} new birds added — ${Math.min(pathSizeOf(), total)} of ${total}`);
+    showToast(`${lastGrowth.added} new birds added — ${PRAISE[Math.floor(Math.random() * PRAISE.length)]}`);
     queue = [];  // let the new birds come up soon
   }
 }
