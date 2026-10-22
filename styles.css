@@ -168,6 +168,8 @@ button:disabled:active { transform: none; }
   font-weight: 600;
   color: var(--label-2);
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex: none;
 }
 
 /* ---------- Card ---------- */
@@ -580,9 +582,42 @@ button:disabled:active { transform: none; }
 .lookalikes span, .lookalikes small { padding: 0 8px; }
 .lookalikes small { color: var(--label-2); font-size: var(--fs-caption); font-weight: 500; }
 
-.compare { width: min(720px, 100% - 16px); padding: 16px; overflow-y: auto; }
+.compare { width: min(720px, 100%); padding: 0 16px calc(16px + env(safe-area-inset-bottom)); }
 .compare-body { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px; }
-.compare .col img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius-sm); background: #000; }
+.cmp-photos { position: relative; border-radius: var(--radius-sm); overflow: hidden; background: #000; }
+.cmp-strip {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  cursor: pointer;
+}
+.cmp-strip::-webkit-scrollbar { display: none; }
+.cmp-strip img {
+  flex: 0 0 100%;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  -webkit-user-drag: none;
+}
+.cmp-count {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  background: rgba(20, 24, 22, .55);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+}
 .compare .col h3 { margin: 8px 0 0; font-size: var(--fs-headline); font-weight: 600; letter-spacing: -.01em; line-height: 1.25; }
 .compare .col .sci { margin: 2px 0 8px; font-style: italic; color: var(--label-2); font-size: var(--fs-footnote); }
 .compare .col .small { min-height: var(--tap); width: 100%; margin: 0 0 8px; font-size: var(--fs-subhead); }
@@ -808,4 +843,22 @@ body.titled .subbar { border-bottom-color: var(--separator); }
 }
 @media (prefers-reduced-motion: reduce) {
   .bar h1, .bar-title { transition: none; }
+}
+
+/* First time a bird is shown */
+.new-tag {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--good);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+  pointer-events: none;
 }

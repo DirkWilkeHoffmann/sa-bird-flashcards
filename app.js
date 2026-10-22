@@ -27,7 +27,9 @@ let nearSet = null;                     // bird ids recorded near settings.near
 let queue = [];                     // upcoming cards, prefetched
 let card = null;                    // { s, kind, photos, callIndex }
 let session = { right: 0, seen: 0 };
-let hiddenPhotos = new Set(load(HIDDEN_KEY, []));  // photos reported as bad (e.g. a dead bird)
+let hiddenPhotos = new Set(load(HIDDEN_KEY, []));
+const SEEN_KEY = "sabirds.seenBirds.v1";
+let seenBirds = new Set(load(SEEN_KEY, []));      // birds already shown on this phone (for the NEW tag)  // photos reported as bad (e.g. a dead bird)
 // The owner's final say on flagged photos (from the review emails), kept for offline use.
 let photoDecisions = load("sabirds.photoDecisions.v1", { removed: [], kept: [] });
 
@@ -59,7 +61,7 @@ function inSet(s) {
 function levelOk(s) {
   if (!settings.levels.length) return true;
   if (settings.levels.includes(s.level)) return true;
-  return settings.levels.includes("beginner") && beginnerIds().has(s.id);
+  return settings.levels.includes("beginner") && (starterActive() ? starterIds() : beginnerIds()).has(s.id);
 }
 
 // The most-recorded birds for the chosen place: a named area uses its own record counts,
@@ -72,9 +74,42 @@ function beginnerIds() {
     const ranked = settings.area && settings.area !== "near" && areas.birds[settings.area]
       ? areas.birds[settings.area].map((id) => byId.get(id)).filter(Boolean)
       : [...species].sort((x, y) => y.obs - x.obs);
-    beginnerCache = { key, ids: new Set(ranked.filter(placeOk).slice(0, BEGINNER_COUNT).map((x) => x.id)) };
+    const list = ranked.filter(placeOk).slice(0, BEGINNER_COUNT).map((x) => x.id);
+    beginnerCache = { key, list, ids: new Set(list) };
   }
   return beginnerCache.ids;
+}
+
+// Starter group: on Beginner alone, a new player starts with the 12 most common birds.
+// When two-thirds of the group are known (right twice in a row), the next 5 join, up to all 50.
+// The group only ever grows, so a wrong answer never takes birds away.
+const STARTER_KEY = "sabirds.starterSize.v1";
+const STARTER_FIRST = 12, STARTER_STEP = 5, STARTER_KNOWN_STREAK = 2;
+let starterSize = load(STARTER_KEY, STARTER_FIRST);
+
+const starterActive = () => settings.levels.length === 1 && settings.levels[0] === "beginner" && !settings.family;
+
+function starterIds() {
+  beginnerIds();
+  return new Set(beginnerCache.list.slice(0, starterSize));
+}
+
+// Returns how many birds joined.
+function growStarter() {
+  if (!starterActive() || !species.length) return 0;
+  beginnerIds();
+  const list = beginnerCache.list;
+  const before = starterSize;
+  while (starterSize < list.length) {
+    const group = list.slice(0, starterSize);
+    const known = group.filter((id) => (stats[id]?.streak || 0) >= STARTER_KNOWN_STREAK).length;
+    if (known < Math.ceil((group.length * 2) / 3)) break;
+    starterSize = Math.min(list.length, starterSize + STARTER_STEP);
+  }
+  if (starterSize === before) return 0;
+  save(STARTER_KEY, starterSize);
+  $("filterSummary").textContent = summary();
+  return Math.min(starterSize, list.length) - before;
 }
 
 // Every filter except the level.
@@ -97,6 +132,10 @@ function summary() {
   const parts = [];
   if (settings.family) parts.push(species.find((s) => s.family === settings.family)?.familyName || settings.family);
   parts.push(settings.levels.length ? settings.levels.map((l) => LEVEL_NAMES[l]).join("+") : "All levels");
+  if (starterActive() && species.length) {
+    const total = (beginnerIds(), beginnerCache.list.length);
+    if (starterSize < total) parts.push(`${starterSize} of ${total} birds`);
+  }
   if (settings.area === "near") parts.push("Near me");
   else if (settings.area) parts.push(areas.areas.find((a) => a.id === settings.area)?.name || "");
   if (settings.countries.length) {
@@ -683,6 +722,11 @@ function nextCard() {
   fillQueue();
   card = queue.shift();
   card.calls ??= card.s.calls;
+  // A bird never shown before gets a NEW tag (decided once per card, so Undo keeps it).
+  card.isNew ??= !stats[card.s.id] && !seenBirds.has(card.s.id);
+  seenBirds.add(card.s.id);
+  save(SEEN_KEY, [...seenBirds]);
+  $("newTag").hidden = !card.isNew;
   fillQueue();
   // Once this bird's photos have had a head start, fetch all of the next bird's too.
   const upcoming = queue[0];
@@ -918,6 +962,11 @@ function record(result, picked) {
   session.seen++;
   if (result === "right") session.right++;
   $("score").textContent = `${session.right} / ${session.seen}`;
+  const added = growStarter();
+  if (added) {
+    showToast(`${added} new birds added — ${Math.min(starterSize, beginnerCache.list.length)} of ${beginnerCache.list.length}`);
+    queue = [];  // let the new birds come up soon
+  }
 }
 
 /* ---------- Info: description, range map, months ---------- */
@@ -1113,14 +1162,39 @@ function lookalikes(s) {
   return [grid, note];
 }
 
+// A bird's photos side by side: swipe through them, or tap for the next one.
+function comparePhotos(s) {
+  const wrap = document.createElement("div");
+  wrap.className = "cmp-photos";
+  const strip = document.createElement("div");
+  strip.className = "cmp-strip";
+  s.photos.forEach((p, i) => {
+    const img = document.createElement("img");
+    img.alt = `${s.name}, photo ${i + 1}`;
+    img.draggable = false;
+    if (i > 0) img.loading = "lazy";
+    img.src = photoUrl(p, "medium");
+    strip.append(img);
+  });
+  const count = document.createElement("span");
+  count.className = "cmp-count";
+  const at = () => Math.round(strip.scrollLeft / (strip.clientWidth || 1));
+  const show = () => { count.textContent = `${at() + 1} / ${s.photos.length}`; };
+  strip.addEventListener("scroll", show, { passive: true });
+  strip.addEventListener("click", () => {
+    const next = (at() + 1) % s.photos.length;
+    strip.scrollTo({ left: next * strip.clientWidth, behavior: reducedMotion() ? "auto" : "smooth" });
+  });
+  count.hidden = s.photos.length < 2;
+  show();
+  wrap.append(strip, count);
+  return wrap;
+}
+
 function compareColumn(s) {
   const col = document.createElement("div");
   col.className = "col";
-  let i = 0;
-  const img = document.createElement("img");
-  img.alt = s.name;
-  img.src = photoUrl(s.photos[0], "medium");
-  img.addEventListener("click", () => { i = (i + 1) % s.photos.length; img.src = photoUrl(s.photos[i], "medium"); });
+  const photos = comparePhotos(s);
   const name = document.createElement("h3");
   name.textContent = s.name;
   const sci = document.createElement("p");
@@ -1133,7 +1207,7 @@ function compareColumn(s) {
     const d = w?.sections.find((x) => x.h === "Description")?.text || w?.intro || "";
     text.textContent = trimText(d, 420);
   });
-  col.append(img, name, sci);
+  col.append(photos, name, sci);
   if (s.calls.length) {
     const audio = new Audio();
     audio.preload = "none";
@@ -1279,6 +1353,7 @@ $("settings").addEventListener("close", async () => {
   if (next.area === "near" && !next.near) next.area = "";  // location was refused
   settings = next;
   save(SETTINGS_KEY, settings);
+  growStarter();  // a new place has its own most-common birds; catch up on those you know
   $("filterSummary").textContent = summary();
   queue = [];
   nextCard();
@@ -1355,6 +1430,7 @@ Promise.all([
         .filter(([id]) => byId.has(id))
         .map(([id, why]) => ({ s: byId.get(id), why }));
     }
+    growStarter();
     $("filterSummary").textContent = summary();
     nextCard();
     startSync();
