@@ -224,23 +224,39 @@ function summary() {
 // How the next bird is chosen:
 //  1. Right after new birds join, up to 4 of them come first, so you meet them straight away.
 //  2. Otherwise 90% of cards are birds you're still learning (or haven't seen), 10% birds you've
-//     mastered. Within that group, birds not yet shown since the app opened come first; after
-//     that the bird is picked at random from the third that has waited longest, so every bird
-//     comes round regularly instead of the same ones circling.
-//  3. Birds seen in the last few cards are skipped, and birds you've hidden for a while
-//     ("Seeing this bird too often?") are left out.
+//     mastered. Within that group, birds are drawn by weight (see weight()), so ones you miss
+//     come up more often.
+//  3. Birds seen in the last few cards are skipped, so none comes back too soon, and birds
+//     you've hidden for a while ("Seeing this bird too often?") are left out.
 const MASTERED_SHARE = 0.1;
 const RECENT_MAX = 8;              // never repeat a bird within this many cards (half the set if smaller)
 const INTRO_COUNT = 4;             // new birds shown in a row when a batch joins
 const SNOOZE_KEY = "sabirds.snoozed.v1";
 const SNOOZE_MS = 24 * 60 * 60 * 1000;
 let recentIds = [];                // birds shown lately, newest last
-let cardCount = 0;
-const lastShown = new Map();       // speciesId -> card number it was last shown at
 let introIds = [];                 // just-added birds to show next
 let snoozed = load(SNOOZE_KEY, {}); // { [speciesId]: hidden until (ms) }
 
 const isSnoozed = (id) => (snoozed[id] || 0) > Date.now();
+
+// A bird's weight: new birds 2; otherwise 1, plus 2 per wrong answer and 1 per hint, minus 0.5
+// per right answer (a full 1 once the bird is mastered, so mastered birds fade out), at least 0.3.
+function weight(s) {
+  const st = stats[s.id];
+  if (!st) return 2;
+  const perRight = mastered(s.id) ? 1 : 0.5;
+  return Math.max(0.3, 1 + (st.wrong || 0) * 2 + (st.hint || 0) - (st.right || 0) * perRight);
+}
+
+function drawByWeight(list) {
+  const weights = list.map(weight);
+  let r = Math.random() * weights.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < list.length; i++) {
+    r -= weights[i];
+    if (r <= 0) return list[i];
+  }
+  return list[list.length - 1];
+}
 
 function pickSpecies(exclude) {
   while (introIds.length) {
@@ -258,10 +274,7 @@ function pickSpecies(exclude) {
   const masteredBirds = from.filter((s) => mastered(s.id));
   const learning = from.filter((s) => !mastered(s.id));
   const group = masteredBirds.length && (!learning.length || Math.random() < MASTERED_SHARE) ? masteredBirds : learning;
-  const unseen = group.filter((x) => !lastShown.has(x.id));  // not yet shown since the app opened
-  const waited = shuffle([...group]).sort((a, b) => (lastShown.get(a.id) ?? -1) - (lastShown.get(b.id) ?? -1));
-  const longest = unseen.length ? unseen : waited.slice(0, Math.max(1, Math.ceil(waited.length / 3)));
-  return longest[Math.floor(Math.random() * longest.length)];
+  return drawByWeight(group);
 }
 
 function makeCard(exclude) {
@@ -833,7 +846,6 @@ function nextCard() {
   card = queue.shift();
   card.calls ??= card.s.calls;
   recentIds = [...recentIds.filter((id) => id !== card.s.id), card.s.id].slice(-RECENT_MAX * 2);
-  lastShown.set(card.s.id, ++cardCount);
   // A bird never shown before gets a NEW tag (decided once per card, so Undo keeps it).
   card.isNew ??= !stats[card.s.id] && !seenBirds.has(card.s.id);
   seenBirds.add(card.s.id);
