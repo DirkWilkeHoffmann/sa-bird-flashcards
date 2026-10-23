@@ -197,7 +197,10 @@ button:disabled:active { transform: none; }
   will-change: transform;
   z-index: 2;  /* a skipped card flies over the header */
 }
-.card.revealed .media { flex: 0 0 38%; min-height: 0; }
+/* After the reveal the photo sits at the top of the scrolling answer (see showInfo). */
+.card.revealed .media { flex: none; min-height: 0; margin-bottom: 14px; }
+.card.revealed .carousel { touch-action: pan-x pan-y; }  /* sideways = photos, up/down = scroll */
+.card.revealed .info > :not(.media) { transform: translateY(var(--rise, 0)); opacity: var(--fade, 1); }
 
 .carousel {
   position: absolute;

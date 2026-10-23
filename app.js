@@ -865,9 +865,12 @@ function nextCard() {
   $("card").classList.remove("more-below");
   placeCard({ x: 0, y: 0, r: 0, s: 1, o: 1 });
   $("card").classList.remove("revealed");
+  // The photo goes back to the top of the card for the next bird.
+  if ($("media").parentElement !== $("card")) $("card").prepend($("media"));
+  $("media").style.height = "";
   $("media").style.flexBasis = "";
-  $("info").style.transform = "";
-  $("info").style.opacity = "";
+  $("info").style.removeProperty("--rise");
+  $("info").style.removeProperty("--fade");
   $("info").hidden = true;
   $("info").scrollTop = 0;
   buildCarousel(card.photos);
@@ -910,38 +913,36 @@ function showInfo(result) {
   // Learn both ways: call cards now show the photos.
   $("sound").hidden = true;
   resetZoom();
-  const media = $("media"), info = $("info");
-  const wasRevealed = $("card").classList.contains("revealed");
+  const media = $("media"), info = $("info"), cardEl = $("card");
+  const wasRevealed = cardEl.classList.contains("revealed");
   const from = media.getBoundingClientRect().height;
-  $("card").classList.add("revealed");
+  const to = Math.round(cardEl.clientHeight * 0.38);
+  cardEl.classList.add("revealed");
   info.hidden = false;
+  // The photo becomes the top of the scrolling answer, so it scrolls away with the text using
+  // the phone's own scrolling (nothing changes size while you scroll).
+  if (media.parentElement !== info) info.prepend(media);
+  media.style.height = `${to}px`;
   info.scrollTop = 0; // only works once visible: always open at the name
   $("barTitle").textContent = s.name;
-  media.style.flexBasis = "";
   recentre();
   if (wasRevealed) return;
-  // The photo shrinks smoothly to make room, and the answer rises into the space.
-  const to = media.getBoundingClientRect().height;
+  // The photo shrinks smoothly to make room, and the answer rises in below it.
   animate("reveal", { h: from, y: 40, o: 0 }, { h: to, y: 0, o: 1 }, {
     response: 0.45,
     onUpdate: ({ h, y, o }) => {
-      media.style.flexBasis = `${h}px`;
-      info.style.transform = y ? `translateY(${y}px)` : "";
-      info.style.opacity = o === 1 ? "" : String(o);
+      media.style.height = `${h}px`;
+      info.style.setProperty("--rise", `${y}px`);
+      info.style.setProperty("--fade", String(o));
     },
-    onDone: () => { media.style.flexBasis = ""; recentre(); scrollEdges(); },
+    onDone: () => { info.style.removeProperty("--rise"); info.style.removeProperty("--fade"); recentre(); scrollEdges(); },
   });
 }
 
-// Scrolling the info panel shrinks the photo, so the text and map get the whole screen.
 // Once the name has scrolled away, it appears small in the header (like iOS titles do), and the
 // see-through toolbar gets its edge line only while there is more text underneath it.
 $("info").addEventListener("scroll", () => {
-  if (!$("card").classList.contains("revealed")) return;
-  scrollEdges();
-  if (anims.has("reveal")) return;
-  const full = $("card").clientHeight * 0.38;
-  $("media").style.flexBasis = `${Math.max(0, full - $("info").scrollTop)}px`;
+  if ($("card").classList.contains("revealed")) scrollEdges();
 }, { passive: true });
 
 function scrollEdges() {
