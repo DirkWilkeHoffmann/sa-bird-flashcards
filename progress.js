@@ -17,6 +17,8 @@ let mixups = load(MIXUPS_KEY, {});  // { [speciesId]: { [pickedId]: count } }
 let dirty = new Set(load("sabirds.dirty.v1", []));  // birds changed since the last successful push
 let hiddenDirty = new Set(load("sabirds.hiddenDirty.v1", []));
 let syncTimer = null;
+const EVENTS_KEY = "sabirds.events.v1";
+let events = load(EVENTS_KEY, []);  // anonymous usage events waiting to be sent: { t, id, d, at }
 let lastSync = null;
 
 /* ---------- Status ---------- */
@@ -43,6 +45,25 @@ function noteHidden(photoId, speciesId) {
   hiddenDirty.add(`${photoId}:${speciesId}`);
   save("sabirds.hiddenDirty.v1", [...hiddenDirty]);
   syncSoon();
+}
+
+/* ---------- Usage events ---------- */
+// Anonymous counts of what players do (answers, hints, skips, level-ups, …), sent with the
+// normal sync under the hashed sync code: no names or emails. Shown on admin.html.
+function logEvent(t, id = null, d = null) {
+  events.push({ t, id, d, at: new Date().toISOString() });
+  if (events.length > 1000) events = events.slice(-1000);  // offline for a long time: keep the newest
+  save(EVENTS_KEY, events);
+  syncSoon();
+}
+
+async function sendEvents() {
+  while (events.length) {
+    const batch = events.slice(0, 500);
+    await rpc("log_events", { p_key: syncCode(), p_env: IS_DEV ? "dev" : "main", p_events: batch });
+    events = events.slice(batch.length);
+    save(EVENTS_KEY, events);
+  }
 }
 
 /* ---------- Sync ---------- */
@@ -179,6 +200,7 @@ async function syncNow() {
     // First sync on this phone: send everything learned before syncing existed.
     if (!load("sabirds.syncedOnce.v1", false)) Object.keys(stats).forEach((id) => dirty.add(id));
     await pushDirty();
+    await sendEvents().catch(() => {});  // usage counts are optional; progress matters more
     mergeRemote(await rpc("sync_pull", { p_key: syncCode() }));
     if (growPath().added) queue = [];  // progress from another device unlocks birds here too
     await applyDecisions().catch(() => {});

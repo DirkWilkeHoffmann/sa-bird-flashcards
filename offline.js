@@ -178,6 +178,7 @@ async function startDownload() {
   await runQueue(tasks, tick);
   await wiki;
 
+  logEvent("offline_download", null, { birds: downloadSet.length, cancelled });
   // Remember what this phone now has (merging with earlier downloads).
   for (const [id, p] of plan) {
     if (!p.photos.length) continue;  // nothing usable arrived for this bird

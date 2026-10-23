@@ -348,7 +348,7 @@ function hidePhoto() {
         showSlides(at.card);
       }
     },
-    commit: () => { noteHidden(p.id, s.id); reportPhoto(p, s); },
+    commit: () => { noteHidden(p.id, s.id); reportPhoto(p, s); logEvent("flag_photo", s.id); },
   });
 }
 
@@ -609,6 +609,7 @@ function onCallError() {
 }
 
 function callFailed() {
+  logEvent("call_failed", card.s.id);
   $("soundType").textContent = "None of this bird's recordings will load right now (the sound libraries may be down). Tap Reveal to see the answer.";
   $("hearCall").textContent = "Call unavailable right now";
   $("play").classList.remove("playing");
@@ -652,6 +653,7 @@ function placeCard(v = cardPos) {
 const offTop = () => -($("media").getBoundingClientRect().bottom + 40);
 
 function flyAway(velocity = { x: 0, y: -1600 }) {
+  logEvent("skip", card.s.id);
   skipped = card;
   const r = cardPos.x / 40;
   const gone = offTop() + 40;  // the card's bottom edge has left the screen
@@ -716,6 +718,7 @@ $("toastAction").addEventListener("click", () => {
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") hideToast(); });
 
 function undoSkip() {
+  if (skipped) logEvent("undo_skip", skipped.s.id);
   if (!skipped) return;
   const back = { ...skipped, tried: undefined, wantPlay: false };
   queue.unshift(back, card);  // the skipped bird again, then the one that replaced it
@@ -1028,6 +1031,7 @@ async function showRangeHint() {
 
 // Step 1: guess the kind of bird until right. Distractors get harder: same family, same order, anything.
 function hint() {
+  logEvent("hint", card.s.id);
   const kind = kindOf(card.s);
   const others = [];
   const tiers = [(s) => s.family === card.s.family, (s) => s.order === card.s.order, () => true];
@@ -1084,6 +1088,7 @@ function record(result, picked) {
   stats[card.s.id] = st;
   save(STATS_KEY, stats);
   if (picked) noteMixup(card.s.id, picked.id);
+  logEvent("answer", card.s.id, { r: result, kind: card.kind, ...(picked ? { hint: true } : {}) });
   markDirty(card.s.id);
   session.seen++;
   if (result === "right") session.right++;
@@ -1093,6 +1098,8 @@ function record(result, picked) {
   if (lastGrowth.added || lastGrowth.levelAdded) {
     introIds = shuffle([...pathIds()].filter((id) => !before.has(id))).slice(0, INTRO_COUNT);
   }
+  if (lastGrowth.added) logEvent("batch", null, { n: lastGrowth.added, size: pathSizeOf() });
+  if (lastGrowth.levelUp) logEvent("level_up", null, { level: lastGrowth.stage, auto: Boolean(lastGrowth.levelAdded) });
   if (lastGrowth.levelAdded) {
     showToast(`You're doing great! ${LEVEL_NAMES[lastGrowth.levelAdded]} birds are now in your set too`);
     queue = [];
@@ -1381,6 +1388,7 @@ function compareColumn(s) {
 }
 
 function openCompare(a, b) {
+  logEvent("compare", a.id, { with: b.id });
   $("audio").pause();
   const body = $("compareBody");
   body.replaceChildren(compareColumn(a), compareColumn(b));
@@ -1550,6 +1558,7 @@ $("snooze").addEventListener("click", () => {
   const s = card.s;
   snoozed = Object.fromEntries(Object.entries(snoozed).filter(([, until]) => until > Date.now()));
   snoozed[s.id] = Date.now() + SNOOZE_MS;
+  logEvent("snooze", s.id);
   save(SNOOZE_KEY, snoozed);
   queue = queue.filter((c) => c.s.id !== s.id);
   $("snooze").disabled = true;
@@ -1608,6 +1617,7 @@ Promise.all([
     growPath();
     $("filterSummary").textContent = summary();
     nextCard();
+    logEvent("open", null, { levels: settings.levels.join("+") || "all", mode: settings.mode, offline: !navigator.onLine });
     startSync();
   })
   .catch(() => {

@@ -60,6 +60,8 @@ async function signOut() {
     $("accountStatus").textContent = "Couldn't save your latest progress to your account. Connect to the internet and try again.";
     return;
   }
+  logEvent("sign_out");
+  await sendEvents().catch(() => {});
   await authClient.auth.signOut();
   account = null;
   startFresh();
@@ -73,6 +75,7 @@ if (authClient) {
     const fresh = user && user.id !== account?.id;
     account = user;
     renderAccount();
+    if (fresh && event === "SIGNED_IN") logEvent("sign_in");
     if (fresh) {
       linkAccount(user).catch(() => { $("accountStatus").textContent = "Signed in, but couldn't link your progress yet — it will retry next time."; });
     }
