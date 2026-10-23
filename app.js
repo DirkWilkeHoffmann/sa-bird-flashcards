@@ -918,7 +918,6 @@ function showInfo(result) {
   info.scrollTop = 0; // only works once visible: always open at the name
   $("barTitle").textContent = s.name;
   media.style.flexBasis = "";
-  placeAnswer();
   recentre();
   if (wasRevealed) return;
   // The photo shrinks smoothly to make room, and the answer rises into the space.
@@ -927,25 +926,22 @@ function showInfo(result) {
     response: 0.45,
     onUpdate: ({ h, y, o }) => {
       media.style.flexBasis = `${h}px`;
-      placeAnswer();
       info.style.transform = y ? `translateY(${y}px)` : "";
       info.style.opacity = o === 1 ? "" : String(o);
     },
-    onDone: () => { media.style.flexBasis = ""; placeAnswer(); recentre(); scrollEdges(); },
+    onDone: () => { media.style.flexBasis = ""; recentre(); scrollEdges(); },
   });
 }
 
-// The answer starts just below the photo and slides up over it as you scroll.
-function placeAnswer() {
-  const card = $("card"), media = $("media");
-  const top = media.getBoundingClientRect().bottom - card.getBoundingClientRect().top + 12;
-  card.style.setProperty("--photo-h", `${Math.max(0, top)}px`);
-}
-
+// Scrolling the info panel shrinks the photo, so the text and map get the whole screen.
 // Once the name has scrolled away, it appears small in the header (like iOS titles do), and the
 // see-through toolbar gets its edge line only while there is more text underneath it.
 $("info").addEventListener("scroll", () => {
-  if ($("card").classList.contains("revealed")) scrollEdges();
+  if (!$("card").classList.contains("revealed")) return;
+  scrollEdges();
+  if (anims.has("reveal")) return;
+  const full = $("card").clientHeight * 0.38;
+  $("media").style.flexBasis = `${Math.max(0, full - $("info").scrollTop)}px`;
 }, { passive: true });
 
 function scrollEdges() {
@@ -960,7 +956,7 @@ function scrollEdges() {
 function recentre() {
   requestAnimationFrame(() => { carousel.scrollLeft = slideIndex * carousel.clientWidth; });
 }
-window.addEventListener("resize", () => { resetZoom(); recentre(); if ($("card").classList.contains("revealed")) placeAnswer(); });
+window.addEventListener("resize", () => { resetZoom(); recentre(); });
 
 function reveal() {
   showInfo();

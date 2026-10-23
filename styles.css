@@ -815,25 +815,7 @@ body.titled .bar-title { opacity: 1; transform: none; left: 16px; }
 body.titled .subbar { border-bottom-color: var(--separator); }
 
 /* After the reveal, the answer runs all the way down, under a frosted toolbar. */
-/* After the reveal the photo stays still and the answer is a card that slides up over it, so
-   nothing resizes while you scroll. The empty top of the scroll area lets touches through to
-   the photo (swipe through photos), until the answer covers it. */
-.card.revealed .info {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  padding: var(--photo-h, 40%) 0 0;
-  pointer-events: none;
-}
-.card.revealed .info-body {
-  position: relative;
-  min-height: 100%;
-  padding: 14px 16px 100px;
-  border-radius: 22px 22px 0 0;
-  background: var(--bg);
-  box-shadow: 0 -8px 24px rgba(0, 0, 0, .12);
-  pointer-events: auto;
-}
+.card.revealed .info { padding-bottom: 88px; margin-bottom: -12px; }
 .card.revealed #grade, .card.revealed #after {
   position: absolute;
   left: 0;
