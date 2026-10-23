@@ -64,6 +64,45 @@
     .key { display: flex; gap: 8px; max-width: 420px; }
     .key input { flex: 1; min-height: 40px; padding: 0 12px; border: 0; border-radius: 10px; font: inherit; color: var(--label); background: var(--bg-elev); }
     .key button { min-height: 40px; padding: 0 16px; border: 0; border-radius: 10px; font: inherit; font-weight: 600; color: #fff; background: var(--tint); }
+    /* Players */
+    .sort { margin: 0 0 10px; }
+    .players { display: grid; gap: 8px; }
+    .player { display: grid; grid-template-columns: 44px 1fr auto; gap: 4px 12px; align-items: center; width: 100%;
+      padding: 12px; border: 0; border-radius: 14px; font: inherit; text-align: left; color: var(--label); background: var(--bg-elev); cursor: pointer; }
+    .player:active { opacity: .7; }
+    .avatar { grid-row: span 2; width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: var(--fill-2);
+      display: grid; place-items: center; font-weight: 700; color: var(--label-2); }
+    .player .who b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .player .who span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--label-2); font-size: .8rem; }
+    .player .when { text-align: right; font-size: .8rem; color: var(--label-2); white-space: nowrap; }
+    .player .when b { display: block; color: var(--label); font-size: .88rem; }
+    .player .nums { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .78rem; color: var(--label-2); }
+    .player .nums b { color: var(--label); font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: .7rem; font-weight: 600; color: var(--label-2); background: var(--fill); }
+    /* Player detail */
+    dialog { width: min(720px, 100%); max-height: calc(100% - 24px); margin: auto auto 0; padding: 0 16px 24px; border: 0;
+      border-radius: 22px 22px 0 0; color: var(--label); background: var(--bg); }
+    dialog::backdrop { background: rgba(0, 0, 0, .4); }
+    .dhead { position: sticky; top: 0; display: flex; align-items: center; gap: 12px; padding: 16px 0 10px; background: var(--bg); z-index: 1; }
+    .dhead .avatar { grid-row: auto; flex: none; }
+    .dhead div { flex: 1; min-width: 0; }
+    .dhead b { display: block; font-size: 1.15rem; }
+    .dhead span { color: var(--label-2); font-size: .85rem; }
+    .close { flex: none; width: 40px; height: 40px; border: 0; border-radius: 50%; font-size: 1.1rem; color: var(--label); background: var(--fill); }
+    .facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 14px; margin: 4px 0 8px; font-size: .85rem; }
+    .facts div span { display: block; color: var(--label-2); font-size: .75rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chips span { padding: 3px 10px; border-radius: 999px; font-size: .78rem; background: var(--bg-elev); }
+    .chips span.m { color: var(--good); }
+    .timeline { list-style: none; margin: 0; padding: 0; font-size: .85rem; }
+    .timeline li { display: flex; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--fill); }
+    .timeline time { flex: none; width: 92px; color: var(--label-2); font-size: .78rem; }
+    details.history summary { cursor: pointer; color: var(--tint); font-weight: 600; margin: 14px 0 8px; }
+    .hist { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+    .hist div { overflow: hidden; border-radius: 12px; background: var(--bg-elev); font-size: .78rem; }
+    .hist img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: #000; }
+    .hist p { margin: 6px 8px 8px; }
+    .hist .kept { color: var(--good); font-weight: 600; } .hist .removed { color: var(--bad); font-weight: 600; }
   </style>
 </head>
 <body>
@@ -88,6 +127,15 @@
       <h2>At a glance</h2>
       <div class="tiles" id="tiles"></div>
 
+      <h2>Players <span id="playerCount"></span></h2>
+      <div class="controls sort" id="sortBtns">
+        <button type="button" data-sort="last_played" aria-pressed="true">Last played</button>
+        <button type="button" data-sort="answers">Most answers</button>
+        <button type="button" data-sort="mastered">Most mastered</button>
+        <button type="button" data-sort="signed_up">Newest sign-ups</button>
+      </div>
+      <div class="players" id="players"></div>
+
       <h2>Over time</h2>
       <div class="grid2" id="charts"></div>
 
@@ -101,7 +149,9 @@
 
       <h2>Flagged photos <span id="flagCount"></span></h2>
       <div class="photos" id="photos"></div>
+      <details class="history" id="historyBox"><summary>Decisions so far</summary><div class="hist" id="history"></div></details>
     </div>
+    <dialog id="playerDlg"></dialog>
   </main>
   <script>
     "use strict";
@@ -113,7 +163,7 @@
     const EVENT_NAMES = { open: "App opened", answer: "Answers", hint: "Hints used", skip: "Birds skipped", undo_skip: "Skips undone",
       snooze: "Hidden for a day", batch: "New birds added", level_up: "Moved up a level", sign_in: "Signed in", sign_out: "Signed out",
       call_failed: "Calls that wouldn't play", flag_photo: "Photos flagged", compare: "Compare opened", offline_download: "Offline downloads" };
-    let env = "main", days = 30, names = new Map();
+    let env = "main", days = 30, names = new Map(), players = [], sortBy = "last_played";
 
     const rpc = (name, body) => fetch(`${RPC}/${name}`, {
       method: "POST", headers: { apikey: API_KEY, "Content-Type": "application/json" }, body: JSON.stringify(body),
@@ -182,15 +232,113 @@
         : `<p class="empty">Nothing to review. 🎉</p>`;
     }
 
+    // "3 h ago", "yesterday", "12 Oct"
+    function ago(t) {
+      if (!t) return "—";
+      const s = (Date.now() - new Date(t)) / 1000;
+      if (s < 90) return "just now";
+      if (s < 3600) return `${Math.round(s / 60)} min ago`;
+      if (s < 86400) return `${Math.round(s / 3600)} h ago`;
+      if (s < 172800) return "yesterday";
+      if (s < 7 * 86400) return `${Math.floor(s / 86400)} days ago`;
+      return new Date(t).toLocaleDateString("en-ZA", { day: "numeric", month: "short" });
+    }
+    const day = (t) => (t ? new Date(t).toLocaleString("en-ZA", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "—");
+    const pct = (a, b) => (b ? `${Math.round((a / b) * 100)}%` : "—");
+    const avatar = (p) => (p.picture ? `<img class="avatar" src="${esc(p.picture)}" alt="" referrerpolicy="no-referrer">`
+      : `<span class="avatar">${esc((p.name || "G")[0].toUpperCase())}</span>`);
+    const label = (p) => p.name || p.email || `Guest ${p.id.slice(0, 4)}`;
+
+    function renderPlayers() {
+      const key = (p) => (sortBy === "last_played" || sortBy === "signed_up" ? new Date(p[sortBy] || 0).getTime() : p[sortBy] || 0);
+      const list = [...players].sort((a, b) => key(b) - key(a));
+      $("playerCount").textContent = `(${players.length})`;
+      $("players").innerHTML = list.map((p) => `
+        <button class="player" type="button" data-id="${esc(p.id)}">
+          ${avatar(p)}
+          <span class="who"><b>${esc(label(p))}</b><span>${p.email ? esc(p.email) : "Not signed in"}${p.app === "dev" ? ' · <span class="pill">Dev</span>' : ""}</span></span>
+          <span class="when"><b>${ago(p.last_played)}</b>${p.days_played} day${p.days_played === 1 ? "" : "s"} played</span>
+          <span class="nums"><span><b>${fmt(p.answers)}</b> answers</span><span><b>${pct(p.right, p.answers)}</b> right</span>
+            <span><b>${fmt(p.mastered)}</b> mastered</span><span><b>${fmt(p.learning)}</b> learning</span>
+            ${p.hints ? `<span><b>${fmt(p.hints)}</b> hints</span>` : ""}${p.skips ? `<span><b>${fmt(p.skips)}</b> skips</span>` : ""}
+            ${p.levels ? `<span class="pill">${esc(p.levels)}</span>` : ""}</span>
+        </button>`).join("") || `<p class="empty">No players yet.</p>`;
+    }
+
+    const EVENT_VERBS = { open: "Opened the app", answer: "Answered", hint: "Used a hint", skip: "Skipped", undo_skip: "Undid a skip",
+      snooze: "Hid for a day", batch: "New birds added", level_up: "Moved up a level", sign_in: "Signed in", sign_out: "Signed out",
+      call_failed: "Call wouldn't play", flag_photo: "Flagged a photo", compare: "Compared", offline_download: "Downloaded for offline" };
+    function eventText(e) {
+      const b = e.id ? ` ${bird(e.id).name}` : "";
+      const d = e.d || {};
+      if (e.type === "answer") return `${d.r === "right" ? "✓ Got" : "✗ Missed"}${b}${d.hint ? " (with hint)" : ""}`;
+      if (e.type === "batch") return `${d.n} new birds added`;
+      if (e.type === "level_up") return `Moved up to ${d.level}${d.auto ? " (ticked automatically)" : ""}`;
+      if (e.type === "compare") return `Compared${b} with ${bird(d.with).name}`;
+      if (e.type === "open") return `Opened the app${d.levels ? ` · ${d.levels}` : ""}${d.offline ? " · offline" : ""}`;
+      if (e.type === "offline_download") return `Downloaded ${d.birds} birds for offline`;
+      return `${EVENT_VERBS[e.type] || e.type}${b}`;
+    }
+
+    async function openPlayer(id) {
+      const p = players.find((x) => x.id === id);
+      const dlg = $("playerDlg");
+      dlg.innerHTML = `<div class="dhead">${avatar(p)}<div><b>${esc(label(p))}</b><span>${p.email ? esc(p.email) : "Not signed in"}</span></div>
+        <button class="close" type="button" aria-label="Close">✕</button></div><p class="msg">Loading…</p>`;
+      dlg.showModal();
+      dlg.querySelector(".close").onclick = () => dlg.close();
+      const d = await rpc("admin_player", { p_key: key(), p_id: id, p_env: env }).catch(() => null);
+      if (!d) { dlg.querySelector(".msg").textContent = "Couldn't load this player."; return; }
+      const mastered = d.birds.filter((x) => x.streak >= 3);
+      const learning = d.birds.filter((x) => x.streak < 3).sort((a, b) => (b.wrong - b.right / 2) - (a.wrong - a.right / 2));
+      const chip = (x, cls = "") => `<span class="${cls}">${esc(bird(x.id).name)} <small>${x.right}✓ ${x.wrong}✗</small></span>`;
+      dlg.querySelector(".msg").outerHTML = `
+        <div class="tiles">
+          <div class="tile"><b>${fmt(p.answers)}</b><span>Answers · ${pct(p.right, p.answers)} right</span></div>
+          <div class="tile"><b>${fmt(p.mastered)}</b><span>Mastered</span></div>
+          <div class="tile"><b>${fmt(p.learning)}</b><span>Learning</span></div>
+          <div class="tile"><b>${fmt(p.days_played)}</b><span>Days played</span></div>
+        </div>
+        <div class="facts">
+          <div><span>Signed up</span>${day(p.signed_up)}</div><div><span>Last sign-in</span>${day(p.last_sign_in)}</div>
+          <div><span>First played</span>${day(p.first_played)}</div><div><span>Last played</span>${day(p.last_played)}</div>
+          <div><span>Levels</span>${esc(p.levels || "—")}</div><div><span>Cards</span>${esc(p.mode || "—")}</div>
+          <div><span>App opens</span>${fmt(p.opens)}</div><div><span>Hints · skips</span>${fmt(p.hints)} · ${fmt(p.skips)}</div>
+          <div><span>Hidden for a day</span>${fmt(p.snoozes)}</div><div><span>Level-ups</span>${fmt(p.level_ups)}</div>
+          <div><span>Calls that failed</span>${fmt(p.call_failed)}</div><div><span>Photos hidden</span>${fmt(d.hidden_photos)}</div>
+        </div>
+        <h2>Finding hardest (${learning.length} learning)</h2>
+        <div class="chips">${learning.slice(0, 40).map((x) => chip(x)).join("") || '<span class="empty">None</span>'}</div>
+        <h2>Mastered (${mastered.length})</h2>
+        <div class="chips">${mastered.map((x) => chip(x, "m")).join("") || '<span class="empty">None yet</span>'}</div>
+        <h2>Mix-ups</h2>
+        <div class="card"><table>${d.mixups.length ? `<tr><th>Bird</th><th>Mistaken for</th><th class="num">Times</th></tr>` + d.mixups.slice(0, 20).map((m) =>
+          `<tr><td>${esc(bird(m.id).name)}</td><td>${esc(bird(m.picked).name)}</td><td class="num">${m.n}</td></tr>`).join("") : '<tr><td class="empty">None</td></tr>'}</table></div>
+        <h2>Recent activity</h2>
+        <ul class="timeline">${d.recent.map((e) => `<li><time>${day(e.at)}</time><span>${esc(eventText(e))}</span></li>`).join("")
+          || '<li class="empty">No activity recorded yet (counts started on 23 Oct).</li>'}</ul>`;
+    }
+
+    async function loadHistory() {
+      const h = await rpc("admin_photo_history", { p_key: key() }).catch(() => []);
+      $("history").innerHTML = h.map((x) => `<div><img src="${esc(String(x.photo_url).replace("/large.", "/medium."))}" alt="" loading="lazy">
+        <p><b>${esc(x.species_name)}</b><br><span class="${x.status}">${x.status === "kept" ? "Kept" : "Removed"}</span> · ${x.decided_at ? new Date(x.decided_at).toLocaleDateString("en-ZA") : ""}</p></div>`).join("")
+        || '<p class="empty">No decisions yet.</p>';
+    }
+
     async function load() {
       if (!key()) { $("keyForm").hidden = false; $("report").hidden = true; return; }
       $("msg").textContent = "Loading…";
       try {
-        const r = await rpc("admin_report", { p_key: key(), p_env: env, p_days: days });
+        const [r, pl] = await Promise.all([rpc("admin_report", { p_key: key(), p_env: env, p_days: days }),
+          rpc("admin_players", { p_key: key(), p_env: env })]);
         $("msg").textContent = "";
         $("keyForm").hidden = true;
         $("report").hidden = false;
         render(r);
+        players = pl;
+        renderPlayers();
+        loadHistory();
       } catch (e) {
         $("msg").textContent = String(e.message).includes("not allowed") ? "That key isn't accepted." : "Couldn't load the dashboard. Check your connection.";
         if (String(e.message).includes("not allowed")) { try { localStorage.removeItem(KEY); } catch { /* */ } $("keyForm").hidden = false; }
@@ -214,6 +362,16 @@
       $("dayBtns").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
       load();
     });
+    $("sortBtns").addEventListener("click", (e) => {
+      const b = e.target.closest("button"); if (!b) return;
+      sortBy = b.dataset.sort;
+      $("sortBtns").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      renderPlayers();
+    });
+    $("players").addEventListener("click", (e) => {
+      const b = e.target.closest(".player"); if (b) openPlayer(b.dataset.id);
+    });
+    $("playerDlg").addEventListener("click", (e) => { if (e.target === $("playerDlg")) $("playerDlg").close(); });
     $("photos").addEventListener("click", async (e) => {
       const b = e.target.closest("button[data-d]"); if (!b) return;
       const card = b.closest(".photo");
