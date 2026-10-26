@@ -320,6 +320,7 @@ button:disabled:active { transform: none; }
   letter-spacing: -.02em;
 }
 .info p { margin: 2px 0 0; color: var(--label-2); font-size: var(--fs-subhead); }
+.info .alt-name { margin-top: 3px; color: var(--label); font-size: var(--fs-headline); font-weight: 500; }
 .info .sci { font-style: italic; }
 .info .small {
   display: inline-flex;
@@ -623,6 +624,7 @@ button:disabled:active { transform: none; }
   pointer-events: none;
 }
 .compare .col h3 { margin: 8px 0 0; font-size: var(--fs-headline); font-weight: 600; letter-spacing: -.01em; line-height: 1.25; }
+.compare .col .alt-name { margin: 1px 0 0; font-size: var(--fs-subhead); color: var(--label); }
 .compare .col .sci { margin: 2px 0 8px; font-style: italic; color: var(--label-2); font-size: var(--fs-footnote); }
 .compare .col .small { min-height: var(--tap); width: 100%; margin: 0 0 8px; font-size: var(--fs-subhead); }
 .compare .col .desc { font-size: var(--fs-footnote); line-height: 1.45; color: var(--label); margin: 0; }

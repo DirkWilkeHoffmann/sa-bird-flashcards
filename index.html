@@ -74,6 +74,7 @@
     <section class="info" id="info" hidden>
       <p class="result" id="result" hidden></p>
       <h2 id="name"></h2>
+      <p class="alt-name" id="altName" hidden></p>
       <p class="sci" id="sci"></p>
       <p class="family" id="family"></p>
       <div class="tags" id="tags"></div>
@@ -129,6 +130,13 @@
       <fieldset>
         <legend>Seen in</legend>
         <div class="chips" id="countryChips"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Bird names</legend>
+        <div class="chips" id="nameChips">
+          <label><input type="radio" name="names" value="en"> English first</label>
+          <label><input type="radio" name="names" value="af"> Afrikaans first</label>
+        </div>
       </fieldset>
       <p class="family-filter" id="familyFilter" hidden>
         <label><input type="checkbox" id="familyOnly" checked> Only <span id="familyName"></span></label>

@@ -23,6 +23,16 @@ let stats = load(STATS_KEY, {});   // { [speciesId]: { right, wrong, hint, strea
 let settings = { mode: "photo", levels: ["beginner"], countries: ["ZA"], area: "", near: null, ...load(SETTINGS_KEY, {}) };
 // The short-lived "Learning path" level became how every level works.
 if (settings.levels.includes("path")) settings.levels = ["beginner"];
+// Names: English with the Afrikaans name under it, or the other way round.
+const NAMES_KEY = "sabirds.names.v1";
+let afFirst = load(NAMES_KEY, "en") === "af";
+const nameOf = (s) => (afFirst && s.af) || s.name;
+const otherNameOf = (s) => (afFirst ? (s.af ? s.name : "") : s.af || "");
+function setAltName(el, s) {
+  el.textContent = otherNameOf(s);
+  el.lang = afFirst ? "en" : "af";
+  el.hidden = !el.textContent;
+}
 let lastGrowth = { added: 0 };  // what the last answer unlocked
 const PRAISE = ["Well done!", "You're doing great!", "Nice work!", "Keep it up!"];
 let areas = { areas: [], birds: {} };  // named birding areas and their bird lists
@@ -887,7 +897,9 @@ function credit(attr) {
 
 function showInfo(result) {
   const s = card.s;
-  $("name").textContent = s.name;
+  $("name").textContent = nameOf(s);
+  $("name").lang = afFirst && s.af ? "af" : "en";
+  setAltName($("altName"), s);
   $("sci").textContent = s.sci;
   $("family").textContent = s.familyName ? `${s.familyName} (${s.family})` : s.family || "";
   const tags = [`<span class="level-${s.level}">${LEVEL_NAMES[s.level]}</span>`,
@@ -924,7 +936,7 @@ function showInfo(result) {
   if (media.parentElement !== info) info.prepend(media);
   media.style.height = `${to}px`;
   info.scrollTop = 0; // only works once visible: always open at the name
-  $("barTitle").textContent = s.name;
+  $("barTitle").textContent = nameOf(s);
   recentre();
   if (wasRevealed) return;
   // The photo shrinks smoothly to make room, and the answer rises in below it.
@@ -1059,13 +1071,13 @@ function whichOne(kind) {
   const same = shuffle(species.filter((s) => s !== card.s && kindOf(s) === kind)).slice(0, 3);
   if (!same.length) { choose(card.s, "✓ Correct!"); return; }
   const fill = similar(card.s).filter((s) => !same.includes(s)).slice(0, 3 - same.length);
-  choiceButtons(`Which ${kind}?`, shuffle([card.s, ...same, ...fill]), (s) => s.name, (s, b) => {
+  choiceButtons(`Which ${kind}?`, shuffle([card.s, ...same, ...fill]), nameOf, (s, b) => {
     // Show at once whether the pick was right, then the answer.
     const ok = s === card.s;
     b.classList.add(ok ? "correct" : "wrong");
     if (!ok) {
       shake(b);
-      [...$("choices").querySelectorAll("button")].find((x) => x.textContent === card.s.name)?.classList.add("correct");
+      [...$("choices").querySelectorAll("button")].find((x) => x.textContent === nameOf(card.s))?.classList.add("correct");
     }
     haptic(10);
     for (const other of $("choices").querySelectorAll("button")) other.disabled = true;
@@ -1076,7 +1088,7 @@ function whichOne(kind) {
 function choose(chosen, message) {
   const ok = chosen === card.s;
   record("wrong", ok ? null : chosen); // any answer that needed a hint counts as a miss
-  showInfo({ ok, picked: chosen.name, message });
+  showInfo({ ok, picked: nameOf(chosen), message });
   setPanels({ after: true });
 }
 
@@ -1303,7 +1315,7 @@ function lookalikes(s) {
     b.type = "button";
     b.innerHTML = `<img alt="" loading="lazy"><span></span><small></small>`;
     b.querySelector("img").src = photoUrl(other.photos[0], "square");
-    b.querySelector("span").textContent = other.name;
+    b.querySelector("span").textContent = nameOf(other);
     b.querySelector("small").textContent = why === "mine" ? `You mixed these up ${n}×`
       : why === "mixup" ? "Often mixed up" : "Close relative";
     b.addEventListener("click", () => openCompare(s, other));
@@ -1323,7 +1335,7 @@ function comparePhotos(s) {
   strip.className = "cmp-strip";
   s.photos.forEach((p, i) => {
     const img = document.createElement("img");
-    img.alt = `${s.name}, photo ${i + 1}`;
+    img.alt = `${nameOf(s)}, photo ${i + 1}`;
     img.draggable = false;
     if (i > 0) img.loading = "lazy";
     img.src = photoUrl(p, "medium");
@@ -1349,7 +1361,10 @@ function compareColumn(s) {
   col.className = "col";
   const photos = comparePhotos(s);
   const name = document.createElement("h3");
-  name.textContent = s.name;
+  name.textContent = nameOf(s);
+  const alt = document.createElement("p");
+  alt.className = "alt-name";
+  setAltName(alt, s);
   const sci = document.createElement("p");
   sci.className = "sci";
   sci.textContent = s.sci;
@@ -1360,7 +1375,7 @@ function compareColumn(s) {
     const d = w?.sections.find((x) => x.h === "Description")?.text || w?.intro || "";
     text.textContent = trimText(d, 420);
   });
-  col.append(photos, name, sci);
+  col.append(photos, name, alt, sci);
   if (s.calls.length) {
     const audio = new Audio();
     audio.preload = "none";
@@ -1474,6 +1489,7 @@ function openSettings() {
     if (el.name === "mode") el.checked = el.value === settings.mode;
     if (el.name === "level") el.checked = settings.levels.includes(el.value);
     if (el.name === "country") el.checked = settings.countries.includes(el.value);
+    if (el.name === "names") el.checked = el.value === (afFirst ? "af" : "en");
   }
   $("areaSelect").value = settings.area || "";
   pendingNear = settings.near;
@@ -1506,7 +1522,19 @@ function updateCount() {
 $("countryChips").innerHTML = Object.entries(COUNTRY_NAMES)
   .map(([code, name]) => `<label><input type="checkbox" name="country" value="${code}"> ${name}</label>`)
   .join("");
-$("settings").addEventListener("change", updateCount);
+$("settings").addEventListener("change", (e) => {
+  if (e.target.name !== "names") { updateCount(); return; }
+  // Takes effect straight away, without changing the study set or the card.
+  afFirst = e.target.value === "af";
+  save(NAMES_KEY, afFirst ? "af" : "en");
+  logEvent("names", null, { first: afFirst ? "af" : "en" });
+  if (card && $("card").classList.contains("revealed")) {
+    $("name").textContent = nameOf(card.s);
+    $("name").lang = afFirst && card.s.af ? "af" : "en";
+    setAltName($("altName"), card.s);
+    $("barTitle").textContent = nameOf(card.s);
+  }
+});
 let nearPending = null;  // location lookup still running when the sheet closes
 
 $("settings").addEventListener("close", async () => {
@@ -1563,8 +1591,8 @@ $("snooze").addEventListener("click", () => {
   save(SNOOZE_KEY, snoozed);
   queue = queue.filter((c) => c.s.id !== s.id);
   $("snooze").disabled = true;
-  $("snooze").textContent = `${s.name} is hidden until tomorrow`;
-  showToast(`${s.name} hidden for a day`, {
+  $("snooze").textContent = `${nameOf(s)} is hidden until tomorrow`;
+  showToast(`${nameOf(s)} hidden for a day`, {
     undo: () => {
       delete snoozed[s.id];
       save(SNOOZE_KEY, snoozed);
