@@ -4,7 +4,7 @@
 // Offline downloads (offline.js) live in their own cache, which is never trimmed.
 // The Dev build (…/dev/) shares this site with the main app, so its caches get their own names.
 const PREFIX = self.registration.scope.includes("/dev/") ? "sabirds-dev-" : "sabirds-";
-const APP_CACHE = `${PREFIX}app-v37`;
+const APP_CACHE = `${PREFIX}app-v38`;
 const PHOTO_CACHE = `${PREFIX}photos-v1`;
 const WIKI_CACHE = `${PREFIX}wiki-v1`;
 const INFO_CACHE = `${PREFIX}info-v1`;  // each bird's range/months file, kept across app updates
@@ -14,7 +14,9 @@ const APP_FILES = [
 ];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(APP_CACHE).then((c) => c.addAll(APP_FILES)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(APP_CACHE)
+    .then((c) => c.addAll(APP_FILES.map((f) => new Request(f, { cache: "no-cache" }))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (e) => {
@@ -53,7 +55,9 @@ async function cacheFirst(name, request) {
 async function appFile(request) {
   const cache = await caches.open(APP_CACHE);
   try {
-    const response = await fetch(request);
+    // Always ask the server whether the file changed (GitHub Pages otherwise lets the phone
+    // reuse it for 10 minutes), so a new version shows up the next time the app opens.
+    const response = await fetch(request, { cache: "no-cache" });
     if (response.ok) cache.put(request, response.clone());
     return response;
   } catch {
