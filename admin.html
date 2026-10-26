@@ -60,6 +60,14 @@
     .keep { color: var(--good); background: color-mix(in srgb, var(--good) 16%, transparent); }
     .remove { color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, transparent); }
     .photo.done { opacity: .45; }
+    .names { display: grid; gap: 10px; }
+    .namerep { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; padding: 12px 14px; border-radius: 14px; background: var(--bg-elev); }
+    .namerep .what { flex: 1 1 260px; min-width: 0; }
+    .namerep .what p { margin: 2px 0 0; font-size: .85rem; color: var(--label-2); }
+    .namerep .arrow { font-weight: 600; color: var(--label); }
+    .namerep .actions { display: flex; gap: 8px; }
+    .namerep button { min-height: 40px; padding: 0 16px; border: 0; border-radius: 10px; font: inherit; font-weight: 600; }
+    .namerep.done { opacity: .45; }
     .empty, .msg { color: var(--label-2); font-size: .88rem; }
     .key { display: flex; gap: 8px; max-width: 420px; }
     .key input { flex: 1; min-height: 40px; padding: 0 12px; border: 0; border-radius: 10px; font: inherit; color: var(--label); background: var(--bg-elev); }
@@ -150,6 +158,9 @@
       <h2>Flagged photos <span id="flagCount"></span></h2>
       <div class="photos" id="photos"></div>
       <details class="history" id="historyBox"><summary>Decisions so far</summary><div class="hist" id="history"></div></details>
+
+      <h2>Afrikaans name suggestions <span id="nameCount"></span></h2>
+      <div class="names" id="names"></div>
     </div>
     <dialog id="playerDlg"></dialog>
   </main>
@@ -162,7 +173,8 @@
     const $ = (id) => document.getElementById(id);
     const EVENT_NAMES = { open: "App opened", answer: "Answers", hint: "Hints used", skip: "Birds skipped", undo_skip: "Skips undone",
       snooze: "Hidden for a day", batch: "New birds added", level_up: "Moved up a level", sign_in: "Signed in", sign_out: "Signed out",
-      call_failed: "Calls that wouldn't play", flag_photo: "Photos flagged", compare: "Compare opened", offline_download: "Offline downloads" };
+      call_failed: "Calls that wouldn't play", flag_photo: "Photos flagged", compare: "Compare opened", offline_download: "Offline downloads",
+      names: "Switched name language", name_report: "Afrikaans names questioned" };
     let env = "main", days = 30, names = new Map(), players = [], sortBy = "last_played";
 
     const rpc = (name, body) => fetch(`${RPC}/${name}`, {
@@ -267,7 +279,8 @@
 
     const EVENT_VERBS = { open: "Opened the app", answer: "Answered", hint: "Used a hint", skip: "Skipped", undo_skip: "Undid a skip",
       snooze: "Hid for a day", batch: "New birds added", level_up: "Moved up a level", sign_in: "Signed in", sign_out: "Signed out",
-      call_failed: "Call wouldn't play", flag_photo: "Flagged a photo", compare: "Compared", offline_download: "Downloaded for offline" };
+      call_failed: "Call wouldn't play", flag_photo: "Flagged a photo", compare: "Compared", offline_download: "Downloaded for offline",
+      names: "Switched name language", name_report: "Questioned an Afrikaans name" };
     function eventText(e) {
       const b = e.id ? ` ${bird(e.id).name}` : "";
       const d = e.d || {};
@@ -326,6 +339,23 @@
         || '<p class="empty">No decisions yet.</p>';
     }
 
+    // Suggestions from players who think an Afrikaans name is wrong (all versions of the app).
+    async function loadNames() {
+      const list = (await rpc("admin_name_reports", { p_key: key() }).catch(() => null)) || [];
+      const open = list.filter((x) => x.status === "pending");
+      $("nameCount").textContent = open.length ? `(${open.length})` : "";
+      $("names").innerHTML = list.map((x) => `
+        <div class="namerep${x.status === "pending" ? "" : " done"}" data-id="${x.id}">
+          <div class="what"><b>${esc(x.species_name)}</b>
+            <p><span class="arrow">${esc(x.current_name || "(no name)")} → ${esc(x.suggestion || "?")}</span></p>
+            ${x.note ? `<p>“${esc(x.note)}”</p>` : ""}
+            <p>${new Date(x.reported_at).toLocaleDateString("en-ZA")}${x.env === "main" ? "" : ` · ${esc(x.env)}`}</p></div>
+          <div class="actions">${x.status === "pending"
+            ? `<button class="keep" data-s="done" type="button">Done</button><button class="remove" data-s="dismissed" type="button">Dismiss</button>`
+            : `<p>${x.status === "done" ? "Done" : "Dismissed"}</p>`}</div>
+        </div>`).join("") || '<p class="empty">No suggestions yet.</p>';
+    }
+
     async function load() {
       if (!key()) { $("keyForm").hidden = false; $("report").hidden = true; return; }
       $("msg").textContent = "Loading…";
@@ -339,6 +369,7 @@
         players = pl;
         renderPlayers();
         loadHistory();
+        loadNames();
       } catch (e) {
         $("msg").textContent = String(e.message).includes("not allowed") ? "That key isn't accepted." : "Couldn't load the dashboard. Check your connection.";
         if (String(e.message).includes("not allowed")) { try { localStorage.removeItem(KEY); } catch { /* */ } $("keyForm").hidden = false; }
@@ -384,6 +415,15 @@
         card.querySelectorAll("button").forEach((x) => { x.disabled = false; });
         card.querySelector("p").textContent = "Couldn't save that. Check your connection and try again.";
       }
+    });
+
+    $("names").addEventListener("click", async (e) => {
+      const b = e.target.closest("button[data-s]"); if (!b) return;
+      const row = b.closest(".namerep");
+      row.querySelectorAll("button").forEach((x) => { x.disabled = true; });
+      const ok = await rpc("admin_name_report_set", { p_key: key(), p_id: Number(row.dataset.id), p_status: b.dataset.s }).catch(() => false);
+      if (ok === true) loadNames();
+      else row.querySelectorAll("button").forEach((x) => { x.disabled = false; });
     });
 
     // Bird names and thumbnails come from the app's own data file.

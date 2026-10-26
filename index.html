@@ -149,6 +149,23 @@
     </form>
   </dialog>
 
+  <dialog class="sheet" id="nameSheet">
+    <form method="dialog">
+      <div class="sheet-head">
+        <button class="close-x" type="submit" aria-label="Close"><svg class="i"><use href="#i-xmark"/></svg></button>
+        <h2>Afrikaans name</h2>
+      </div>
+      <p class="name-ask">Is <b id="nameNow" lang="af"></b> the right Afrikaans name for <span id="nameBird"></span>? If you think it's wrong, tell us what it should be.</p>
+      <label class="field"><span>What should it be?</span>
+        <input class="select" id="nameSuggest" type="text" lang="af" autocomplete="off" autocapitalize="sentences" maxlength="120" placeholder="The right Afrikaans name">
+      </label>
+      <label class="field"><span>Anything else? <small>(optional)</small></span>
+        <textarea class="select" id="nameNote" rows="2" maxlength="500" placeholder="e.g. that's the old name"></textarea>
+      </label>
+      <button class="btn primary" id="nameSend" type="button" disabled>Send</button>
+    </form>
+  </dialog>
+
   <dialog class="sheet" id="rangeHint">
     <form method="dialog">
       <div class="sheet-head">

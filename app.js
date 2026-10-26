@@ -33,6 +33,20 @@ function setAltName(el, s) {
   el.lang = afFirst ? "en" : "af";
   el.hidden = !el.textContent;
 }
+// The answer screen's two names, with a small "?" after the Afrikaans one to suggest a better name.
+function showNames(s) {
+  $("name").textContent = nameOf(s);
+  $("name").lang = afFirst && s.af ? "af" : "en";
+  setAltName($("altName"), s);
+  if (!s.af) return;
+  const q = document.createElement("button");
+  q.type = "button";
+  q.className = "name-q";
+  q.textContent = "?";
+  q.setAttribute("aria-label", "Is this Afrikaans name wrong?");
+  q.addEventListener("click", () => openNameSheet(s));
+  (afFirst ? $("name") : $("altName")).append(q);
+}
 let lastGrowth = { added: 0 };  // what the last answer unlocked
 const PRAISE = ["Well done!", "You're doing great!", "Nice work!", "Keep it up!"];
 let areas = { areas: [], birds: {} };  // named birding areas and their bird lists
@@ -897,9 +911,7 @@ function credit(attr) {
 
 function showInfo(result) {
   const s = card.s;
-  $("name").textContent = nameOf(s);
-  $("name").lang = afFirst && s.af ? "af" : "en";
-  setAltName($("altName"), s);
+  showNames(s);
   $("sci").textContent = s.sci;
   $("family").textContent = s.familyName ? `${s.familyName} (${s.family})` : s.family || "";
   const tags = [`<span class="level-${s.level}">${LEVEL_NAMES[s.level]}</span>`,
@@ -1529,9 +1541,7 @@ $("settings").addEventListener("change", (e) => {
   save(NAMES_KEY, afFirst ? "af" : "en");
   logEvent("names", null, { first: afFirst ? "af" : "en" });
   if (card && $("card").classList.contains("revealed")) {
-    $("name").textContent = nameOf(card.s);
-    $("name").lang = afFirst && card.s.af ? "af" : "en";
-    setAltName($("altName"), card.s);
+    showNames(card.s);
     $("barTitle").textContent = nameOf(card.s);
   }
 });
@@ -1549,6 +1559,34 @@ $("settings").addEventListener("close", async () => {
   queue = [];
   nextCard();
 });
+/* ---------- Suggest a better Afrikaans name ---------- */
+
+let nameFor = null;
+function openNameSheet(s) {
+  nameFor = s;
+  $("nameNow").textContent = s.af;
+  $("nameBird").textContent = s.name;
+  $("nameSuggest").value = "";
+  $("nameNote").value = "";
+  $("nameSend").disabled = true;
+  openSheet($("nameSheet"));
+}
+$("nameSheet").addEventListener("input", () => {
+  $("nameSend").disabled = !$("nameSuggest").value.trim() && !$("nameNote").value.trim();
+});
+$("nameSuggest").addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  e.preventDefault();  // Enter sends instead of closing the sheet
+  if (!$("nameSend").disabled) $("nameSend").click();
+});
+$("nameSend").addEventListener("click", () => {
+  reportName(nameFor, $("nameSuggest").value.trim(), $("nameNote").value.trim());
+  logEvent("name_report", nameFor.id);
+  haptic(10);
+  closeSheet($("nameSheet"));
+  showToast("Thanks! We'll take a look.");
+});
+
 $("openSettings").addEventListener("click", openSettings);
 $("setLine").addEventListener("click", openSettings);
 

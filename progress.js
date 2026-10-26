@@ -161,6 +161,14 @@ function reportPhoto(photo, s) {
   sendReports();
 }
 
+// Someone thinks a bird's Afrikaans name is wrong; sent the same way, so it waits if offline.
+function reportName(s, suggestion, note) {
+  pendingReports.push({ action: "name", species_id: s.id, species_name: s.name, current_name: s.af || "",
+                        suggestion, note, env: IS_DEV ? "dev" : "main" });
+  save(REPORTS_KEY, pendingReports);
+  sendReports();
+}
+
 async function sendReports() {
   while (pendingReports.length) {
     const r = await fetch(REVIEW_URL, {
