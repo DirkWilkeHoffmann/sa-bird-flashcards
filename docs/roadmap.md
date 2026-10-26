@@ -48,6 +48,12 @@
    header, are set when you scroll. If the text finishes loading after you've scrolled to the end,
    the line can stay until you scroll again. Fix: also update when the content finishes loading.
 
+7. **Afrikaans names (on Dev).** 840 of 852 birds have one (mostly from Afrikaans Wikipedia).
+   Still missing: 12 rare Hard birds (Sooty Gull, Black Skimmer, Saunders's Tern, Upland Sandpiper,
+   Upcher's Warbler, Red-throated Rock Martin, Red-tailed Shrike, White Wagtail, Rufous-tailed
+   Scrub-Robin, Angola Cave-Chat, Wood Warbler, Lesser Whitethroat). The "Which Weaver?" hint step
+   stays in English, because Afrikaans names don't share a group word.
+
 ## Checks only Dirk can do
 7. **Dark mode status bar.** Do the clock and battery look right in dark mode on the iPhone?
 8. **Supabase redirect for Dev.** Is `https://dirkwilkehoffmann.github.io/sa-bird-flashcards/dev/`
