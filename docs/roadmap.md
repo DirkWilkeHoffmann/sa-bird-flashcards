@@ -54,6 +54,17 @@
    Scrub-Robin, Angola Cave-Chat, Wood Warbler, Lesser Whitethroat). The "Which Weaver?" hint step
    stays in English, because Afrikaans names don't share a group word.
 
+### Reviewed 26 Oct 2026, kept as they are for now
+Full write-up: the "SA Birds Progression Review" page (flow charts of every rule).
+- **Areas outside SA with "South Africa" ticked** hide the birds not also found in SA
+  (e.g. Etosha 266 of 278, Victoria Falls & Hwange 319 of 333). Fix if needed: a named area
+  ignores the country ticks.
+- **Switching area keeps the number of birds in play** (e.g. 95 in Gauteng gives 95 in Cape Town
+  at once). Option: progress per area too.
+- **Batch size later on** (item 3) and **unticking an auto-added level** (item 4): unchanged.
+- **Usage-count clean-up:** events grow ~5 MB a day at ~250 active players, and the free
+  database holds 500 MB. Add a nightly job keeping 90 days before about 3 months after launch.
+
 ## Checks only Dirk can do
 7. **Dark mode status bar.** Do the clock and battery look right in dark mode on the iPhone?
 8. **Supabase redirect for Dev.** Is `https://dirkwilkehoffmann.github.io/sa-bird-flashcards/dev/`

@@ -1218,26 +1218,53 @@ function record(result, picked) {
   }
   if (lastGrowth.added) logEvent("batch", null, { n: lastGrowth.added, size: pathSizeOf() });
   if (lastGrowth.levelUp) logEvent("level_up", null, { level: lastGrowth.stage, auto: Boolean(lastGrowth.levelAdded) });
+  // While signed out, each win also offers to sign in, so the new birds aren't lost.
+  const keep = signedOut() ? { action: { label: "Sign in", run: () => signInFrom("batch") }, ms: 7000 } : {};
   if (lastGrowth.levelAdded) {
-    showToast(`You're doing great! ${LEVEL_NAMES[lastGrowth.levelAdded]} birds are now in your set too`);
+    showToast(`You're doing great! ${LEVEL_NAMES[lastGrowth.levelAdded]} birds are now in your set too`, keep);
     queue = [];
   } else if (lastGrowth.added) {
-    showToast(`${lastGrowth.added} new birds added — ${PRAISE[Math.floor(Math.random() * PRAISE.length)]}`);
+    showToast(signedOut() ? `${lastGrowth.added} new birds unlocked! Sign in to keep them`
+      : `${lastGrowth.added} new birds added — ${PRAISE[Math.floor(Math.random() * PRAISE.length)]}`, keep);
     queue = [];  // let the new birds come up soon
   } else {
     nudgeSignIn();
   }
 }
 
-// Once, after the first 10 answers on this phone: a reminder to sign in so progress isn't lost.
+// Reminders to sign in, so progress isn't lost: once after the first 10 answers on this phone,
+// with every batch of new birds (above), and once a day when the app is opened.
 const NUDGE_KEY = "sabirds.signInNudged.v1";
-function nudgeSignIn() {
-  if (typeof account === "undefined" || account || !authClient || load(NUDGE_KEY, false)) return;
-  const answers = Object.values(stats).reduce((n, st) => n + (st.right || 0) + (st.wrong || 0), 0);
-  if (answers < 10) return;
-  save(NUDGE_KEY, true);
-  showToast("Sign in to keep your progress safe", { action: { label: "Sign in", run: signIn }, ms: 8000 });
+const DAILY_NUDGE_KEY = "sabirds.signInDaily.v1";
+const signedOut = () => typeof authClient !== "undefined" && Boolean(authClient) && !account;
+const answerCount = () => Object.values(stats).reduce((n, st) => n + (st.right || 0) + (st.wrong || 0), 0);
+
+function signInFrom(from) {
+  save("sabirds.signInFrom.v1", from);  // which reminder worked, for the dashboard
+  signIn();
 }
+
+function nudgeSignIn() {
+  if (!signedOut() || load(NUDGE_KEY, false) || answerCount() < 10) return;
+  save(NUDGE_KEY, true);
+  save(DAILY_NUDGE_KEY, new Date().toDateString());  // that's today's reminder
+  showToast("Sign in to keep your progress safe", { action: { label: "Sign in", run: () => signInFrom("first") }, ms: 8000 });
+}
+
+function dailySignInNudge() {
+  if (!signedOut() || answerCount() < 10) return;  // brand-new players get the 10-answer one first
+  const today = new Date().toDateString();
+  if (load(DAILY_NUDGE_KEY, "") === today) return;
+  save(DAILY_NUDGE_KEY, today);
+  const n = Object.keys(stats).filter(mastered).length;
+  showToast(n ? `Welcome back! Sign in to save your ${n} mastered bird${n === 1 ? "" : "s"}`
+    : "Welcome back! Sign in to keep your progress safe",
+  { action: { label: "Sign in", run: () => signInFrom("daily") }, ms: 8000 });
+}
+// Coming back to the app (it often resumes rather than restarts) counts as opening it.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") setTimeout(dailySignInNudge, 1500);
+});
 
 /* ---------- Info: description, range map, months ---------- */
 

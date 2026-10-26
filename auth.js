@@ -75,7 +75,12 @@ if (authClient) {
     const fresh = user && user.id !== account?.id;
     account = user;
     renderAccount();
-    if (fresh && event === "SIGNED_IN") logEvent("sign_in");
+    if (fresh && event === "SIGNED_IN") {
+      logEvent("sign_in", null, { from: load("sabirds.signInFrom.v1", "link") });
+      save("sabirds.signInFrom.v1", "link");
+    }
+    // Opening the app signed out: today's reminder, once the first card is up.
+    if (event === "INITIAL_SESSION" && !user) setTimeout(dailySignInNudge, 2500);
     if (fresh) {
       linkAccount(user).catch(() => { $("accountStatus").textContent = "Signed in, but couldn't link your progress yet — it will retry next time."; });
     }
@@ -85,8 +90,8 @@ if (authClient) {
 }
 
 $("signIn").addEventListener("click", signIn);
-$("barSignIn").addEventListener("click", signIn);
-$("sheetSignIn").addEventListener("click", signIn);
+$("barSignIn").addEventListener("click", () => signInFrom("bar"));
+$("sheetSignIn").addEventListener("click", () => signInFrom("progress"));
 $("signOut").addEventListener("click", signOut);
 $("progressBtn").addEventListener("click", renderAccount);
 renderAccount();
