@@ -291,7 +291,60 @@ button:disabled:active { transform: none; }
   box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
 }
 .play .i { width: 1em; height: 1em; }
-.play.playing { color: #fff; background: var(--good); }
+.play { position: relative; }
+.play[data-state="playing"] { color: #fff; background: var(--good); }
+.play .spin { border-width: 4px; }
+/* How far through the recording: a ring around the big play button. */
+.play::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: conic-gradient(var(--good) calc(var(--p, 0) * 1turn), rgba(255, 255, 255, .16) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
+  opacity: 0;
+  transition: opacity .2s;
+}
+.play:is([data-state="playing"], [data-state="paused"], [data-state="loading"])::before { opacity: 1; }
+
+/* Call buttons: spinner while loading, moving bars and a filling line while playing. */
+.call-btn:not(.play) { position: relative; overflow: hidden; }
+.call-btn:not(.play)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: calc(var(--p, 0) * 100%);
+  background: currentColor;
+  opacity: .6;
+}
+.call-btn:not(.play):is([data-state="playing"], [data-state="loading"]) {
+  color: var(--good);
+  background: color-mix(in srgb, var(--good) 16%, transparent);
+}
+.call-btn[data-state="failed"] { opacity: .55; }
+.call-btn .spin {
+  display: inline-block;
+  flex: none;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: call-spin .8s linear infinite;
+}
+@keyframes call-spin { to { transform: rotate(1turn); } }
+.call-btn .bars { display: inline-flex; align-items: flex-end; gap: 2px; height: .85em; margin-left: 2px; }
+.call-btn .bars i { width: 3px; height: 100%; border-radius: 2px; background: currentColor; transform-origin: bottom; animation: call-bars .9s ease-in-out infinite; }
+.call-btn .bars i:nth-child(2) { animation-delay: -.3s; }
+.call-btn .bars i:nth-child(3) { animation-delay: -.6s; }
+@keyframes call-bars { 0%, 100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .call-btn .bars i { animation: none; transform: scaleY(.7); }
+  .call-btn .spin { animation-duration: 2s; }
+}
 .other {
   min-height: 36px;
   padding: 0 16px;

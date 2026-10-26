@@ -589,6 +589,98 @@ carousel.addEventListener("touchend", (e) => {
   }
 });
 
+/* ---------- Call buttons ---------- */
+// Every call button shows what its recording is doing: idle, loading, playing (moving bars and
+// how far through it is), paused, finished or unavailable. Only one recording plays at a time.
+const CALL_TEXT = {
+  long: { idle: "Hear call", loading: "Loading call…", playing: "Pause", paused: "Resume", ended: "Play again", failed: "Call unavailable" },
+  short: { idle: "Call", loading: "Loading…", playing: "Pause", paused: "Resume", ended: "Again", failed: "Unavailable" },
+  round: { idle: "Play call", loading: "Loading call", playing: "Pause call", paused: "Resume call", ended: "Play call again", failed: "Call unavailable" },
+};
+const callButtons = new Map();  // audio element -> its buttons
+
+function callState(audio) {
+  if (audio.dataset.failed) return "failed";
+  if (!audio.paused) return audio.dataset.live ? "playing" : "loading";
+  if (audio.ended) return "ended";
+  return audio.currentTime > 0 ? "paused" : "idle";
+}
+
+function drawCallButton(b, state) {
+  const kind = b.dataset.kind;
+  const mark = state === "loading" ? '<span class="spin" aria-hidden="true"></span>'
+    : state === "failed" ? "" : icon(state === "playing" ? "pause" : "play");
+  const bars = state === "playing" && kind !== "round"
+    ? '<span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>' : "";
+  b.innerHTML = kind === "round" ? mark : `${mark}<span>${CALL_TEXT[kind][state]}</span>${bars}`;
+  if (kind === "round") b.setAttribute("aria-label", CALL_TEXT.round[state]);
+  b.dataset.state = state;
+}
+
+function renderCall(audio) {
+  const state = callState(audio);
+  const buttons = callButtons.get(audio) || new Set();
+  for (const b of buttons) {
+    if (!b.isConnected) { if (b.dataset.shown) buttons.delete(b); continue; }  // gone from the page
+    b.dataset.shown = "1";
+    if (b.dataset.state !== state) drawCallButton(b, state);
+  }
+  showCallProgress(audio);
+  // While playing, move the progress every frame (one loop per recording).
+  if (state === "playing" && !audio.dataset.ticking) {
+    audio.dataset.ticking = "1";
+    const tick = () => {
+      if (callState(audio) !== "playing") { delete audio.dataset.ticking; return; }
+      showCallProgress(audio);
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+}
+
+function showCallProgress(audio) {
+  const state = callState(audio);
+  const p = state === "idle" || state === "ended" || !audio.duration ? 0 : Math.min(1, audio.currentTime / audio.duration);
+  for (const b of callButtons.get(audio) || []) b.style.setProperty("--p", p.toFixed(4));
+}
+
+function bindCall(audio, button, kind) {
+  button.classList.add("call-btn");
+  button.dataset.kind = kind;
+  delete button.dataset.state;
+  if (!callButtons.has(audio)) {
+    callButtons.set(audio, new Set());
+    const update = (e) => {
+      if (e.type === "playing") audio.dataset.live = "1";
+      if (["waiting", "pause", "emptied", "loadstart"].includes(e.type)) delete audio.dataset.live;
+      if (e.type === "emptied") delete audio.dataset.failed;
+      if (e.type === "play") pauseOtherCalls(audio);
+      // Compare's recordings have no fallback; the main player tries the next recording (onCallError).
+      if (e.type === "error" && audio.getAttribute("src") && audio !== $("audio")) audio.dataset.failed = "1";
+      renderCall(audio);
+    };
+    for (const type of ["play", "playing", "waiting", "pause", "ended", "emptied", "loadstart", "error"]) {
+      audio.addEventListener(type, update);
+    }
+  }
+  callButtons.get(audio).add(button);
+  drawCallButton(button, callState(audio));  // may not be on the page yet
+  renderCall(audio);
+}
+
+function pauseOtherCalls(playing) {
+  for (const a of callButtons.keys()) {
+    if (a === playing) continue;
+    a.pause();
+    if (!a.isConnected) callButtons.delete(a);  // a Compare recording no longer on screen
+  }
+}
+
+// Leaving the app pauses the call; its button says Resume on return.
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) for (const a of callButtons.keys()) a.pause();
+});
+
 /* ---------- Calls ---------- */
 
 function showCall() {
@@ -635,13 +727,13 @@ function onCallError() {
 function callFailed() {
   logEvent("call_failed", card.s.id);
   $("soundType").textContent = "None of this bird's recordings will load right now (the sound libraries may be down). Tap Reveal to see the answer.";
-  $("hearCall").textContent = "Call unavailable right now";
-  $("play").classList.remove("playing");
-  $("play").innerHTML = icon("play");
+  $("audio").dataset.failed = "1";
+  renderCall($("audio"));
 }
 
 function playCall() {
   const audio = $("audio");
+  if (audio.dataset.failed) return;
   const url = card.calls[card.callIndex].url;
   if (audio.getAttribute("src") !== url) audio.src = url;
   card.wantPlay = audio.paused;
@@ -1031,8 +1123,9 @@ function hintTools() {
     b.innerHTML = label;
     b.addEventListener("click", onClick);
     row.append(b);
+    return b;
   };
-  if (card.kind === "photo" && card.calls.length) add(`${icon("speaker")} Hear call`, playCall);
+  if (card.kind === "photo" && card.calls.length) bindCall($("audio"), add("", playCall), "long");
   if (card.kind === "call" && !$("sound").hidden) add(`${icon("camera")} Show photo`, (e) => { $("sound").hidden = true; e.currentTarget.remove(); });
   add(`${icon("map")} Show range`, showRangeHint);
   return row;
@@ -1394,15 +1487,13 @@ function compareColumn(s) {
     const play = document.createElement("button");
     play.type = "button";
     play.className = "btn ghost small";
-    play.innerHTML = `${icon("play")} Call`;
     play.addEventListener("click", () => {
-      document.querySelectorAll("#compare audio, audio").forEach((a) => a !== audio && a.pause());
-      if (!audio.src) audio.src = s.calls[0].url;
+      if (audio.dataset.failed) return;
+      if (!audio.getAttribute("src")) audio.src = s.calls[0].url;
       audio.paused ? audio.play().catch(() => {}) : audio.pause();
     });
-    audio.addEventListener("play", () => { play.innerHTML = `${icon("pause")} Pause`; });
-    audio.addEventListener("pause", () => { play.innerHTML = `${icon("play")} Call`; });
     col.append(audio, play);
+    bindCall(audio, play, "short");
   }
   // Where each bird has been recorded, side by side with the other's.
   const range = document.createElement("div");
@@ -1419,11 +1510,21 @@ function openCompare(a, b) {
   logEvent("compare", a.id, { with: b.id });
   $("audio").pause();
   const body = $("compareBody");
+  stopCompareCalls();
   body.replaceChildren(compareColumn(a), compareColumn(b));
   openSheet($("compare"));
 }
 
-$("compare").addEventListener("close", () => $("compare").querySelectorAll("audio").forEach((a) => a.pause()));
+// Compare's recordings stop when it closes or shows another pair, and are forgotten.
+function stopCompareCalls() {
+  for (const a of $("compareBody").querySelectorAll("audio")) {
+    a.pause();
+    a.removeAttribute("src");
+    a.load();
+    callButtons.delete(a);
+  }
+}
+$("compare").addEventListener("close", stopCompareCalls);
 
 /* ---------- Where: named areas and near me ---------- */
 
@@ -1595,16 +1696,8 @@ $("setLine").addEventListener("click", openSettings);
 $("audio").addEventListener("error", () => {
   if ($("audio").getAttribute("src")) onCallError();
 });
-$("audio").addEventListener("play", () => {
-  $("play").classList.add("playing");
-  $("play").innerHTML = icon("pause");
-  $("hearCall").innerHTML = `${icon("pause")} Pause call`;
-});
-$("audio").addEventListener("pause", () => {
-  $("play").classList.remove("playing");
-  $("play").innerHTML = icon("play");
-  if (!$("audio").error) $("hearCall").innerHTML = `${icon("play")} Hear call`;
-});
+bindCall($("audio"), $("play"), "round");
+bindCall($("audio"), $("hearCall"), "long");
 $("play").addEventListener("click", playCall);
 $("hearCall").addEventListener("click", playCall);
 $("otherCall").addEventListener("click", () => {
