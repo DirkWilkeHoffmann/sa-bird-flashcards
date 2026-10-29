@@ -42,15 +42,16 @@
     <span class="bar-title" id="barTitle" aria-hidden="true"></span>
     <button class="sign-in-link" id="barSignIn" type="button" hidden>Sign in</button>
     <button class="icon-btn" id="progressBtn" type="button" aria-label="Your progress"><svg class="i"><use href="#i-chart"/></svg></button>
-    <button class="icon-btn" id="openSettings" type="button" aria-label="Study set"><svg class="i"><use href="#i-sliders"/></svg></button>
+    <button class="icon-btn" id="openSettings" type="button" aria-label="Area"><svg class="i"><use href="#i-sliders"/></svg></button>
   </header>
   <div class="subbar">
-    <button class="set-line" id="setLine" type="button" aria-label="Change study set">
-      <span id="filterSummary">All birds</span><svg class="i small"><use href="#i-chevron"/></svg>
+    <button class="set-line" id="setLine" type="button" aria-label="Change area">
+      <span class="pin" aria-hidden="true">📍</span><span id="filterSummary">South Africa</span><svg class="i small"><use href="#i-chevron"/></svg>
     </button>
     <span class="score" id="score" aria-live="polite" title="Right this session">0 / 0</span>
   </div>
 
+  <p class="dev-line" id="devLine" hidden></p>
   <main class="card" id="card">
     <section class="media" id="media">
       <div class="carousel" id="carousel" aria-label="Bird photos"></div>
@@ -104,32 +105,11 @@
     <form method="dialog">
       <div class="sheet-head">
         <button class="close-x" type="submit" aria-label="Close"><svg class="i"><use href="#i-xmark"/></svg></button>
-        <h2>Study set</h2>
+        <h2>Settings</h2>
       </div>
       <fieldset>
-        <legend>Cards</legend>
-        <div class="chips" id="modeChips">
-          <label><input type="radio" name="mode" value="mixed"> Mixed</label>
-          <label><input type="radio" name="mode" value="photo"> Photos</label>
-          <label><input type="radio" name="mode" value="call"> Calls</label>
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>Level</legend>
-        <div class="chips" id="levelChips">
-          <label><input type="checkbox" name="level" value="beginner"> Beginner</label>
-          <label><input type="checkbox" name="level" value="easy"> Easy</label>
-          <label><input type="checkbox" name="level" value="medium"> Medium</label>
-          <label><input type="checkbox" name="level" value="hard"> Hard</label>
-        </div>
-      </fieldset>
-      <fieldset>
-        <legend>Where</legend>
+        <legend>Area</legend>
         <select class="select" id="areaSelect" name="area" aria-label="Area"></select>
-      </fieldset>
-      <fieldset>
-        <legend>Seen in</legend>
-        <div class="chips" id="countryChips"></div>
       </fieldset>
       <fieldset>
         <legend>Bird names</legend>
@@ -138,11 +118,8 @@
           <label><input type="radio" name="names" value="af"> Afrikaans first</label>
         </div>
       </fieldset>
-      <p class="family-filter" id="familyFilter" hidden>
-        <label><input type="checkbox" id="familyOnly" checked> Only <span id="familyName"></span></label>
-      </p>
-      <p class="note level-note">You start with the most common birds of the levels you pick, and more join as you learn them.
-        Beginner = the 50 most often recorded birds in the place you pick under Where.</p>
+      <p class="note level-note">Pick one area. You start with its 20 most common birds, and more join as you learn
+        them: Beginner birds first, then Easy, Medium and Hard, worked out for each area.</p>
       <p class="count" id="setCount"></p>
       <button class="btn ghost offline-open" id="offlineOpen" type="button"><svg class="i"><use href="#i-download"/></svg> Download this set for offline use</button>
       <button class="btn primary" type="submit">Done</button>
@@ -231,7 +208,7 @@
           <label><input type="radio" name="photosPer" value="all"> All</label>
         </div>
       </fieldset>
-      <p class="family-filter"><label><input type="checkbox" id="offlineCalls" checked> Include one call per bird</label></p>
+      <p class="family-filter" hidden><label><input type="checkbox" id="offlineCalls"> Include one call per bird</label></p>
       <p class="count" id="offlineEstimate"></p>
       <div class="offline-progress" id="offlineProgress" hidden><span id="offlineBar"></span></div>
       <p class="note" id="offlineStatus"></p>
@@ -245,6 +222,7 @@
   </dialog>
 
   <script src="motion.js"></script>
+  <script src="learn.js"></script>
   <script src="app.js"></script>
   <script src="offline.js"></script>
   <script src="progress.js"></script>

@@ -11,6 +11,10 @@ no code changes until Dirk gives the go-ahead. Work happens on `dev` and goes to
   with the open questions at the end.
 - Earlier progression ideas (Spec v2, the adaptive learning plan and its review, the old open
   questions on batches and levels) are in [archive/](archive/roadmap-progression-oct-2026.md).
+- **Built on Dev (29 Oct):** [dirk-progression-coding-spec.md](dirk-progression-coding-spec.md) with Dirk's answers.
+  `learn.js` + `scripts/test-learn.mjs`; one area at a time; photos only; Dev shows the numbers.
+  **To do:** apply `supabase/migrations/20261029_learner_profiles.sql` so weights, pool and area
+  sync to the account (until then they stay on the phone).
 
 ## Pinned features
 

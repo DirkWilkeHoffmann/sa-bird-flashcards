@@ -4,7 +4,6 @@
 // sync code. The database only exposes two functions, sync_pull and sync_push; the code
 // is stored there as a hash. Newest change per bird wins when two devices disagree.
 
-const MASTERED_STREAK = 3;
 const MIXUPS_KEY = "sabirds.mixups.v1";
 const SYNC_CODE_KEY = "sabirds.syncCode.v1";
 const SYNC_URL = "https://oenkcaswabrkqhvukcyb.supabase.co/rest/v1/rpc";
@@ -23,11 +22,8 @@ let lastSync = null;
 
 /* ---------- Status ---------- */
 
-function status(id) {
-  const st = stats[id];
-  if (!st || !(st.right || st.wrong)) return "new";
-  return (st.streak || 0) >= MASTERED_STREAK ? "mastered" : "learning";
-}
+// Mastered = weight 4 or more (Dirk Progression); Learning = seen, below 4; New = not seen yet.
+const status = (id) => Learn.status(learn, id);
 
 function noteMixup(id, pickedId) {
   mixups[id] ??= {};
@@ -151,6 +147,39 @@ async function pushDirty() {
   save("sabirds.hiddenDirty.v1", []);
 }
 
+/* ---------- Weights, pool and area (Dirk Progression) ---------- */
+// One document per sync code (profile_pull / profile_push, see
+// supabase/migrations/20261029_learner_profiles.sql). Newest change wins, per bird and for the area.
+// Until that migration is applied the calls fail and everything stays on this phone.
+let profileMissing = false;
+
+async function syncProfile() {
+  if (profileMissing || !learn) return;
+  let remote;
+  try { remote = await rpc("profile_pull", { p_key: syncCode() }); }
+  catch (e) { if (/ 404$/.test(e.message)) profileMissing = true; throw e; }
+  let changed = false;
+  if (remote) {
+    changed = Learn.merge(learn, remote);
+    const rs = remote.settings;
+    if (rs?.u && (!settings.u || rs.u > settings.u) && rs.area !== settings.area) {
+      applyArea(rs.area, rs.near || null, { fromSync: true });
+      settings.u = rs.u;
+      save(SETTINGS_KEY, settings);
+    } else if (rs?.u && (!settings.u || rs.u > settings.u)) {
+      settings.u = rs.u;
+      save(SETTINGS_KEY, settings);
+    }
+    if (changed) { save(LEARN_KEY, learn); queue = []; }
+  }
+  const remoteBehind = !remote || (settings.u && settings.u !== remote.settings?.u);
+  if (!learnDirty && !remoteBehind && !(remote && Object.keys(learn.birds).length > Object.keys(remote.birds || {}).length)) return;
+  const birds = Object.fromEntries(Object.entries(learn.birds).map(([id, b]) => [id, { w: b.w, seen: b.seen, added: b.added, run: b.run, u: b.u }]));
+  await rpc("profile_push", { p_key: syncCode(), p_data: { v: 1, birds, settings: { area: settings.area, near: settings.near, u: settings.u } } });
+  learnDirty = false;
+  save("sabirds.learnDirty.v1", false);
+}
+
 /* ---------- Flagged photos: email the owner, apply their decisions ---------- */
 
 let pendingReports = load(REPORTS_KEY, []);  // reports made while offline
@@ -210,7 +239,7 @@ async function syncNow() {
     await pushDirty();
     await sendEvents().catch(() => {});  // usage counts are optional; progress matters more
     mergeRemote(await rpc("sync_pull", { p_key: syncCode() }));
-    if (growPath().added) queue = [];  // progress from another device unlocks birds here too
+    await syncProfile().catch(() => {});  // weights, pool and area (Dirk Progression)
     await applyDecisions().catch(() => {});
     sendReports();
     save("sabirds.syncedOnce.v1", true);
@@ -260,8 +289,11 @@ function startFresh() {
   save("sabirds.syncedOnce.v1", false);
   seenBirds = new Set();
   save(SEEN_KEY, []);
-  for (const k of Object.keys(pathSizes)) delete pathSizes[k];
-  save(PATH_KEY, pathSizes);
+  learn = Learn.blank();
+  save(LEARN_KEY, learn);
+  learnDirty = false;
+  save("sabirds.learnDirty.v1", false);
+  topUp();
   session = { right: 0, seen: 0 };
   $("score").textContent = "0 / 0";
   $("filterSummary").textContent = summary();
@@ -301,33 +333,38 @@ function row(label, list) {
 function renderProgress() {
   const body = $("progressBody");
   body.replaceChildren();
+  const info = areaInfo();
+  const here = info.ids.map((id) => speciesById.get(id)).filter(Boolean);
   const counts = { mastered: 0, learning: 0, new: 0 };
-  for (const s of species) counts[status(s.id)]++;
+  for (const s of here) counts[status(s.id)]++;
+  const place = document.createElement("p");
+  place.className = "prog-h";
+  place.textContent = `📍 ${areaName()}`;
   const total = document.createElement("div");
   total.className = "prog-total";
   total.innerHTML = `<div class="m"><b>${counts.mastered}</b><span>Mastered</span></div>
     <div class="l"><b>${counts.learning}</b><span>Learning</span></div>
-    <div><b>${counts.new}</b><span>To unlock</span></div>`;
+    <div><b>${counts.new}</b><span>To be seen</span></div>`;
   const legend = document.createElement("p");
   legend.className = "legend";
-  legend.innerHTML = `Mastered = right ${MASTERED_STREAK} times in a row without a hint.<br>
-    <i style="background:var(--good)"></i>Mastered<i style="background:var(--tint)"></i>Learning<i style="background:var(--fill-2)"></i>To unlock`;
-  body.append(total, legend);
+  legend.innerHTML = `Mastered = you've shown you know it. More birds join as you learn.<br>
+    <i style="background:var(--good)"></i>Mastered<i style="background:var(--tint)"></i>Learning<i style="background:var(--fill-2)"></i>To be seen`;
+  body.append(place, total, legend);
 
   const h1 = document.createElement("p");
   h1.className = "prog-h";
-  h1.textContent = "By level";
+  h1.textContent = `By group in ${areaName()}`;
   body.append(h1);
-  for (const level of ["easy", "medium", "hard"]) {
-    body.append(row(LEVEL_NAMES[level], species.filter((s) => s.level === level)));
-  }
+  info.groups.forEach((ids, i) => {
+    body.append(row(LEVEL_NAMES[Learn.GROUPS[i]], ids.map((id) => speciesById.get(id)).filter(Boolean)));
+  });
 
   const h2 = document.createElement("p");
   h2.className = "prog-h";
   h2.textContent = "By family";
   body.append(h2);
   const families = new Map();
-  for (const s of species) {
+  for (const s of here) {
     if (!families.has(s.family)) families.set(s.family, []);
     families.get(s.family).push(s);
   }
@@ -335,6 +372,37 @@ function renderProgress() {
   for (const [family, list] of sorted) {
     body.append(row(list[0].familyName || family, list));
   }
+  if (IS_DEV) body.append(devProgress());
+}
+
+// Dev build only: every number the Dirk Progression uses, and the pool's birds with their weights.
+function devProgress() {
+  const box = document.createElement("div");
+  const m = Learn.momentum(learn), avg = Learn.averageMomentum(learn), parts = areaSplit();
+  const C = Learn.C;
+  const rows = [
+    ["Momentum M", `${m.toFixed(1)} (band ${Learn.band(m) + 1} of 5; well ≥ ${C.WELL}, high ≥ ${C.HIGH}, perfect ${C.PERFECT})`],
+    ["Answers this session", learn.session.answers.join(" ") || "none"],
+    ["Average M (last 100)", avg === null ? "none yet" : avg.toFixed(1)],
+    ["L (learning) / target", `${parts.l.length} / ${Learn.targetL(learn)}`],
+    ["Mastered (4–6)", parts.mastered.length],
+    ["Resting (7)", parts.resting.length],
+    ["Not in pool yet", parts.unadded.length],
+    ["Retries waiting", learn.session.retries.map((r) => `${speciesById.get(Number(r.id))?.name || r.id} @${r.at}`).join(", ") || "none"],
+    ["Card number", learn.session.card],
+    ["Rest check day", learn.restDay || "—"],
+    ["Account sync of weights", profileMissing ? "not set up (migration not applied)" : "on"],
+  ];
+  const pool = [...parts.l, ...parts.mastered, ...parts.resting]
+    .map((id) => ({ s: speciesById.get(id), b: Learn.bird(learn, id) }))
+    .sort((x, y) => x.b.w - y.b.w);
+  box.innerHTML = `<p class="prog-h">Dev: learning state</p>
+    <table class="dev-table"><tbody>${rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("")}</tbody></table>
+    <p class="prog-h">Dev: pool birds by weight (${pool.length})</p>
+    <table class="dev-table"><thead><tr><th>Bird</th><th>Group</th><th class="n">Weight</th><th class="n">Run</th></tr></thead><tbody>
+    ${pool.map(({ s, b }) => `<tr><td>${s ? s.name : "?"}${b.seen ? "" : " (new)"}</td><td>${areaInfo().groupOf[s?.id] || ""}</td>`
+      + `<td class="n">${b.w}</td><td class="n">${b.run || 0}</td></tr>`).join("")}</tbody></table>`;
+  return box;
 }
 
 function openProgress() {

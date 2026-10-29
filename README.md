@@ -13,29 +13,35 @@ It is a Progressive Web App: no App Store needed.
 
 ## How it works
 
-- A random bird photo or call appears. Swipe sideways through all its photos; pinch or double-tap to zoom.
+- A bird photo appears (calls are taken out for now and will come back later). Swipe sideways through all its photos; pinch or double-tap to zoom.
 - Think of the name, then tap **Reveal** and mark yourself **Got it** or **Missed it**.
 - Stuck? Tap **Hint**: first guess what kind of bird it is (Lapwing, Weaver…), then which one.
-- After each bird you get its level, the countries it's seen in, a short description,
-  a range map of Southern Africa, records by month and the photo/recording credits.
-- Tap the **⚙ bar** at the top to choose Mixed / Photos / Calls, Easy / Medium / Hard
-  and which countries to study.
+- After each bird you get its group in your area (Beginner / Easy / Medium / Hard), the countries
+  it's seen in, a short description, a range map of Southern Africa, records by month and the
+  photo credits.
+- **📍 Area** (the line above the photo, or ⚙): one area at a time — Everywhere, Near me, a country
+  or a region. There are no levels to pick: birds join your pool as you learn (see below).
 - **Skip** a bird by swiping the card up (or the Skip button); it isn't scored.
-- While guessing with a hint you can **hear the call** or **see the range map** first.
-- Level **Beginner** = the 50 most-recorded birds in the place chosen under Where.
-- Missed birds, and birds you needed a hint for (a hint always counts as a miss), come back more often.
+- While guessing with a hint you can **see the range map** first.
+- **How birds are chosen (the Dirk Progression,** [docs/dirk-progression-coding-spec.md](docs/dirk-progression-coding-spec.md)**):**
+  every bird has a weight (starts at −2; 4 or more = mastered; 7 = resting, not shown) and you have
+  a momentum from your last 10 answers. Doing well brings the birds you find hardest; struggling
+  brings ones you know. A missed bird comes back after 3–5 cards. You start with your area's 20
+  commonest Beginner birds, and more are added (Beginner → Easy → Medium → Hard, worked out for
+  each area) as you master them. `learn.js` holds the rules; `node scripts/test-learn.mjs` checks them.
 - Photos you've seen are stored on the phone, so they load instantly next time.
 - **Easily confused with** on the info screen: birds people really mix up (from iNaturalist
   identifications), close relatives that share the range, and your own mix-ups. Tap one to
   compare the two side by side. The hints use the same look-alikes.
-- **Where** in ⚙ settings: 35 named areas (Cape Town, Kruger, Okavango, Etosha…) or
-  **Near me** (birds recorded within about 50 km of you).
+- Regions: 35 named areas (Cape Town, Kruger, Okavango, Etosha…); **Near me** = birds recorded
+  within about 50 km of you.
 - **⚑** on a photo hides it (e.g. a dead bird) on all your devices and emails the owner the photo
   with Keep / Remove buttons (`review.html`). Removed photos disappear for everyone.
-- **📊 Progress** (tap the score): each bird is New, Learning or Mastered (right 3 times in a
-  row without a hint), by level and by family. Tap a family to study only those birds.
+- **📊 Progress**: Mastered / Learning / To be seen in your area, by group and by family. The Dev
+  build also shows momentum, the learning group and every pool bird's weight (and a line under the
+  area on the home screen).
 - **Offline**: ⚙ → *Download this set for offline use* saves the chosen study set (1, 3 or all
-  photos per bird, optionally a call, range data and Wikipedia text). Without signal the app shows
+  photos per bird, range data and Wikipedia text). Without signal the app shows
   only downloaded birds. Delete downloads from the same screen.
 - **Sign in with Google** (📊 screen): progress is saved to your account and follows you to any
   device you sign in on. Without an account, a private sync code (same screen) does the same job.
@@ -47,7 +53,9 @@ wild, research-grade records in South Africa, Namibia, Botswana, Zimbabwe, Lesot
 and Mozambique south of the Zambezi.
 
 - Vagrants (fewer than 5 records) and escaped cage birds are left out.
-- Levels: the 150 most-recorded birds are Easy, the next 300 Medium, the rest Hard.
+- Levels: the 150 most-recorded birds are Easy, the next 300 Medium, the rest Hard (the old
+  levels; the app now works out groups per area from records, `data/spread.json` and mix-ups).
+- `scripts/build_spread.py` builds `data/spread.json` (map cells per bird) from `data/near.json`.
 - Photos are the best-voted Creative Commons photos taken in the region.
 
 `scripts/build_calls.py` builds `data/calls.json` from [xeno-canto](https://xeno-canto.org)

@@ -4,13 +4,13 @@
 // Offline downloads (offline.js) live in their own cache, which is never trimmed.
 // The Dev build (…/dev/) shares this site with the main app, so its caches get their own names.
 const PREFIX = self.registration.scope.includes("/dev/") ? "sabirds-dev-" : "sabirds-";
-const APP_CACHE = `${PREFIX}app-v40`;
+const APP_CACHE = `${PREFIX}app-v41`;
 const PHOTO_CACHE = `${PREFIX}photos-v1`;
 const WIKI_CACHE = `${PREFIX}wiki-v1`;
 const INFO_CACHE = `${PREFIX}info-v1`;  // each bird's range/months file, kept across app updates
 const APP_FILES = [
-  "./", "index.html", "styles.css", "motion.js", "app.js", "progress.js", "offline.js", "auth.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
-  "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "data/near.json", "icons/icon-192.png",
+  "./", "index.html", "styles.css", "motion.js", "learn.js", "app.js", "progress.js", "offline.js", "auth.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
+  "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "data/near.json", "data/spread.json", "icons/icon-192.png",
 ];
 
 self.addEventListener("install", (e) => {

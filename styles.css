@@ -162,6 +162,18 @@ button:disabled:active { transform: none; }
 }
 .set-line span { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .set-line .i { color: var(--label-3); }
+/* The selected area, always visible above the photos. */
+.set-line { gap: 4px; font-size: var(--fs-headline); font-weight: 600; color: var(--label); }
+.set-line .pin { flex: none; font-size: .9em; }
+/* Dev build only: the numbers behind the next bird. */
+.dev-line {
+  margin: -4px 16px 8px;
+  font: 11px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--label-2);
+}
+.dev-table { width: 100%; border-collapse: collapse; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.dev-table td, .dev-table th { padding: 3px 6px; border-bottom: .5px solid var(--separator); text-align: left; }
+.dev-table td.n { text-align: right; font-variant-numeric: tabular-nums; }
 .score {
   margin-left: auto;
   font-size: var(--fs-subhead);
@@ -414,6 +426,7 @@ textarea.select { resize: none; line-height: 1.4; padding: 10px 14px; }
   color: var(--label-2);
   background: var(--fill);
 }
+.tags .level-beginner { color: var(--data); background: color-mix(in srgb, var(--data) 14%, transparent); }
 .tags .level-easy { color: var(--good); background: color-mix(in srgb, var(--good) 14%, transparent); }
 .tags .level-medium { color: var(--tint); background: color-mix(in srgb, var(--tint) 14%, transparent); }
 .tags .level-hard { color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, transparent); }

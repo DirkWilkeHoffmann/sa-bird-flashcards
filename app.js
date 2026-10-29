@@ -8,7 +8,6 @@ const COUNTRY_NAMES = {
   MZ: "Mozambique", LS: "Lesotho", SZ: "Eswatini",
 };
 const LEVEL_NAMES = { beginner: "Beginner", easy: "Easy", medium: "Medium", hard: "Hard" };
-const BEGINNER_COUNT = 50;  // Beginner = the 50 most-recorded birds in the chosen place
 const PREFETCH = 3;
 const $ = (id) => document.getElementById(id);
 const icon = (name, cls = "") => `<svg class="i ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
@@ -19,10 +18,18 @@ const storeKey = (key) => (IS_DEV ? key.replace(/^sabirds\./, "sabirds-dev.") : 
 
 let species = [];
 let stats = load(STATS_KEY, {});   // { [speciesId]: { right, wrong, hint, streak, seen, updated } }
-// First-time default: photo cards of the Beginner birds in South Africa.
-let settings = { mode: "photo", levels: ["beginner"], countries: ["ZA"], area: "", near: null, ...load(SETTINGS_KEY, {}) };
-// The short-lived "Learning path" level became how every level works.
-if (settings.levels.includes("path")) settings.levels = ["beginner"];
+// The study set is one area (see "The area" below). First-time default: South Africa.
+let settings = settingsFrom(load(SETTINGS_KEY, {}));
+// Settings from before the Dirk Progression (levels, countries, card type) become one area.
+function settingsFrom(old) {
+  if (old.v === 2) return old;
+  let area = "c:ZA";
+  if (old.area === "near" && old.near) area = "near";
+  else if (old.area && old.area !== "near") area = old.area;
+  else if (old.countries?.length === 1) area = `c:${old.countries[0]}`;
+  else if (Array.isArray(old.countries) && !old.countries.length) area = "all";
+  return { v: 2, area, near: area === "near" ? old.near : null, u: null };
+}
 // Names: English with the Afrikaans name under it, or the other way round.
 const NAMES_KEY = "sabirds.names.v1";
 let afFirst = load(NAMES_KEY, "en") === "af";
@@ -47,7 +54,6 @@ function showNames(s) {
   q.addEventListener("click", () => openNameSheet(s));
   (afFirst ? $("name") : $("altName")).append(q);
 }
-let lastGrowth = { added: 0 };  // what the last answer unlocked
 const PRAISE = ["Well done!", "You're doing great!", "Nice work!", "Keep it up!"];
 let areas = { areas: [], birds: {} };  // named birding areas and their bird lists
 let areaSets = {};                      // area id -> Set of bird ids
@@ -80,244 +86,137 @@ const shuffle = (a) => {
 
 const photoUrl = (p, size) => `${p.base}/${size}.${p.ext}`;
 
-/* ---------- Study set ---------- */
+/* ---------- The area ---------- */
 
-function inSet(s) {
-  return placeOk(s) && levelOk(s);
+// One area at a time: everywhere, a country ("c:ZA"), a region (today's areas) or near me.
+// Players don't pick levels: the birds come from the Dirk Progression (learn.js).
+function areaHas(s) {
+  const a = settings.area;
+  if (a === "all") return true;
+  if (a.startsWith("c:")) return s.countries.includes(a.slice(2));
+  if (a === "near") return !nearSet || nearSet.has(s.id);
+  return areaSets[a] ? areaSets[a].has(s.id) : true;
 }
 
-// Within the chosen levels, only the birds unlocked so far (see "Progression" below).
-function levelOk(s) {
-  return progressive() ? pathIds().has(s.id) : levelMatch(s);
-}
-
-// The chosen levels themselves, before progression.
-function levelMatch(s) {
-  if (!settings.levels.length) return true;
-  if (settings.levels.includes(s.level)) return true;
-  return settings.levels.includes("beginner") && beginnerIds().has(s.id);
-}
-
-// The most-recorded birds for the chosen place: a named area uses its own record counts,
-// anywhere else (near me, countries, everywhere) uses records across the whole region.
-let beginnerCache = { key: null, ids: new Set() };
-function beginnerIds() {
-  const key = JSON.stringify([settings.area, settings.near, settings.countries, settings.mode, settings.family, species.length]);
-  if (beginnerCache.key !== key) {
-    const byId = new Map(species.map((x) => [x.id, x]));
-    const ranked = settings.area && settings.area !== "near" && areas.birds[settings.area]
-      ? areas.birds[settings.area].map((id) => byId.get(id)).filter(Boolean)
-      : [...species].sort((x, y) => y.obs - x.obs);
-    const list = ranked.filter(placeOk).slice(0, BEGINNER_COUNT).map((x) => x.id);
-    beginnerCache = { key, ranked, list, ids: new Set(list) };
-  }
-  return beginnerCache.ids;
-}
-
-// Progression: whatever levels are chosen, you start with the 20 most common of those birds
-// in the chosen place, and each next batch is bigger (5, 10, 15, 20, ...), commonest first, so
-// with all levels it runs Beginner -> Easy -> Medium -> Hard. The next batch joins once 40% of
-// the birds in play are mastered (right 3 times in a row). When every bird of the chosen levels
-// is in play, the next level up is ticked automatically. Each choice of levels keeps its own
-// progress, and it only ever grows.
-const PATH_KEY = "sabirds.progression.v1";
-const PATH_FIRST = 20, PATH_STEP = 5, PATH_MASTERED_SHARE = 0.4;
-const LEVEL_STEPS = ["beginner", "easy", "medium", "hard"];
-const LEVEL_ORDER = { easy: 1, medium: 2, hard: 3 };
-const pathSizes = load(PATH_KEY, {});   // { "beginner+easy": 27, "all": 62, ... }
-// Ticking every level is the same as ticking none: all birds, one shared progress.
-const pathChoice = () => (settings.levels.length >= 4 ? "all" : [...settings.levels].sort().join("+") || "all");
-const pathSizeOf = () => Math.max(pathSizes[pathChoice()] ?? 0, PATH_FIRST);
-
-// A family chosen from the progress screen is a small fixed set, studied all at once.
-const progressive = () => !settings.family;
-const mastered = (id) => (stats[id]?.streak || 0) >= MASTERED_STREAK;
-
-// The level after the highest one chosen (none when all levels, or Hard, are chosen).
-function nextLevel() {
-  if (!settings.levels.length) return null;
-  const top = Math.max(...settings.levels.map((l) => LEVEL_STEPS.indexOf(l)));
-  const up = LEVEL_STEPS[top + 1];
-  return up && !settings.levels.includes(up) ? up : null;
-}
-
-// The chosen birds in order: this place's Beginner birds first, then Easy, Medium and Hard,
-// commonest first within each.
-let pathCache = { key: null, list: [] };
-function pathList() {
-  beginnerIds();
-  const key = beginnerCache.key + pathChoice();
-  if (pathCache.key !== key) {
-    const first = beginnerCache.ids;
-    const rank = new Map(beginnerCache.ranked.map((x, i) => [x.id, i]));
-    const list = beginnerCache.ranked.filter((x) => placeOk(x) && levelMatch(x))
-      .sort((a, b) => (first.has(b.id) - first.has(a.id)) || (LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level])
-        || (rank.get(a.id) - rank.get(b.id)));
-    pathCache = { key, list: list.map((x) => x.id) };
-  }
-  return pathCache.list;
-}
-
-// Where each batch starts and ends: 20, then +5, +10, +15, ...
-function pathBatch(size) {
-  let start = 0, end = PATH_FIRST, step = PATH_STEP;
-  while (end < size) { start = end; end += step; step += PATH_STEP; }
-  return { start, end, next: end + step };
-}
-
-const pathIds = () => new Set(pathList().slice(0, pathSizeOf()));
-
-// The stage the path has reached: the level of the newest bird in it.
-function pathStage(size = pathSizeOf()) {
-  const list = pathList();
-  const id = list[Math.min(size, list.length) - 1];
-  if (beginnerCache.ids.has(id)) return "beginner";
-  return species.find((x) => x.id === id)?.level || "beginner";
-}
-
-// Grow the set as far as the player has earned: after an answer one step at a time ({ once }),
-// otherwise (starting up, a new place or levels) catching up in one go. Only answers move up a
-// level ({ levelUp }), so unticking a level in the settings isn't undone straight away.
-// Returns { added, stage, levelUp, levelAdded }.
-function growPath({ once = false, levelUp = false } = {}) {
-  if (!progressive() || !species.length) return { added: 0 };
-  const stageBefore = pathStage();
-  let added = 0, levelAdded = null;
-  for (;;) {
-    const list = pathList(), size = pathSizeOf();
-    const inPlay = list.slice(0, size);
-    if (inPlay.filter(mastered).length < Math.ceil(inPlay.length * PATH_MASTERED_SHARE)) break;
-    if (size < list.length) {
-      const { end, next } = pathBatch(size);
-      const grown = Math.min(list.length, size === end ? next : end);
-      added += grown - size;
-      pathSizes[pathChoice()] = grown;
-      if (once) break;
-      continue;
-    }
-    // Every bird of these levels is in play: tick the next level, keeping the progress made.
-    const up = levelUp && !levelAdded && nextLevel();
-    if (!up) break;
-    settings = { ...settings, levels: [...settings.levels, up] };
-    save(SETTINGS_KEY, settings);
-    levelAdded = up;
-    pathSizes[pathChoice()] = Math.max(pathSizes[pathChoice()] ?? 0, size);
-  }
-  if (!added && !levelAdded) return { added: 0 };
-  save(PATH_KEY, pathSizes);
-  $("filterSummary").textContent = summary();
-  const stage = levelAdded || pathStage();
-  return { added, stage, levelAdded, levelUp: Boolean(levelAdded) || stage !== stageBefore };
-}
-
-// Every filter except the level.
+// Every filter on what can be shown now: the area, a photo, and (offline) downloaded photos.
 function placeOk(s) {
-  if (settings.countries.length && !s.countries.some((c) => settings.countries.includes(c))) return false;
-  if (settings.mode === "call" && !s.calls.length) return false;
+  if (!areaHas(s) || !s.photos.length) return false;
   if (typeof offlineAvailable === "function" && !offlineAvailable(s)) return false;
-  if (settings.family && s.family !== settings.family) return false;
-  if (settings.area === "near" && nearSet && !nearSet.has(s.id)) return false;
-  if (settings.area && settings.area !== "near" && areaSets[settings.area] && !areaSets[settings.area].has(s.id)) return false;
   return true;
 }
 
-function pool() {
-  const list = species.filter(inSet);
-  return list.length ? list : species;
+// The birds in the player's pool here (offline.js downloads these).
+const inSet = (s) => areaHas(s) && Learn.bird(learn, s.id).added;
+
+function areaName(area = settings.area) {
+  if (area === "all") return "Everywhere";
+  if (area === "near") return "Near me";
+  if (area.startsWith("c:")) return COUNTRY_NAMES[area.slice(2)] || area.slice(2);
+  return areas.areas.find((a) => a.id === area)?.name || "Everywhere";
 }
 
 function summary() {
-  const parts = [];
-  if (settings.family) parts.push(species.find((s) => s.family === settings.family)?.familyName || settings.family);
-  parts.push(settings.levels.length ? settings.levels.map((l) => LEVEL_NAMES[l]).join("+") : "All levels");
-  // With more than one level, say which level the new birds have reached.
-  if (progressive() && species.length && settings.levels.length !== 1 && pathSizeOf() < pathList().length) {
-    parts.push(`now ${LEVEL_NAMES[pathStage()]}`);
+  return areaName();
+}
+
+// The area's birds, commonest first, and its difficulty groups (worked out for every area from how
+// common, widespread and easily confused each bird is: see Learn.groupsFor).
+let areaCache = { key: null };
+function areaInfo() {
+  const key = `${settings.area}|${settings.area === "near" ? nearSet?.size : ""}|${species.length}`;
+  if (areaCache.key === key) return areaCache;
+  const byId = new Map(species.map((s) => [s.id, s]));
+  const listed = areaSets[settings.area] ? areas.birds[settings.area].map((id) => byId.get(id)).filter(Boolean)
+    : [...species].sort((x, y) => y.obs - x.obs);
+  const list = listed.filter((s) => areaHas(s) && s.photos.length);
+  const ids = list.map((s) => s.id);
+  const rank = Object.fromEntries(ids.map((id, i) => [id, i]));
+  const info = Object.fromEntries(list.map((s) => [s.id, {
+    rank: rank[s.id], spread: spread[s.id] || 0, mixups: s.similar.filter((x) => x.why === "mixup").length,
+  }]));
+  const groups = Learn.groupsFor(ids, info);
+  const groupOf = {};
+  groups.forEach((g, i) => g.forEach((id) => { groupOf[id] = Learn.GROUPS[i]; }));
+  areaCache = { key, ids, rank, groups, groupOf };
+  return areaCache;
+}
+
+/* ---------- The Dirk Progression: state on this phone ---------- */
+
+const LEARN_KEY = "sabirds.learn.v1";
+let learn = load(LEARN_KEY, null);
+let learnDirty = load("sabirds.learnDirty.v1", false);  // changed since the last push to the account
+let spread = {};           // bird id -> map cells it's found in (data/spread.json)
+let lastAnswer = null;     // what the last answer did, for the badge and the Dev line
+let lastWhy = "";          // why the current card was picked (Dev line)
+
+function saveLearn() {
+  save(LEARN_KEY, learn);
+  learnDirty = true;
+  save("sabirds.learnDirty.v1", true);
+  if (typeof syncSoon === "function") syncSoon();
+}
+
+// Weight 4 or more = mastered.
+const mastered = (id) => Learn.bird(learn, id).w >= Learn.C.MASTERED;
+
+// The area's eligible birds right now and how they split into L, mastered and resting.
+const eligibleIds = () => areaInfo().ids.filter((id) => placeOk(speciesById.get(id)));
+const areaSplit = () => Learn.split(learn, eligibleIds());
+let speciesById = new Map();
+
+// Top up the pool (first visit: the 20 commonest Beginner birds). Returns the birds added.
+function topUp() {
+  const info = areaInfo();
+  const added = Learn.maybeAdd(learn, eligibleIds(), info.groups, Date.now());
+  if (added.length) {
+    saveLearn();
+    logEvent("added", null, { n: added.length, group: info.groupOf[added[0]], area: settings.area });
   }
-  if (settings.area === "near") parts.push("Near me");
-  else if (settings.area) parts.push(areas.areas.find((a) => a.id === settings.area)?.name || "");
-  if (settings.countries.length) {
-    parts.push(settings.countries.length === 1 ? COUNTRY_NAMES[settings.countries[0]] : settings.countries.join(", "));
-  }
-  parts.push({ mixed: "Mixed", photo: "Photos", call: "Calls" }[settings.mode]);
-  return parts.join(" · ");
+  return added;
+}
+
+// Start of a session or a new day: resting birds may come back, momentum starts again.
+function wakeLearn() {
+  const now = Date.now();
+  const back = Learn.restDecay(learn, now);
+  const fresh = Learn.touch(learn, now);
+  if (back || fresh) saveLearn();
+  if (fresh) queue = [];
 }
 
 /* ---------- Choosing cards ---------- */
 
-// How the next bird is chosen:
-//  1. Right after new birds join, up to 4 of them come first, so you meet them straight away.
-//  2. Otherwise 90% of cards are birds you're still learning (or haven't seen), 10% birds you've
-//     mastered. Within that group, birds are drawn by weight (see weight()), so ones you miss
-//     come up more often.
-//  3. Birds seen in the last few cards are skipped, so none comes back too soon, and birds
-//     you've hidden for a while ("Seeing this bird too often?") are left out.
-const MASTERED_SHARE = 0.1;
-const RECENT_MAX = 8;              // never repeat a bird within this many cards (half the set if smaller)
-const INTRO_COUNT = 4;             // new birds shown in a row when a batch joins
+// The Dirk Progression picks each bird (Learn.pick); birds hidden for a day ("Seeing this bird too
+// often?") are left out, as are birds already waiting in the queue.
 const SNOOZE_KEY = "sabirds.snoozed.v1";
 const SNOOZE_MS = 24 * 60 * 60 * 1000;
-let recentIds = [];                // birds shown lately, newest last
-let introIds = [];                 // just-added birds to show next
 let snoozed = load(SNOOZE_KEY, {}); // { [speciesId]: hidden until (ms) }
 
 const isSnoozed = (id) => (snoozed[id] || 0) > Date.now();
 
-// A bird's weight: new birds 2; otherwise 1, plus 2 per wrong answer and 1 per hint, minus 0.5
-// per right answer (a full 1 once the bird is mastered, so mastered birds fade out), at least 0.3.
-function weight(s) {
-  const st = stats[s.id];
-  if (!st) return 2;
-  const perRight = mastered(s.id) ? 1 : 0.5;
-  return Math.max(0.3, 1 + (st.wrong || 0) * 2 + (st.hint || 0) - (st.right || 0) * perRight);
+function pickSpecies(exclude, ahead) {
+  const ids = eligibleIds();
+  const skip = new Set([...exclude, ...ids.filter(isSnoozed)]);
+  const p = Learn.pick(learn, { ids, skip, ahead, rank: areaInfo().rank })
+    || Learn.pick(learn, { ids, skip: new Set(exclude), ahead, rank: areaInfo().rank });
+  if (p) return { s: speciesById.get(p.id), why: p.why };
+  // Nothing in the pool can be shown (e.g. offline without downloads): any bird that can.
+  const any = species.filter((s) => placeOk(s) && !exclude.has(s.id));
+  const from = any.length ? any : species.filter((s) => s.photos.length);
+  return { s: from[Math.floor(Math.random() * from.length)], why: "any" };
 }
 
-function drawByWeight(list) {
-  const weights = list.map(weight);
-  let r = Math.random() * weights.reduce((a, b) => a + b, 0);
-  for (let i = 0; i < list.length; i++) {
-    r -= weights[i];
-    if (r <= 0) return list[i];
-  }
-  return list[list.length - 1];
-}
-
-function pickSpecies(exclude) {
-  while (introIds.length) {
-    const id = introIds.shift();
-    const s = species.find((x) => x.id === id);
-    if (s && inSet(s) && !exclude.has(s.id) && !isSnoozed(s.id)) return s;
-  }
-  const inPool = pool();
-  const allowed = inPool.filter((s) => !exclude.has(s.id) && !isSnoozed(s.id));
-  const usable = allowed.length ? allowed : inPool.filter((s) => !exclude.has(s.id));
-  const from0 = usable.length ? usable : inPool;
-  const recent = new Set(recentIds.slice(-Math.min(RECENT_MAX, Math.floor(from0.length / 2))));
-  const fresh = from0.filter((s) => !recent.has(s.id));
-  const from = fresh.length ? fresh : from0;
-  const masteredBirds = from.filter((s) => mastered(s.id));
-  const learning = from.filter((s) => !mastered(s.id));
-  const group = masteredBirds.length && (!learning.length || Math.random() < MASTERED_SHARE) ? masteredBirds : learning;
-  return drawByWeight(group);
-}
-
-function makeCard(exclude) {
-  const s = pickSpecies(exclude);
-  // Offline, a card only uses the photos and call that were downloaded.
+// Photos only for now: calls come back later with their own weights.
+function makeCard(exclude, ahead) {
+  const { s, why } = pickSpecies(exclude, ahead);
+  // Offline, a card only uses the photos that were downloaded.
   const view = typeof offlineView === "function" ? offlineView(s) : null;
   const allPhotos = view ? view.photos : s.photos;
-  // While xeno-canto is failing, only recordings from other sources (iNaturalist) are used.
-  const allCalls = view ? view.calls : s.calls;
-  const working = xenoFailing() ? allCalls.filter((c) => !isXeno(c)) : allCalls;
-  const calls = working.length ? working : allCalls;
-  const canCall = working.length > 0;
-  const kind = settings.mode === "photo" || !canCall ? "photo"
-    : settings.mode === "call" ? "call"
-    : Math.random() < 0.5 ? "call" : "photo";
   // Start the carousel at a random photo so repeats look different.
   const start = Math.floor(Math.random() * allPhotos.length);
   const photos = [...allPhotos.slice(start), ...allPhotos.slice(0, start)];
-  const c = { s, kind, photos, calls, callIndex: Math.floor(Math.random() * Math.max(1, calls.length)) };
+  const c = { s, why, kind: "photo", photos, calls: [], callIndex: 0 };
   // Warm the cache: first photo and info of each upcoming card.
   warmPhotos(photos.slice(0, 1));
   loadInfo(s);
@@ -327,9 +226,25 @@ function makeCard(exclude) {
 
 function fillQueue() {
   while (queue.length < PREFETCH) {
-    const exclude = new Set([card?.s.id, ...queue.map((c) => c.s.id)]);
-    queue.push(makeCard(exclude));
+    const exclude = new Set([card?.s.id, ...queue.map((c) => c.s.id)].filter(Boolean));
+    queue.push(makeCard(exclude, queue.length));
   }
+}
+
+/* ---------- Dev: the numbers behind the next bird ---------- */
+
+function devLine() {
+  if (!IS_DEV || !species.length) return;
+  const m = Learn.momentum(learn), parts = areaSplit();
+  const w = card ? Learn.bird(learn, card.s.id).w : null;
+  $("devLine").hidden = false;
+  $("devLine").textContent = [
+    `M ${m.toFixed(1)} (band ${Learn.band(m) + 1})`,
+    `L ${parts.l.length}/${Learn.targetL(learn)}`,
+    `mastered ${parts.mastered.length}`, `resting ${parts.resting.length}`, `new ${parts.unadded.length}`,
+    card ? `this: ${lastWhy}, w ${w}${card ? `, ${areaInfo().groupOf[card.s.id] || "?"}` : ""}` : "",
+    lastAnswer ? `last: ${lastAnswer.before}→${lastAnswer.after}` : "",
+  ].filter(Boolean).join(" · ");
 }
 
 // Three look-alikes: known mix-ups first, then same genus, family, order, anything.
@@ -909,16 +824,10 @@ function hideBadge() {
 let grading = false;
 function grade(result) {
   if (grading) return;
-  const before = status(card.s.id);
   record(result);
-  const mastered = result === "right" && before !== "mastered" && status(card.s.id) === "mastered";
+  const mastered = lastAnswer.mastered;
   pulseScore(result === "right");
-  const levelUp = lastGrowth.levelUp ? lastGrowth.stage : null;
-  if (levelUp) {
-    haptic([12, 60, 12, 60, 12]);
-    popBadge(`⬆<small>${LEVEL_NAMES[levelUp]} birds ${lastGrowth.levelAdded ? "added" : "unlocked"}!</small>`, "star level-up");
-    if (!lastGrowth.levelAdded) hideToast();  // keep the "now ticked too" explanation
-  } else if (result === "right") {
+  if (result === "right") {
     haptic(mastered ? [12, 60, 12] : 10);
     popBadge(mastered ? `★<small>Mastered</small>` : "✓", mastered ? "star" : "good");
   } else {
@@ -931,7 +840,7 @@ function grade(result) {
     $("grade").querySelectorAll("button").forEach((x) => { x.disabled = false; });
     nextCard();
     riseIn();
-  }, levelUp ? 1800 : result === "right" ? (mastered ? 1000 : 520) : 120);
+  }, result === "right" ? (mastered ? 1000 : 520) : 120);
 }
 
 // The next bird comes up gently from behind.
@@ -963,12 +872,15 @@ function nextCard() {
   resetZoom();
   fillQueue();
   card = queue.shift();
-  card.calls ??= card.s.calls;
-  recentIds = [...recentIds.filter((id) => id !== card.s.id), card.s.id].slice(-RECENT_MAX * 2);
+  card.calls ??= [];
   // A bird never shown before gets a NEW tag (decided once per card, so Undo keeps it).
-  card.isNew ??= !stats[card.s.id] && !seenBirds.has(card.s.id);
+  card.isNew ??= !Learn.bird(learn, card.s.id).seen && !seenBirds.has(card.s.id);
   seenBirds.add(card.s.id);
   save(SEEN_KEY, [...seenBirds]);
+  Learn.shown(learn, card.s.id, Date.now());
+  saveLearn();
+  lastWhy = card.why || "";
+  card.hintMiss = false;
   $("newTag").hidden = !card.isNew;
   fillQueue();
   // Once this bird's photos have had a head start, fetch all of the next bird's too.
@@ -991,8 +903,8 @@ function nextCard() {
   $("info").scrollTop = 0;
   buildCarousel(card.photos);
   $("sound").hidden = true;
-  if (card.kind === "call") showCall();
   setPanels({ ask: true });
+  devLine();
 }
 
 function credit(attr) {
@@ -1006,7 +918,8 @@ function showInfo(result) {
   showNames(s);
   $("sci").textContent = s.sci;
   $("family").textContent = s.familyName ? `${s.familyName} (${s.family})` : s.family || "";
-  const tags = [`<span class="level-${s.level}">${LEVEL_NAMES[s.level]}</span>`,
+  const group = areaInfo().groupOf[s.id];
+  const tags = [...(group ? [`<span class="level-${group}">${LEVEL_NAMES[group]} in ${areaName()}</span>`] : []),
     ...s.countries.map((c) => `<span>${COUNTRY_NAMES[c]}</span>`)];
   $("tags").innerHTML = tags.join("");
   $("hearCall").hidden = card.calls.length === 0;
@@ -1163,7 +1076,7 @@ function hint() {
     if (k !== kind && !others.includes(k)) others.push(k);
   }
   choiceButtons("What kind of bird is it?", shuffle([kind, ...others]), (k) => k, (k, b) => {
-    if (k !== kind) { b.classList.add("wrong"); b.disabled = true; shake(b); haptic(10); return; }
+    if (k !== kind) { card.hintMiss = true; b.classList.add("wrong"); b.disabled = true; shake(b); haptic(10); return; }
     b.classList.add("correct");
     haptic(10);
     for (const other of $("choices").querySelectorAll("button")) other.disabled = true;
@@ -1190,46 +1103,57 @@ function whichOne(kind) {
   });
 }
 
+// After a hint: right only if there was no mistake anywhere in the hint (Dirk Progression, Q32).
 function choose(chosen, message) {
   const ok = chosen === card.s;
-  record("wrong", ok ? null : chosen); // any answer that needed a hint counts as a miss
+  record(ok && !card.hintMiss ? "hintRight" : "hintWrong", ok ? null : chosen);
   showInfo({ ok, picked: nameOf(chosen), message });
+  if (lastAnswer.mastered) popBadge(`★<small>Mastered</small>`, "star");
   setPanels({ after: true });
 }
 
-// Mastered = right MASTERED_STREAK times in a row without a hint (see progress.js).
+// result: "right" | "wrong" | "hintRight" | "hintWrong". The Dirk Progression changes the bird's
+// weight and the momentum (learn.js); the old right / wrong counts are kept too (synced as before).
 function record(result, picked) {
   const st = stats[card.s.id] || { right: 0, wrong: 0, hint: 0, streak: 0 };
-  st[result] = (st[result] || 0) + 1;
-  st.streak = result === "right" ? (st.streak || 0) + 1 : 0;
+  const right = result === "right";
+  st[right ? "right" : "wrong"] = (st[right ? "right" : "wrong"] || 0) + 1;
+  if (result.startsWith("hint")) st.hint = (st.hint || 0) + 1;
+  st.streak = right ? (st.streak || 0) + 1 : 0;
   st.seen = st.updated = new Date().toISOString();
   stats[card.s.id] = st;
   save(STATS_KEY, stats);
   if (picked) noteMixup(card.s.id, picked.id);
-  logEvent("answer", card.s.id, { r: result, kind: card.kind, ...(picked ? { hint: true } : {}) });
   markDirty(card.s.id);
+
+  lastAnswer = Learn.answer(learn, card.s.id, result, Date.now(), areaSplit().l.length);
+  logEvent("answer", card.s.id, { r: result, kind: "photo", w: lastAnswer.after, m: lastAnswer.m, why: card.why });
+  if (lastAnswer.mastered) logEvent("mastered", card.s.id, { w: lastAnswer.after });
+  const added = topUp();
+  saveLearn();
+  queue = [];  // the next bird depends on this answer
   session.seen++;
-  if (result === "right") session.right++;
+  if (right) session.right++;
   $("score").textContent = `${session.right} / ${session.seen}`;
-  const before = pathIds();
-  lastGrowth = growPath({ once: true, levelUp: true });
-  if (lastGrowth.added || lastGrowth.levelAdded) {
-    introIds = shuffle([...pathIds()].filter((id) => !before.has(id))).slice(0, INTRO_COUNT);
-  }
-  if (lastGrowth.added) logEvent("batch", null, { n: lastGrowth.added, size: pathSizeOf() });
-  if (lastGrowth.levelUp) logEvent("level_up", null, { level: lastGrowth.stage, auto: Boolean(lastGrowth.levelAdded) });
-  // While signed out, each win also offers to sign in, so the new birds aren't lost.
+  // While signed out, each new batch also offers to sign in, so the new birds aren't lost.
   const keep = signedOut() ? { action: { label: "Sign in", run: () => signInFrom("batch") }, ms: 7000 } : {};
-  if (lastGrowth.levelAdded) {
-    showToast(`You're doing great! ${LEVEL_NAMES[lastGrowth.levelAdded]} birds are now in your set too`, keep);
-    queue = [];
-  } else if (lastGrowth.added) {
-    showToast(signedOut() ? `${lastGrowth.added} new birds unlocked! Sign in to keep them`
-      : `${lastGrowth.added} new birds added — ${PRAISE[Math.floor(Math.random() * PRAISE.length)]}`, keep);
-    queue = [];  // let the new birds come up soon
+  if (added.length) {
+    showToast(signedOut() ? `${added.length} new birds added! Sign in to keep them`
+      : `${added.length} new birds added — ${PRAISE[Math.floor(Math.random() * PRAISE.length)]}`, keep);
   } else {
     nudgeSignIn();
   }
+  allKnownMessage();
+  devLine();
+}
+
+// Every bird here is mastered and resting: say so once per area.
+function allKnownMessage() {
+  const parts = areaSplit();
+  if (parts.l.length || parts.unadded.length || learn.allKnown[settings.area]) return;
+  learn.allKnown[settings.area] = true;
+  saveLearn();
+  showToast(`You know every bird in ${areaName()}!`);
 }
 
 // Reminders to sign in, so progress isn't lost: once after the first 10 answers on this phone,
@@ -1263,7 +1187,9 @@ function dailySignInNudge() {
 }
 // Coming back to the app (it often resumes rather than restarts) counts as opening it.
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") setTimeout(dailySignInNudge, 1500);
+  if (document.visibilityState !== "visible") return;
+  setTimeout(dailySignInNudge, 1500);
+  if (learn && species.length) { wakeLearn(); devLine(); }  // a new session or a new day
 });
 
 /* ---------- Info: description, range map, months ---------- */
@@ -1588,14 +1514,19 @@ function locate() {
   });
 }
 
+// One list: Everywhere, Near me, each country, then each country's regions.
 function fillAreaSelect() {
   const sel = $("areaSelect");
-  sel.innerHTML = `<option value="">Anywhere</option><option value="near">Near me (within ${NEAR_KM} km)</option>`;
+  sel.innerHTML = `<option value="all">Everywhere</option><option value="near">Near me (within ${NEAR_KM} km)</option>`;
+  const countries = document.createElement("optgroup");
+  countries.label = "Countries";
+  for (const [code, name] of Object.entries(COUNTRY_NAMES)) countries.append(new Option(name, `c:${code}`));
+  sel.append(countries);
   for (const [code, name] of Object.entries(COUNTRY_NAMES)) {
     const list = areas.areas.filter((a) => a.country === code);
     if (!list.length) continue;
     const group = document.createElement("optgroup");
-    group.label = name;
+    group.label = `Regions: ${name}`;
     for (const a of list) group.append(new Option(`${a.name} (${areas.birds[a.id].length})`, a.id));
     sel.append(group);
   }
@@ -1612,7 +1543,7 @@ $("areaSelect").addEventListener("change", async () => {
     await nearPending;
   } catch {
     pendingNear = null;
-    $("areaSelect").value = settings.area === "near" ? "near" : settings.area;
+    $("areaSelect").value = settings.area;
     alert("Couldn't get your location. Allow location access for this app in Settings → Privacy → Location Services → Safari Websites.");
   }
   nearPending = null;
@@ -1626,42 +1557,30 @@ let pendingNear = null;
 function openSettings() {
   const form = $("settings").querySelector("form");
   for (const el of form.elements) {
-    if (el.name === "mode") el.checked = el.value === settings.mode;
-    if (el.name === "level") el.checked = settings.levels.includes(el.value);
-    if (el.name === "country") el.checked = settings.countries.includes(el.value);
     if (el.name === "names") el.checked = el.value === (afFirst ? "af" : "en");
   }
-  $("areaSelect").value = settings.area || "";
+  $("areaSelect").value = settings.area;
   pendingNear = settings.near;
-  $("familyFilter").hidden = !settings.family;
-  $("familyOnly").checked = true;
-  $("familyName").textContent = species.find((s) => s.family === settings.family)?.familyName || settings.family || "";
   updateCount();
   openSheet($("settings"));
 }
 
 function readSettings() {
-  const form = $("settings").querySelector("form");
-  const values = (name) => [...form.elements].filter((el) => el.name === name && el.checked).map((el) => el.value);
-  const area = $("areaSelect").value;
-  return { mode: values("mode")[0] || "mixed", levels: values("level"), countries: values("country"),
-           area, near: area === "near" ? pendingNear : null,
-           family: $("familyOnly")?.checked ? settings.family : "" };
+  const area = $("areaSelect").value || "all";
+  return { v: 2, area, near: area === "near" ? pendingNear : null, u: settings.u };
 }
 
 function updateCount() {
   const prev = settings;
   settings = readSettings();
-  const n = species.filter(inSet).length;
-  const path = progressive() ? pathList().length : 0;
+  const ids = areaInfo().ids;
+  const pool = ids.filter((id) => Learn.bird(learn, id).added).length;
+  const known = ids.filter(mastered).length;
   settings = prev;
-  $("setCount").textContent = !n ? "No birds match — showing all birds"
-    : path && n < path ? `${n} of ${path} birds unlocked so far` : `${n} birds in this set`;
+  $("setCount").textContent = !ids.length ? "No birds here — try another area"
+    : `${ids.length} birds here · ${pool} in your pool · ${known} mastered`;
 }
 
-$("countryChips").innerHTML = Object.entries(COUNTRY_NAMES)
-  .map(([code, name]) => `<label><input type="checkbox" name="country" value="${code}"> ${name}</label>`)
-  .join("");
 $("settings").addEventListener("change", (e) => {
   if (e.target.name !== "names") { updateCount(); return; }
   // Takes effect straight away, without changing the study set or the card.
@@ -1678,15 +1597,26 @@ let nearPending = null;  // location lookup still running when the sheet closes
 $("settings").addEventListener("close", async () => {
   if (nearPending) await nearPending.catch(() => {});
   const next = readSettings();
-  if (JSON.stringify(next) === JSON.stringify(settings)) return;
-  if (next.area === "near" && !next.near) next.area = "";  // location was refused
-  settings = next;
+  if (next.area === settings.area && JSON.stringify(next.near) === JSON.stringify(settings.near)) return;
+  if (next.area === "near" && !next.near) return;  // location was refused: keep the area
+  applyArea(next.area, next.near);
+});
+
+// A new area: the birds already learned keep their weights everywhere; new birds come from this
+// area's own groups (Beginner first).
+function applyArea(area, near, { fromSync = false } = {}) {
+  settings = { v: 2, area, near, u: fromSync ? settings.u : new Date().toISOString() };
   save(SETTINGS_KEY, settings);
-  growPath();  // a new place has its own most-common birds; catch up on those you know
+  if (!fromSync) logEvent("area", null, { area });
   $("filterSummary").textContent = summary();
+  topUp();
+  const ids = areaInfo().ids;
+  const known = ids.filter(mastered).length;
+  if (!fromSync) showToast(`${areaName()}: you've mastered ${known} of its ${ids.length} birds`);
   queue = [];
   nextCard();
-});
+  if (!fromSync && typeof syncSoon === "function") syncSoon();
+}
 /* ---------- Suggest a better Afrikaans name ---------- */
 
 let nameFor = null;
@@ -1781,8 +1711,10 @@ Promise.all([
   fetch("data/calls.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
   fetch("data/similar.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
   fetch("data/areas.json").then((r) => (r.ok ? r.json() : null)).catch(() => null),
+  fetch("data/spread.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
 ])
-  .then(async ([data, calls, similarData, areaData]) => {
+  .then(async ([data, calls, similarData, areaData, spreadData]) => {
+    spread = spreadData;
     if (areaData) {
       areas = areaData;
       areaSets = Object.fromEntries(Object.entries(areas.birds).map(([id, list]) => [id, new Set(list)]));
@@ -1801,10 +1733,15 @@ Promise.all([
         .filter(([id]) => byId.has(id))
         .map(([id, why]) => ({ s: byId.get(id), why }));
     }
-    growPath();
+    speciesById = new Map(species.map((s) => [s.id, s]));
+    // First load after the Dirk Progression arrived: today's progress becomes weights.
+    if (!learn) { learn = Learn.migrate(stats, [...seenBirds], Date.now()); saveLearn(); }
+    wakeLearn();
+    topUp();
     $("filterSummary").textContent = summary();
     nextCard();
-    logEvent("open", null, { levels: settings.levels.join("+") || "all", mode: settings.mode, offline: !navigator.onLine });
+    devLine();
+    logEvent("open", null, { area: settings.area, offline: !navigator.onLine });
     startSync();
   })
   .catch(() => {
