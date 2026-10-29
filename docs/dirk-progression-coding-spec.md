@@ -134,8 +134,8 @@ and `seen`. Everything else is unseen at −2.
 - Saved on the phone (`sabirds.learn.v1`) and to the account through `profile_pull` /
   `profile_push`: every bird's weight, seen, added, run and last-changed time, plus the area.
   Newest change wins, per bird and for the area. Momentum isn't synced.
-- Needs `supabase/migrations/20261029_learner_profiles.sql` applied. Until it is, the calls fail
-  quietly and everything stays on the phone.
+- The table and functions are in `supabase/migrations/20261029_learner_profiles.sql` (applied
+  29 Oct 2026). If the calls fail (offline), everything stays on the phone and syncs later.
 - The old progress sync (right / wrong counts, mix-ups, hidden photos) carries on as before.
 
 ## 10. What players see (Q29, Q30)
