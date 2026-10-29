@@ -1,7 +1,45 @@
 # SA Birds roadmap
 
-*Last updated: 22 October 2026.* Live app: <https://dirkwilkehoffmann.github.io/sa-bird-flashcards/>
+*Last updated: 29 October 2026.* Live app: <https://dirkwilkehoffmann.github.io/sa-bird-flashcards/>
 (main). Test builds: `/dev/` (dev branch) and `/tips/` (tips branch).
+
+## Main focus: adaptive learning progression
+Every player should learn at their own pace. No other features until this is right; no code
+changes until Dirk gives the go-ahead.
+
+**Documents**
+- *SA Birds · Progression Spec v2* (Dirk, 26 Oct): per-bird states, review ladder, batches of 5.
+- Review of that spec (chat, 27 Oct): the Hint mismatch, cards running out on day 1, small piles,
+  fast-track limits, the "Learned" stage, photo vs call states.
+- [plan-adaptive-learning.md](plan-adaptive-learning.md): the proposed strategy to trial, covering
+  - Recover / Steady / Stretch modes driven by recent answers;
+  - a mix of pools for each mode;
+  - a daily goal of 10 Right answers and a streak;
+  - simulation results.
+- "How SA Birds Teaches" page: diagrams, formulas, worked examples and a 90-player simulation.
+
+**Parts, in build order** (each is checked on Dev before the next):
+1. **Bird states and data:** Locked → Unseen → Learning → Learned → Mastered per bird, synced to the
+   account together with the study settings (fixes the settings bug below). Today's mastered birds
+   become Learned and due straight away.
+2. **Answer logging:** mode, pool, momentum, state before, time to Reveal. Plus a learning dashboard
+   (accuracy by mode, first-review recall, new birds per day, goal reached, streaks).
+3. **Grading:** Right / assisted (correct after Hint, half a point) / Wrong, lapses.
+4. **Review ladder:** 1, 3, 7, 14, 30, 60, 120 days. Mastered = still known on 2 later days.
+5. **Adaptive next bird:** Recover / Steady / Stretch, the pool mixes, unlocking that depends on the
+   mode, and never running out of cards.
+6. **Settings changes:** pool = Place ∩ Levels ∩ unlocked birds. Known birds stay when area or levels
+   change; a named area ignores the country ticks; unticked levels stay off.
+7. **Daily goal and streak:** "7 / 10 today", a streak with a rest day per 7, daily and weekly summaries,
+   and "Sign in to keep your streak".
+8. **Celebrations and progress screen:** "✓ Learned" during a session, "★ Still remembered!" on a later
+   day, and three groups (Learning, Learned, Mastered).
+9. **Trial:** a beta switch for testers first, then cohorts of new players compared over 2 weeks.
+   Tune one group of settings at a time.
+
+**Decisions still open** (see the plan and the review): counting a hinted Right as half a point;
+a fast-track daily limit; separate photo and call states; showing the mode to players or not;
+what counts toward the daily goal; streak freezes.
 
 ## Pinned features
 
@@ -48,7 +86,7 @@
    header, are set when you scroll. If the text finishes loading after you've scrolled to the end,
    the line can stay until you scroll again. Fix: also update when the content finishes loading.
 
-7. **Afrikaans names (on Dev).** 840 of 852 birds have one (mostly from Afrikaans Wikipedia).
+7. **Afrikaans names (live).** 840 of 852 birds have one (mostly from Afrikaans Wikipedia).
    Still missing: 12 rare Hard birds (Sooty Gull, Black Skimmer, Saunders's Tern, Upland Sandpiper,
    Upcher's Warbler, Red-throated Rock Martin, Red-tailed Shrike, White Wagtail, Rufous-tailed
    Scrub-Robin, Angola Cave-Chat, Wood Warbler, Lesser Whitethroat). The "Which Weaver?" hint step
@@ -64,6 +102,11 @@ Full write-up: the "SA Birds Progression Review" page (flow charts of every rule
 - **Batch size later on** (item 3) and **unticking an auto-added level** (item 4): unchanged.
 - **Usage-count clean-up:** events grow ~5 MB a day at ~250 active players, and the free
   database holds 500 MB. Add a nightly job keeping 90 days before about 3 months after launch.
+
+### On Dev, not yet on main
+- **Sign-in reminders** with each new batch ("5 new birds unlocked! Sign in to keep them") and once a
+  day on opening ("Welcome back! Sign in to save your 8 mastered birds"). Sign-ins record which
+  reminder led to them.
 
 ### Bug to fix after the new progression: settings don't follow the account
 *Reported 29 Oct 2026 (tester signing in again on another phone).* Same account, same progress
