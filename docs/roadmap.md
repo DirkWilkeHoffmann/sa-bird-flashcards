@@ -65,6 +65,22 @@ Full write-up: the "SA Birds Progression Review" page (flow charts of every rule
 - **Usage-count clean-up:** events grow ~5 MB a day at ~250 active players, and the free
   database holds 500 MB. Add a nightly job keeping 90 days before about 3 months after launch.
 
+### Bug to fix after the new progression: settings don't follow the account
+*Reported 29 Oct 2026 (tester signing in again on another phone).* Same account, same progress
+(114 vs 117 mastered), but one phone showed **Beginner · Anywhere · "50 birds in this set"** and the
+other **all four levels · Near me · "295 of 379 birds unlocked"**.
+- **Cause:** sync (`sync_push` / `sync_pull`) only carries each bird's right/wrong/streak, mix-ups and
+  hidden photos. These stay on the phone only:
+  - the study set: cards (photos/calls), levels, area / near me, countries
+  - how many birds are unlocked for each level combination (`sabirds.progression.v1`), so a new phone
+    starts again at 20 and only catches up through the 40% rule
+  - English/Afrikaans first, NEW tags (birds already seen), birds hidden for a day
+- **Fix (do together with the progression rewrite, since v2 replaces the unlock counters):** save the
+  study set and the unlocked birds to the account, and on sign-in or a new phone take the account's
+  version. Decide which wins when two phones changed settings: probably the most recent change.
+- **Check:** sign in on a second phone (or after clearing Safari data) and get the same levels, area,
+  countries, card type, name order and unlocked birds as the first phone.
+
 ## Checks only Dirk can do
 7. **Dark mode status bar.** Do the clock and battery look right in dark mode on the iPhone?
 8. **Supabase redirect for Dev.** Is `https://dirkwilkehoffmann.github.io/sa-bird-flashcards/dev/`
