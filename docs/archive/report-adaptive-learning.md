@@ -1,4 +1,4 @@
-# Adaptive learning: review and recommended design
+$$  $$# Adaptive learning: review and recommended design
 
 *29 Oct 2026. A review of [plan-adaptive-learning.md](plan-adaptive-learning.md) against the
 code on `dev`, and the design I recommend building.* Not read for this: Spec v2 and the

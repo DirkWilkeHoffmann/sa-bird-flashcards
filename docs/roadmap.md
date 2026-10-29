@@ -3,43 +3,14 @@
 *Last updated: 29 October 2026.* Live app: <https://dirkwilkehoffmann.github.io/sa-bird-flashcards/>
 (main). Test builds: `/dev/` (dev branch) and `/tips/` (tips branch).
 
-## Main focus: adaptive learning progression
-Every player should learn at their own pace. No other features until this is right; no code
-changes until Dirk gives the go-ahead.
+## Main focus: Dirk Progression
+The new way of choosing birds and growing each player's pool. No other features until this is right;
+no code changes until Dirk gives the go-ahead. Work happens on `dev` and goes to `main` once tested.
 
-**Documents**
-- *SA Birds · Progression Spec v2* (Dirk, 26 Oct): per-bird states, review ladder, batches of 5.
-- Review of that spec (chat, 27 Oct): the Hint mismatch, cards running out on day 1, small piles,
-  fast-track limits, the "Learned" stage, photo vs call states.
-- [plan-adaptive-learning.md](plan-adaptive-learning.md): the proposed strategy to trial, covering
-  - Recover / Steady / Stretch modes driven by recent answers;
-  - a mix of pools for each mode;
-  - a daily goal of 10 Right answers and a streak;
-  - simulation results.
-- "How SA Birds Teaches" page: diagrams, formulas, worked examples and a 90-player simulation.
-
-**Parts, in build order** (each is checked on Dev before the next):
-1. **Bird states and data:** Locked → Unseen → Learning → Learned → Mastered per bird, synced to the
-   account together with the study settings (fixes the settings bug below). Today's mastered birds
-   become Learned and due straight away.
-2. **Answer logging:** mode, pool, momentum, state before, time to Reveal. Plus a learning dashboard
-   (accuracy by mode, first-review recall, new birds per day, goal reached, streaks).
-3. **Grading:** Right / assisted (correct after Hint, half a point) / Wrong, lapses.
-4. **Review ladder:** 1, 3, 7, 14, 30, 60, 120 days. Mastered = still known on 2 later days.
-5. **Adaptive next bird:** Recover / Steady / Stretch, the pool mixes, unlocking that depends on the
-   mode, and never running out of cards.
-6. **Settings changes:** pool = Place ∩ Levels ∩ unlocked birds. Known birds stay when area or levels
-   change; a named area ignores the country ticks; unticked levels stay off.
-7. **Daily goal and streak:** "7 / 10 today", a streak with a rest day per 7, daily and weekly summaries,
-   and "Sign in to keep your streak".
-8. **Celebrations and progress screen:** "✓ Learned" during a session, "★ Still remembered!" on a later
-   day, and three groups (Learning, Learned, Mastered).
-9. **Trial:** a beta switch for testers first, then cohorts of new players compared over 2 weeks.
-   Tune one group of settings at a time.
-
-**Decisions still open** (see the plan and the review): counting a hinted Right as half a point;
-a fast-track daily limit; separate photo and call states; showing the mode to players or not;
-what counts toward the daily goal; streak freezes.
+- Spec: [dirk-progression-spec.md](dirk-progression-spec.md) (from Dirk's handwritten notes, 29 Oct),
+  with the open questions at the end.
+- Earlier progression ideas (Spec v2, the adaptive learning plan and its review, the old open
+  questions on batches and levels) are in [archive/](archive/roadmap-progression-oct-2026.md).
 
 ## Pinned features
 
@@ -76,12 +47,6 @@ what counts toward the daily goal; streak freezes.
 - If it returns: a clearly separate "Practise these" action that is easy to leave.
 
 ## Open questions on recent work
-3. **Batch size later on.** Batches grow by 5 each time (20, 25, 35, 50, 70, 95, …), so deep into
-   Medium/Hard they reach 60–85 birds at once. Consider capping a batch at ~25–30.
-4. **Unticking an auto-added level.** At the moment the next answer that passes the 40% mark ticks it
-   again. The alternative is to keep it off once the player turns it off.
-5. **Studying a family.** It shows the whole family at once (no gradual growth). Should it grow
-   like the levels?
 6. **Small display glitch.** The thin line above the Got it / Next buttons, and the bird's name in the
    header, are set when you scroll. If the text finishes loading after you've scrolled to the end,
    the line can stay until you scroll again. Fix: also update when the content finishes loading.
@@ -94,12 +59,6 @@ what counts toward the daily goal; streak freezes.
 
 ### Reviewed 26 Oct 2026, kept as they are for now
 Full write-up: the "SA Birds Progression Review" page (flow charts of every rule).
-- **Areas outside SA with "South Africa" ticked** hide the birds not also found in SA
-  (e.g. Etosha 266 of 278, Victoria Falls & Hwange 319 of 333). Fix if needed: a named area
-  ignores the country ticks.
-- **Switching area keeps the number of birds in play** (e.g. 95 in Gauteng gives 95 in Cape Town
-  at once). Option: progress per area too.
-- **Batch size later on** (item 3) and **unticking an auto-added level** (item 4): unchanged.
 - **Usage-count clean-up:** events grow ~5 MB a day at ~250 active players, and the free
   database holds 500 MB. Add a nightly job keeping 90 days before about 3 months after launch.
 
@@ -108,7 +67,7 @@ Full write-up: the "SA Birds Progression Review" page (flow charts of every rule
   day on opening ("Welcome back! Sign in to save your 8 mastered birds"). Sign-ins record which
   reminder led to them.
 
-### Bug to fix after the new progression: settings don't follow the account
+### Bug to fix with the Dirk Progression: settings don't follow the account
 *Reported 29 Oct 2026 (tester signing in again on another phone).* Same account, same progress
 (114 vs 117 mastered), but one phone showed **Beginner · Anywhere · "50 birds in this set"** and the
 other **all four levels · Near me · "295 of 379 birds unlocked"**.
@@ -118,7 +77,7 @@ other **all four levels · Near me · "295 of 379 birds unlocked"**.
   - how many birds are unlocked for each level combination (`sabirds.progression.v1`), so a new phone
     starts again at 20 and only catches up through the 40% rule
   - English/Afrikaans first, NEW tags (birds already seen), birds hidden for a day
-- **Fix (do together with the progression rewrite, since v2 replaces the unlock counters):** save the
+- **Fix (do together with the Dirk Progression, which replaces the unlock counters):** save the
   study set and the unlocked birds to the account, and on sign-in or a new phone take the account's
   version. Decide which wins when two phones changed settings: probably the most recent change.
 - **Check:** sign in on a second phone (or after clearing Safari data) and get the same levels, area,
