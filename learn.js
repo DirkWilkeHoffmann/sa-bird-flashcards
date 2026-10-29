@@ -116,8 +116,10 @@ const Learn = (() => {
 
   /* ---------- Adding new birds ---------- */
 
-  function addBirds(state, ids, now) {
-    for (const id of ids) state.birds[id] = { ...bird(state, id), added: true, u: new Date(now).toISOString() };
+  // Adding a bird isn't a change to what the player knows, so it gets no `u`: on a new phone the
+  // starter birds must not win over the account's real weights when they sync.
+  function addBirds(state, ids) {
+    for (const id of ids) state.birds[id] = { ...bird(state, id), added: true };
   }
 
   // Pick `x` birds to add: from the first group that still has birds, at random among the 2x
@@ -140,7 +142,7 @@ const Learn = (() => {
     if (!parts.l.length && !parts.mastered.length && !parts.resting.length) {
       const first = groups[0].filter((id) => !bird(state, id).added).slice(0, C.FIRST_POOL);
       const list = first.length ? first : chooseNew(state, groups, C.FIRST_POOL, rng);
-      addBirds(state, list, now);
+      addBirds(state, list);
       return list;
     }
     const size = parts.l.length, target = targetL(state);
@@ -149,7 +151,7 @@ const Learn = (() => {
     const shrunk = back !== null && size < back;
     if (!(momentum(state) >= C.WELL || shrunk || size < C.L_MIN)) return [];
     const list = chooseNew(state, groups, Math.min(C.ADD_MAX, target - size), rng);
-    addBirds(state, list, now);
+    addBirds(state, list);
     if (list.length) state.lSizes = [];  // a fresh start for "has L shrunk"
     return list;
   }

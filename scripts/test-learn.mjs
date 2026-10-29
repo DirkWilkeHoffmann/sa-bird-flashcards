@@ -101,6 +101,17 @@ check("first visit adds the 20 commonest Beginner birds", () => {
   assert.deepEqual(added, groups[0].slice(0, 20));
 });
 
+check("a new phone's starter birds don't overwrite the account's weights", () => {
+  const remote = Learn.blank();
+  Learn.touch(remote, now0);
+  Learn.maybeAdd(remote, ids, groups, now0);
+  for (const id of groups[0].slice(0, 5)) Learn.answer(remote, id, "right", now0);
+  const phone = Learn.blank();
+  Learn.maybeAdd(phone, ids, groups, now0 + 60000);
+  Learn.merge(phone, remote);
+  for (const id of groups[0].slice(0, 5)) assert.equal(Learn.bird(phone, id).w, Learn.bird(remote, id).w);
+});
+
 check("resting birds (7) drop to 6 now and then, others never", () => {
   const s = Learn.blank();
   for (const id of ids) s.birds[id] = { ...Learn.bird(s, id), added: true, w: id <= 100 ? 7 : 6 };
