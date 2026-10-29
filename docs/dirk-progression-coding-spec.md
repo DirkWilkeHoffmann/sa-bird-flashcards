@@ -112,7 +112,9 @@ Deterministic rules, with the last choice made at random (Q21).
   - widespread: number of map cells the bird is found in (`data/spread.json`);
   - confusable: number of known mix-ups in `data/similar.json` (fewer = easier).
 
-  `score = 0.6 × common + 0.25 × widespread + 0.15 × not-confusable`. Sorted by score: Beginner =
+  `score = 0.6 × common + 0.25 × widespread + 0.15 × not-confusable` for Everywhere and countries.
+  For a region or Near me, widespread across southern Africa says little (a Cape Sugarbird is
+  everywhere in Cape Town), so there `score = 0.85 × common + 0.15 × not-confusable`. Sorted by score: Beginner =
   first 15% (at least 20 birds), Easy = next 20%, Medium = next 30%, Hard = the rest.
 - **Changing area:** weights belong to the bird, so mastered stays mastered everywhere. The new
   pool = birds already added that are found in the new area; new birds come from the new area's

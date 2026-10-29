@@ -22,6 +22,9 @@ const Learn = (() => {
     BAND_MASTERED: [0.05, 0.10, 0.15, 0.25, 0.35],   // chance of a mastered bird, by momentum band
     GROUP_SHARES: [0.15, 0.20, 0.30], BEGINNER_MIN: 20, // Beginner, Easy, Medium; Hard = the rest
     SCORE: { common: 0.6, spread: 0.25, plain: 0.15 },
+    // In a region or near me, spread across all of southern Africa says little (a Cape Sugarbird is
+    // everywhere in Cape Town), so there only how common and how easily confused count.
+    SCORE_LOCAL: { common: 0.85, spread: 0, plain: 0.15 },
   };
   const GROUPS = ["beginner", "easy", "medium", "hard"];
 
@@ -89,8 +92,9 @@ const Learn = (() => {
   }
 
   // Difficulty groups for an area. `info` maps id → { rank (0 = commonest here), spread (map cells),
-  // mixups (known confusions) }. Returns four lists (Beginner … Hard), each commonest first.
-  function groupsFor(ids, info) {
+  // mixups (known confusions) }. `local`: a region or near me (see SCORE_LOCAL).
+  // Returns four lists (Beginner … Hard), each commonest first.
+  function groupsFor(ids, info, local = false) {
     const n = ids.length;
     if (!n) return [[], [], [], []];
     const pct = (key, higherIsBetter) => {
@@ -100,7 +104,8 @@ const Learn = (() => {
       return out;
     };
     const common = pct("rank", false), spread = pct("spread", true), plain = pct("mixups", false);
-    const score = (id) => C.SCORE.common * common[id] + C.SCORE.spread * spread[id] + C.SCORE.plain * plain[id];
+    const k = local ? C.SCORE_LOCAL : C.SCORE;
+    const score = (id) => k.common * common[id] + k.spread * spread[id] + k.plain * plain[id];
     const ranked = [...ids].sort((a, b) => score(b) - score(a) || info[a].rank - info[b].rank);
     const beginner = Math.min(n, Math.max(C.BEGINNER_MIN, Math.round(n * C.GROUP_SHARES[0])));
     const easy = Math.min(n, beginner + Math.round(n * C.GROUP_SHARES[1]));

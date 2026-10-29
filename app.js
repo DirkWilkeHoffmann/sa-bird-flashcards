@@ -134,7 +134,7 @@ function areaInfo() {
   const info = Object.fromEntries(list.map((s) => [s.id, {
     rank: rank[s.id], spread: spread[s.id] || 0, mixups: s.similar.filter((x) => x.why === "mixup").length,
   }]));
-  const groups = Learn.groupsFor(ids, info);
+  const groups = Learn.groupsFor(ids, info, settings.area === "near" || Boolean(areaSets[settings.area]));
   const groupOf = {};
   groups.forEach((g, i) => g.forEach((id) => { groupOf[id] = Learn.GROUPS[i]; }));
   areaCache = { key, ids, rank, groups, groupOf };
