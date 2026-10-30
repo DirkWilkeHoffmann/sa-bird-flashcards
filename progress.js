@@ -191,7 +191,7 @@ async function syncProfile() {
   if (!learnDirty && !remoteBehind && !(remote && Object.keys(learn.birds).length > Object.keys(remote.birds || {}).length)) return;
   const birds = Object.fromEntries(Object.entries(learn.birds).map(([id, b]) => [id, { w: b.w, seen: b.seen, added: b.added, run: b.run, u: b.u }]));
   const live = Object.fromEntries(Object.entries(snoozed).filter(([, until]) => until > Date.now()));
-  await rpc("profile_push", { p_key: syncCode(), p_data: { v: 1, birds,
+  await rpc("profile_push", { p_key: syncCode(), p_data: { v: 1, birds, resetAt: learn.resetAt || null,
     settings: { area: settings.area, near: settings.near, family: settings.family || "", u: settings.u },
     names: { first: afFirst ? "af" : "en", u: load(NAMES_U_KEY, null) }, snoozed: live } });
   learnDirty = false;

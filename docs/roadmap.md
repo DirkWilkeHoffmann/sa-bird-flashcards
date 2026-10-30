@@ -79,6 +79,9 @@ the area* stops it.
 - **In a phone's browser:** welcome, then **Add SA Birds to your home screen**: step-by-step for
   iPhone Safari (••• / Share → Add to Home Screen), Android's own install button when Chrome offers
   it, or its ⋮ menu otherwise. "Continue in the browser instead" carries on there.
+- **Every time the app is opened in a phone's browser** (or come back to after 30+ minutes), the
+  "add to home screen" step shows again, for new and existing players. "Continue in the browser
+  instead" closes it for now; **Skip** (once, on any step) means never again.
 - **On the home screen** (or a computer): welcome, how well you know birds, **Which birds do you want
   to learn?** (📍 Birds around me, or a place you choose), then Google sign-in. On iPhone the
   home-screen app doesn't share the browser's data, so this is where a new player really starts;

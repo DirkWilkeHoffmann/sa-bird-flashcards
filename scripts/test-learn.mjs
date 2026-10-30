@@ -158,6 +158,19 @@ check("walkthrough levels set momentum, L target and the first birds", () => {
   assert.equal(Learn.momentum(s), 5, "only the first session starts higher");
 });
 
+check("starting over (walkthrough) isn't undone by the account's older copy, and spreads", () => {
+  const account = Learn.blank();
+  Learn.touch(account, now0);
+  Learn.maybeAdd(account, ids, groups, now0);       // 20 default starter birds, synced earlier
+  const phone = JSON.parse(JSON.stringify(account));
+  Learn.setup(phone, "start", groups, now0 + 60000); // then the walkthrough: 15 birds
+  Learn.merge(phone, account);
+  assert.equal(Object.keys(phone.birds).length, 15, "the older 20 don't come back");
+  const other = JSON.parse(JSON.stringify(account)); // another phone with the old copy
+  Learn.merge(other, phone);
+  assert.equal(Object.keys(other.birds).length, 15, "the newer start replaces the old pool");
+});
+
 check("resting birds (7) drop to 6 now and then, others never", () => {
   const s = Learn.blank();
   for (const id of ids) s.birds[id] = { ...Learn.bird(s, id), added: true, w: id <= 100 ? 7 : 6 };

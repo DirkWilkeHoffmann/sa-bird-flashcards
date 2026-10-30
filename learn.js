@@ -174,9 +174,10 @@ const Learn = (() => {
 
   // A new player's start, from the walkthrough: replaces the pool with the area's commonest birds
   // for their level. Call after touch(). Returns the ids added.
-  function setup(state, level, groups) {
+  function setup(state, level, groups, now = Date.now()) {
     const L = C.LEVELS[level] || C.LEVELS.start;
     state.birds = {};
+    state.resetAt = new Date(now).toISOString();  // so older copies in the account don't come back
     state.session.start = L.m;
     state.avg = Array(C.SEED_ANSWERS).fill(L.avg);
     const ids = groups.flatMap((g, i) => g.slice(0, L.take[i] || 0));
@@ -320,9 +321,14 @@ const Learn = (() => {
     return state;
   }
 
-  // Newest change per bird wins. Returns true when anything here changed.
+  // Newest change per bird wins. A pool that was started over (the walkthrough) replaces any copy
+  // from before: this phone's newer start ignores the account's older birds, and an account that
+  // started over more recently replaces this phone's. Returns true when anything here changed.
   function merge(state, remote) {
     let changed = false;
+    const mine = state.resetAt || "", theirs = remote?.resetAt || "";
+    if (mine > theirs) return false;
+    if (theirs > mine) { state.birds = {}; state.resetAt = theirs; changed = true; }
     for (const [id, rb] of Object.entries(remote?.birds || {})) {
       const lb = state.birds[id];
       if (!lb || !lb.u || (rb.u && rb.u > lb.u)) {

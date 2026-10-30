@@ -15,6 +15,9 @@ const LEVEL_OPTIONS = [
   ["expert", "Experienced birder", "I know the hard ones too"],
 ];
 let onboard = load(ONBOARD_KEY, null);  // { level, step, browser, done }
+// Skip, once, means never again (also no more "add to home screen" reminders in the browser).
+const SKIPPED_KEY = "sabirds.onboardSkipped.v1";
+let reminder = false;  // showing only the "add to home screen" step to someone who's already playing
 
 const standalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 
@@ -46,7 +49,7 @@ const isPhone = device.os !== "other";
 // Android (Chrome) offers its own install prompt; keep it for the install step's button.
 let installPrompt = null;
 window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; });
-window.addEventListener("appinstalled", () => { logEvent("installed"); if (onboard?.step === "install") showStep("installed"); });
+window.addEventListener("appinstalled", () => { logEvent("installed"); if (onboard?.step === "install" || reminder) showStep("installed"); });
 
 function saveOnboard() {
   save(ONBOARD_KEY, onboard);
@@ -62,14 +65,31 @@ function steps() {
 // Called once the birds have loaded. New players get the walkthrough; someone back from Google
 // sign-in gets it finished.
 function startWalkthrough(newPlayer) {
-  if (onboard?.done) return;
-  if (onboard?.step === "signin") { finishAfterSignIn(); return; }
-  if (!newPlayer) return;
-  showWalkthrough();
+  if (onboard?.step === "signin" && !onboard.done) { finishAfterSignIn(); return; }
+  if (newPlayer && !onboard?.done) { showWalkthrough(); return; }
+  remindToInstall();
 }
+
+// A phone's browser isn't where the app is meant to be played: every time it's opened there (or
+// come back to after 30+ minutes), the "add to home screen" step comes up again, unless the player
+// once tapped Skip.
+function remindToInstall() {
+  if (!isPhone || standalone() || load(SKIPPED_KEY, false) || !$("onboard").hidden) return;
+  reminder = true;
+  $("onboard").hidden = false;
+  document.body.classList.add("onboarding");
+  logEvent("install_reminder", null, { device: `${device.os}-${device.browser}` });
+  showStep("install");
+}
+let hiddenAt = 0;
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") { hiddenAt = Date.now(); return; }
+  if (hiddenAt && Date.now() - hiddenAt > 30 * 60 * 1000 && species.length) remindToInstall();
+});
 
 // `browser`: Dev only, show the phone-browser version (install step) even on the home screen.
 function showWalkthrough({ browser = false } = {}) {
+  reminder = false;
   onboard = { level: "start", step: "welcome", forceBrowser: browser };
   saveOnboard();
   $("onboard").hidden = false;
@@ -98,9 +118,11 @@ function action(label, cls, onClick) {
 
 const STEP_VIEWS = {};
 function showStep(name) {
-  onboard.step = name;
-  saveOnboard();
-  const list = onboard.forceBrowser && !onboard.inBrowser ? ["welcome", "install"] : steps();
+  if (!reminder) {
+    onboard.step = name;
+    saveOnboard();
+  }
+  const list = reminder ? ["install"] : onboard.forceBrowser && !onboard.inBrowser ? ["welcome", "install"] : steps();
   const at = list.indexOf(name);
   const body = $("onbBody"), actions = $("onbActions");
   body.replaceChildren();
@@ -195,6 +217,7 @@ STEP_VIEWS.install = (body, actions) => {
     body.append(el("p", "note", "Not seeing Add to Home Screen? Open this page in Safari and add it from there."));
   }
   actions.append(action("Continue in the browser instead", "ghost", () => {
+    if (reminder) { reminder = false; hideWalkthrough(); return; }
     onboard.inBrowser = true;
     onboard.forceBrowser = false;
     showStep("level");
@@ -305,7 +328,7 @@ STEP_VIEWS.signin = (body, actions) => {
 function startPlaying({ signedIn = false, skipped = false } = {}) {
   learn = Learn.blank();
   Learn.touch(learn, Date.now());
-  const ids = Learn.setup(learn, onboard.level, areaInfo().groups);
+  const ids = Learn.setup(learn, onboard.level, areaInfo().groups, Date.now());
   saveLearn();
   const level = onboard.level;
   onboard = { level, done: true };
@@ -347,6 +370,13 @@ async function finishAfterSignIn() {
 
 // Skipping = today's defaults: Just starting, in the area shown (South Africa unless changed).
 $("onbSkip").addEventListener("click", () => {
+  save(SKIPPED_KEY, true);
+  if (reminder) {
+    reminder = false;
+    logEvent("install_reminder", null, { skipped: true });
+    hideWalkthrough();
+    return;
+  }
   onboard.level = "start";
   if (settings.area === "near" && !settings.near) settings = { ...settings, area: "c:ZA" };
   settings = { ...settings, u: new Date().toISOString() };
