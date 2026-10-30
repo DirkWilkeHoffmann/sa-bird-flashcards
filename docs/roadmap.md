@@ -66,6 +66,10 @@ the same list for just those birds (a family also lists its birds from other are
 opens it on its own, like one side of Compare. Mastered includes every bird at weight 4–7. Every
 sheet keeps its title and ✕ at the top; dragging the title bar down closes it.
 
+### 4. First-time walkthrough (draft, waiting for Dirk)
+Experience level, area and Google sign-in for new players, setting the starting momentum, the size
+of L and its birds. Draft and questions: [plan-first-time-walkthrough.md](plan-first-time-walkthrough.md).
+
 ### 3. Study one family (built on Dev, 30 Oct)
 **Study only these birds** at the top of a family's list studies that
 family across **all areas**: all its birds join the pool at once and are the learning group; the
