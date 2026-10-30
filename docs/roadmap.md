@@ -85,7 +85,12 @@ the area* stops it.
   signing in brings back progress made anywhere else.
 - The level sets the first session's momentum, the L target and the first birds (`onboard.js`,
   `Learn.setup`); plan: [plan-first-time-walkthrough.md](plan-first-time-walkthrough.md).
-- **Dev:** "▶ Walkthrough" and "▶ Walkthrough as in a phone's browser" under the Dev line.
+- **Per phone and browser:** the install steps match iPhone Safari, Chrome, Firefox and Edge, and
+  Android Chrome, Samsung Internet, Firefox and Edge. Inside another app's browser (Instagram,
+  Facebook, the Google app, WhatsApp on Android) it first says how to open the page in the real
+  browser. The `onboard` event records which one.
+- **Dev:** "▶ Walkthrough" and "▶ Walkthrough as in a phone's browser" under the Dev line; add
+  `?browser=ios-chrome` (or android-samsung, ios-inapp, …) to the Dev address to see another set.
 
 ## Open questions on recent work
 7. **Afrikaans names (live).** 840 of 852 birds have one (mostly from Afrikaans Wikipedia).

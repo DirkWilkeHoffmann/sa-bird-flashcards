@@ -17,8 +17,28 @@ const LEVEL_OPTIONS = [
 let onboard = load(ONBOARD_KEY, null);  // { level, step, browser, done }
 
 const standalone = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
-const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-const isPhone = isIOS || /Android/i.test(navigator.userAgent);
+
+// Which phone and browser, from the user agent, for the right "add to home screen" steps.
+// Dev can try another with ?browser=ios-chrome, android-samsung, ios-inapp, … in the address.
+function browserInfo() {
+  const forced = IS_DEV && new URLSearchParams(location.search).get("browser");
+  if (forced) { const [os, browser] = forced.split("-"); return { os, browser }; }
+  const ua = navigator.userAgent;
+  const os = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) ? "ios"
+    : /Android/i.test(ua) ? "android" : "other";
+  // Browsers inside other apps (Instagram, Facebook, the Google app, Android web views) can't add
+  // to the home screen: the player has to open the page in their real browser first.
+  if (/FBAN|FBAV|Instagram|LinkedInApp|Snapchat|TikTok|musical_ly|Twitter|Line\/|GSA\//.test(ua) || (os === "android" && /; wv\)/.test(ua))) {
+    return { os, browser: "inapp" };
+  }
+  const browser = os === "ios"
+    ? (/CriOS/.test(ua) ? "chrome" : /FxiOS/.test(ua) ? "firefox" : /EdgiOS/.test(ua) ? "edge" : "safari")
+    : /SamsungBrowser/.test(ua) ? "samsung" : /Firefox/.test(ua) ? "firefox" : /EdgA/.test(ua) ? "edge" : "chrome";
+  return { os, browser };
+}
+const device = browserInfo();
+const isIOS = device.os === "ios";
+const isPhone = device.os !== "other";
 
 // Android (Chrome) offers its own install prompt; keep it for the install step's button.
 let installPrompt = null;
@@ -98,34 +118,70 @@ STEP_VIEWS.welcome = (body, actions, next, list) => {
   actions.append(action(installing ? "Get started" : "Start", "primary", next));
 };
 
-// How to add the app to the home screen: iPhone (Safari's Share menu) or Android (the browser's own
-// prompt, or its menu). The home-screen app then starts the walkthrough's questions.
+// How to add the app to the home screen, for this phone and browser. Each step is [icon, text].
+const INSTALL_STEPS = {
+  "ios-safari": [["more", "Tap <b>•••</b> or the <b>Share</b> button in Safari's bar"],
+    ["share", "Tap <b>Share</b>, then scroll down to <b>Add to Home Screen</b>"],
+    ["add-square", "Tap <b>Add</b>, then open <b>SA Birds</b> from your home screen"]],
+  "ios-chrome": [["share", "Tap the <b>Share</b> button at the top right, next to the address"],
+    ["add-square", "Scroll down and tap <b>Add to Home Screen</b>"],
+    ["", "Tap <b>Add</b>, then open <b>SA Birds</b> from your home screen"]],
+  "ios-firefox": [["more", "Tap the <b>☰</b> menu at the bottom right"],
+    ["share", "Tap <b>Share</b>, then <b>Add to Home Screen</b>"],
+    ["add-square", "Tap <b>Add</b>, then open <b>SA Birds</b> from your home screen"]],
+  "ios-edge": [["more", "Tap the <b>•••</b> menu at the bottom"],
+    ["share", "Tap <b>Share</b>, then <b>Add to Home Screen</b>"],
+    ["add-square", "Tap <b>Add</b>, then open <b>SA Birds</b> from your home screen"]],
+  "android-chrome": [["more", "Tap the <b>⋮</b> menu at the top right"],
+    ["add-square", "Tap <b>Add to Home screen</b> (or <b>Install app</b>), then <b>Install</b>"],
+    ["", "Open <b>SA Birds</b> from your home screen"]],
+  "android-samsung": [["more", "Tap the <b>☰</b> menu at the bottom right"],
+    ["add-square", "Tap <b>Add page to</b>, then <b>Home screen</b>"],
+    ["", "Tap <b>Add</b>, then open <b>SA Birds</b> from your home screen"]],
+  "android-firefox": [["more", "Tap the <b>⋮</b> menu"],
+    ["add-square", "Tap <b>Add app to Home screen</b> (or <b>Install</b>)"],
+    ["", "Open <b>SA Birds</b> from your home screen"]],
+  "android-edge": [["more", "Tap the <b>•••</b> menu at the bottom"],
+    ["add-square", "Tap <b>Add to phone</b>, then <b>Install</b>"],
+    ["", "Open <b>SA Birds</b> from your home screen"]],
+};
+// Inside another app (Instagram, Facebook, …): first open the page in the phone's own browser.
+const OPEN_IN_BROWSER = {
+  ios: [["more", "Tap <b>•••</b> or the <b>Share</b> button in this app's browser"],
+    ["share", "Tap <b>Open in Safari</b> (or Open in browser)"],
+    ["", "Then follow the steps there to add SA Birds to your home screen"]],
+  android: [["more", "Tap the <b>⋮</b> menu in this app's browser"],
+    ["share", "Tap <b>Open in Chrome</b> (or Open in browser)"],
+    ["", "Then follow the steps there to add SA Birds to your home screen"]],
+};
+
 STEP_VIEWS.install = (body, actions) => {
-  body.append(el("p", "onb-emoji", "📲"), el("h1", "", "Add SA Birds to your home screen"),
-    el("p", "onb-lead", "It opens full screen like an app, works offline, and it's one tap away for your daily birds."));
+  const inApp = device.browser === "inapp";
+  body.append(el("p", "onb-emoji", "📲"), el("h1", "", inApp ? "Open SA Birds in your browser" : "Add SA Birds to your home screen"),
+    el("p", "onb-lead", inApp
+      ? "This page is open inside another app, which can't add it to your home screen."
+      : "It opens full screen like an app, works offline, and it's one tap away for your daily birds."));
   const how = el("ol", "onb-howto");
-  const stepLine = (iconName, html) => {
+  const list = inApp ? OPEN_IN_BROWSER[isIOS ? "ios" : "android"]
+    : INSTALL_STEPS[`${device.os}-${device.browser}`] || INSTALL_STEPS[isIOS || !isPhone ? "ios-safari" : "android-chrome"];
+  for (const [iconName, html] of list) {
     const li = el("li");
     li.innerHTML = `${iconName ? icon(iconName) : ""}<span>${html}</span>`;
     how.append(li);
-  };
-  if (isIOS || !isPhone) {
-    stepLine("more", "Tap <b>•••</b> or the <b>Share</b> button in Safari's bar");
-    stepLine("share", "Tap <b>Share</b>, then scroll to <b>Add to Home Screen</b>");
-    stepLine("add-square", "Tap <b>Add</b>, then open <b>SA Birds</b> from your home screen");
-    body.append(how, el("p", "note", "No Share button? Open this page in Safari first."));
-  } else if (installPrompt) {
+  }
+  // Android Chrome (and Edge, Samsung) can show their own install prompt: one tap instead.
+  if (installPrompt && !inApp) {
     actions.append(action("Add to Home Screen", "primary", async () => {
       installPrompt.prompt();
       const choice = await installPrompt.userChoice.catch(() => null);
       installPrompt = null;
       if (choice?.outcome === "accepted") showStep("installed");
     }));
-  } else {
-    stepLine("more", "Tap the <b>⋮</b> menu at the top of the browser");
-    stepLine("add-square", "Tap <b>Add to Home screen</b> or <b>Install app</b>");
-    stepLine("", "Open <b>SA Birds</b> from your home screen");
-    body.append(how);
+    body.append(el("p", "note", "Or add it yourself:"));
+  }
+  body.append(how);
+  if (isIOS && device.browser !== "safari" && !inApp) {
+    body.append(el("p", "note", "Not seeing Add to Home Screen? Open this page in Safari and add it from there."));
   }
   actions.append(action("Continue in the browser instead", "ghost", () => {
     onboard.inBrowser = true;
@@ -244,7 +300,7 @@ function startPlaying({ signedIn = false, skipped = false } = {}) {
   onboard = { level, done: true };
   saveOnboard();
   logEvent("onboard", null, { level: skipped ? "skipped" : level, area: settings.area, signedIn,
-    app: standalone() ? "home screen" : "browser" });
+    app: standalone() ? "home screen" : "browser", device: `${device.os}-${device.browser}` });
   hideWalkthrough();
   $("filterSummary").textContent = summary();
   queue = [];
