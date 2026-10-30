@@ -3,17 +3,21 @@
 -- streaks; players show their area and family; new-bird batches and "all mastered" are counted.
 -- Only the admin functions change; nothing players use.
 
--- Mastered / learning birds in one learner profile.
+-- Mastered / learning birds in one learner profile. Profiles are written by players, so anything
+-- that isn't the expected shape (birds an object of objects, numeric w, boolean seen) is skipped
+-- rather than cast, so one bad profile can't break the admin reports.
 create or replace function public.profile_counts(p_data jsonb)
 returns table (mastered bigint, learning bigint)
 language sql
 immutable
 set search_path to ''
 as $$
-  select count(*) filter (where (b.value->>'w')::numeric >= 4),
-         count(*) filter (where (b.value->>'w')::numeric < 4)
-  from jsonb_each(coalesce(p_data->'birds', '{}'::jsonb)) b
-  where coalesce((b.value->>'seen')::boolean, false);
+  select count(*) filter (where (b.value->'w')::numeric >= 4),
+         count(*) filter (where (b.value->'w')::numeric < 4)
+  from jsonb_each(case when jsonb_typeof(p_data->'birds') = 'object' then p_data->'birds' else '{}'::jsonb end) b
+  where jsonb_typeof(b.value) = 'object'
+    and jsonb_typeof(b.value->'w') = 'number'
+    and b.value->'seen' = 'true'::jsonb;
 $$;
 revoke all on function public.profile_counts(jsonb) from public, anon, authenticated;
 
