@@ -22,7 +22,7 @@ const standalone = () => matchMedia("(display-mode: standalone)").matches || nav
 // Dev can try another with ?browser=ios-chrome, android-samsung, ios-inapp, … in the address.
 function browserInfo() {
   const forced = IS_DEV && new URLSearchParams(location.search).get("browser");
-  if (forced) { const [os, browser] = forced.split("-"); return { os, browser }; }
+  if (forced) { const [os, browser, version] = forced.split("-"); return { os, browser, version: Number(version) || 26 }; }
   const ua = navigator.userAgent;
   const os = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) ? "ios"
     : /Android/i.test(ua) ? "android" : "other";
@@ -34,7 +34,10 @@ function browserInfo() {
   const browser = os === "ios"
     ? (/CriOS/.test(ua) ? "chrome" : /FxiOS/.test(ua) ? "firefox" : /EdgiOS/.test(ua) ? "edge" : "safari")
     : /SamsungBrowser/.test(ua) ? "samsung" : /Firefox/.test(ua) ? "firefox" : /EdgA/.test(ua) ? "edge" : "chrome";
-  return { os, browser };
+  // Safari's version (Version/26.0): from 26 the Share button sits in a menu and Add to Home Screen
+  // is under View More in the share sheet.
+  const version = Number(ua.match(/Version\/(\d+)/)?.[1]) || 0;
+  return { os, browser, version };
 }
 const device = browserInfo();
 const isIOS = device.os === "ios";
@@ -120,17 +123,24 @@ STEP_VIEWS.welcome = (body, actions, next, list) => {
 
 // How to add the app to the home screen, for this phone and browser. Each step is [icon, text].
 const INSTALL_STEPS = {
-  "ios-safari": [["more", "Tap <b>•••</b> or the <b>Share</b> button in Safari's bar"],
-    ["share", "Tap <b>Share</b>, then scroll down to <b>Add to Home Screen</b>"],
-    ["add-square", "Tap <b>Add</b>, then open <b>SA Birds</b> from your home screen"]],
-  "ios-chrome": [["share", "Tap the <b>Share</b> button at the top right, next to the address"],
+  // Safari 26 (iOS 26): the menu button in the address bar (≡, or ••• next to it), Share, then
+  // View More at the bottom of the share sheet, where Add to Home Screen is.
+  "ios-safari": [["menu", "Tap <b>≡</b> in the address bar at the bottom (or <b>•••</b> next to it)"],
+    ["share", "Tap <b>Share</b>"],
+    ["view-more", "At the bottom, tap <b>View More</b>, then <b>Add to Home Screen</b>"],
+    ["add-square", "Keep <b>Open as Web App</b> on, tap <b>Add</b>, then open <b>SA Birds</b> from your home screen"]],
+  // Safari 18 and older: the Share button is in the toolbar; Add to Home Screen is in the list.
+  "ios-safari-old": [["share", "Tap the <b>Share</b> button in Safari's toolbar"],
     ["add-square", "Scroll down and tap <b>Add to Home Screen</b>"],
     ["", "Tap <b>Add</b>, then open <b>SA Birds</b> from your home screen"]],
+  "ios-chrome": [["share", "Tap the <b>Share</b> button at the top right, next to the address"],
+    ["view-more", "Scroll down, tap <b>View More</b>, then <b>Add to Home Screen</b>"],
+    ["add-square", "Tap <b>Add</b>, then open <b>SA Birds</b> from your home screen"]],
   "ios-firefox": [["more", "Tap the <b>☰</b> menu at the bottom right"],
-    ["share", "Tap <b>Share</b>, then <b>Add to Home Screen</b>"],
+    ["share", "Tap <b>Share</b>, then <b>Add to Home Screen</b> (under <b>View More</b> if you don't see it)"],
     ["add-square", "Tap <b>Add</b>, then open <b>SA Birds</b> from your home screen"]],
   "ios-edge": [["more", "Tap the <b>•••</b> menu at the bottom"],
-    ["share", "Tap <b>Share</b>, then <b>Add to Home Screen</b>"],
+    ["share", "Tap <b>Share</b>, then <b>Add to Home Screen</b> (under <b>View More</b> if you don't see it)"],
     ["add-square", "Tap <b>Add</b>, then open <b>SA Birds</b> from your home screen"]],
   "android-chrome": [["more", "Tap the <b>⋮</b> menu at the top right"],
     ["add-square", "Tap <b>Add to Home screen</b> (or <b>Install app</b>), then <b>Install</b>"],
@@ -162,8 +172,9 @@ STEP_VIEWS.install = (body, actions) => {
       ? "This page is open inside another app, which can't add it to your home screen."
       : "It opens full screen like an app, works offline, and it's one tap away for your daily birds."));
   const how = el("ol", "onb-howto");
+  const key = device.browser === "safari" && device.version && device.version < 26 ? "ios-safari-old" : `${device.os}-${device.browser}`;
   const list = inApp ? OPEN_IN_BROWSER[isIOS ? "ios" : "android"]
-    : INSTALL_STEPS[`${device.os}-${device.browser}`] || INSTALL_STEPS[isIOS || !isPhone ? "ios-safari" : "android-chrome"];
+    : INSTALL_STEPS[key] || INSTALL_STEPS[isIOS || !isPhone ? "ios-safari" : "android-chrome"];
   for (const [iconName, html] of list) {
     const li = el("li");
     li.innerHTML = `${iconName ? icon(iconName) : ""}<span>${html}</span>`;
