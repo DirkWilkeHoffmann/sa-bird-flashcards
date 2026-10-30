@@ -112,6 +112,33 @@ check("a new phone's starter birds don't overwrite the account's weights", () =>
   for (const id of groups[0].slice(0, 5)) assert.equal(Learn.bird(phone, id).w, Learn.bird(remote, id).w);
 });
 
+check("new birds come 2–5 at a time, more with higher momentum", () => {
+  const sizes = {};
+  for (const [name, answers] of [["low", [-2, -2, -2]], ["well", [2, 2, 2, 2, 2, -2, 2, -2, 2, 2]],
+    ["high", [2, 2, 2, 2, 2, 2, 2, 2, -2, 2]], ["perfect", Array(10).fill(2)]]) {
+    const s = Learn.blank();
+    Learn.touch(s, now0);
+    Learn.maybeAdd(s, ids, groups, now0);
+    for (const id of groups[0].slice(0, 18)) s.birds[id].w = 5;  // L down to 2: below every target
+    s.session.answers = answers;
+    sizes[name] = Learn.maybeAdd(s, ids, groups, now0).length;
+  }
+  assert.ok(Object.values(sizes).every((n) => n >= 2 && n <= 5), JSON.stringify(sizes));
+  assert.deepEqual(sizes, { low: 5, well: 5, high: 5, perfect: 5 }, "far below target: always the most");
+  // One short of the target (25): the batch follows momentum, never a single bird.
+  const oneShort = (answers) => {
+    const s = Learn.blank();
+    Learn.touch(s, now0);
+    for (const id of ids.slice(0, 24)) s.birds[id] = { ...Learn.bird(s, id), added: true, seen: true, w: 0 };
+    s.avg = [10];
+    s.session.answers = answers;
+    return Learn.maybeAdd(s, ids, groups, now0).length;
+  };
+  assert.equal(oneShort(Array(10).fill(2)), 5, "perfect");
+  assert.equal(oneShort([2, 2, 2, 2, 2, 2, 2, 2, -2, 2]), 4, "high");
+  assert.equal(oneShort([2, 2, 2, 2, 2, 2, -2, -2, 2, 2]), 3, "doing well");
+});
+
 check("resting birds (7) drop to 6 now and then, others never", () => {
   const s = Learn.blank();
   for (const id of ids) s.birds[id] = { ...Learn.bird(s, id), added: true, w: id <= 100 ? 7 : 6 };

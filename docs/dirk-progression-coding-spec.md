@@ -55,8 +55,8 @@ tuned without touching the rules.
 - **Daily rest (Q9, Q10):** once a day (first open), every resting bird has a **10%** chance of dropping
   to 6, so it can be shown again. Days away count: the chance is `1 − 0.9^days` (at most 30 days).
   Birds below 7 never drop.
-- **Target size of L (Q12):** average momentum < 8 → 10; 8 to 14 → 15; ≥ 14 → 25. Never below 5 or
-  above 30.
+- **Target size of L (Q12, raised 30 Oct):** average momentum < 8 → 15; 8 to 14 → 25; ≥ 14 → 40.
+  Never below 8 or above 50.
 
 ## 4. Adding new birds (Q14–Q17)
 
@@ -64,8 +64,10 @@ tuned without touching the rules.
 - **After each answer**, new birds are added when L is below its target **and** one of:
   - momentum is doing well (M ≥ 8);
   - L has shrunk over the last 20 answers (birds were mastered);
-  - L is below 5 (keep the game going).
-- **How many:** target − size of L, at most 5 at a time.
+  - L is below 8 (keep the game going).
+- **How many (30 Oct):** always 2–5 at once, never one at a time. By momentum: perfect 5, high 4,
+  doing well 3, otherwise 2. If L is further below its target than that, as many as it's short,
+  up to 5.
 - **Which:** the area's groups in order, Beginner → Easy → Medium → Hard. Within the current group,
   the not-yet-added birds are sorted commonest first, and the new ones are picked **at random from
   the first 2 × X** of them (commonest-ish, not a fixed order). When a group runs out, the next one
@@ -120,10 +122,11 @@ Deterministic rules, with the last choice made at random (Q21).
   pool = birds already added that are found in the new area; new birds come from the new area's
   groups. Switching back loses nothing.
 
-## 7. Photos only (Q26)
+## 7. Photos only while guessing (Q26)
 
-Calls are taken out for now: no call cards, no card-type setting, no "listen" hint, no "Hear call"
-on the answer. The call code stays in `app.js` for later.
+Cards are always photos: no call cards, no card-type setting, no "listen" hint while guessing.
+The answer screen still has **Hear call** and the recording credit, and offline downloads can
+still include a call. Calls come back to the guessing later, with their own weights.
 
 ## 8. Moving today's progress (Q27)
 

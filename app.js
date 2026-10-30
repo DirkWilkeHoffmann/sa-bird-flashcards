@@ -207,16 +207,21 @@ function pickSpecies(exclude, ahead) {
   return { s: from[Math.floor(Math.random() * from.length)], why: "any" };
 }
 
-// Photos only for now: calls come back later with their own weights.
+// Cards are photos only for now (calls come back to the guessing later, with their own weights);
+// the call is still there to hear on the answer screen.
 function makeCard(exclude, ahead) {
   const { s, why } = pickSpecies(exclude, ahead);
-  // Offline, a card only uses the photos that were downloaded.
+  // Offline, a card only uses the photos and call that were downloaded.
   const view = typeof offlineView === "function" ? offlineView(s) : null;
   const allPhotos = view ? view.photos : s.photos;
+  const allCalls = view ? view.calls : s.calls;
+  // While xeno-canto is failing, only recordings from other sources (iNaturalist) are used.
+  const working = xenoFailing() ? allCalls.filter((c) => !isXeno(c)) : allCalls;
+  const calls = working.length ? working : allCalls;
   // Start the carousel at a random photo so repeats look different.
   const start = Math.floor(Math.random() * allPhotos.length);
   const photos = [...allPhotos.slice(start), ...allPhotos.slice(0, start)];
-  const c = { s, why, kind: "photo", photos, calls: [], callIndex: 0 };
+  const c = { s, why, kind: "photo", photos, calls, callIndex: Math.floor(Math.random() * Math.max(1, calls.length)) };
   // Warm the cache: first photo and info of each upcoming card.
   warmPhotos(photos.slice(0, 1));
   loadInfo(s);
@@ -872,7 +877,7 @@ function nextCard() {
   resetZoom();
   fillQueue();
   card = queue.shift();
-  card.calls ??= [];
+  card.calls ??= card.s.calls;
   // A bird never shown before gets a NEW tag (decided once per card, so Undo keeps it).
   card.isNew ??= !Learn.bird(learn, card.s.id).seen && !seenBirds.has(card.s.id);
   seenBirds.add(card.s.id);
@@ -1038,7 +1043,6 @@ function hintTools() {
     row.append(b);
     return b;
   };
-  if (card.kind === "photo" && card.calls.length) bindCall($("audio"), add("", playCall), "long");
   if (card.kind === "call" && !$("sound").hidden) add(`${icon("camera")} Show photo`, (e) => { $("sound").hidden = true; e.currentTarget.remove(); });
   add(`${icon("map")} Show range`, showRangeHint);
   return row;
@@ -1138,8 +1142,9 @@ function record(result, picked) {
   // While signed out, each new batch also offers to sign in, so the new birds aren't lost.
   const keep = signedOut() ? { action: { label: "Sign in", run: () => signInFrom("batch") }, ms: 7000 } : {};
   if (added.length) {
-    showToast(signedOut() ? `${added.length} new birds added! Sign in to keep them`
-      : `${added.length} new birds added — ${PRAISE[Math.floor(Math.random() * PRAISE.length)]}`, keep);
+    const birds = `${added.length} new bird${added.length === 1 ? "" : "s"}`;
+    showToast(signedOut() ? `${birds} added! Sign in to keep them`
+      : `${birds} added — ${PRAISE[Math.floor(Math.random() * PRAISE.length)]}`, keep);
   } else {
     nudgeSignIn();
   }

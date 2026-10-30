@@ -13,12 +13,13 @@ It is a Progressive Web App: no App Store needed.
 
 ## How it works
 
-- A bird photo appears (calls are taken out for now and will come back later). Swipe sideways through all its photos; pinch or double-tap to zoom.
+- A bird photo appears (calls are out of the guessing for now; you can still hear the call after
+  the answer). Swipe sideways through all its photos; pinch or double-tap to zoom.
 - Think of the name, then tap **Reveal** and mark yourself **Got it** or **Missed it**.
 - Stuck? Tap **Hint**: first guess what kind of bird it is (Lapwing, Weaver…), then which one.
 - After each bird you get its group in your area (Beginner / Easy / Medium / Hard), the countries
-  it's seen in, a short description, a range map of Southern Africa, records by month and the
-  photo credits.
+  it's seen in, its call, a short description, a range map of Southern Africa, records by month
+  and the photo/recording credits.
 - **📍 Area** (the line above the photo, or ⚙): one area at a time — Everywhere, Near me, a country
   or a region. There are no levels to pick: birds join your pool as you learn (see below).
 - **Skip** a bird by swiping the card up (or the Skip button); it isn't scored.
@@ -41,7 +42,7 @@ It is a Progressive Web App: no App Store needed.
   build also shows momentum, the learning group and every pool bird's weight (and a line under the
   area on the home screen).
 - **Offline**: ⚙ → *Download this set for offline use* saves the chosen study set (1, 3 or all
-  photos per bird, range data and Wikipedia text). Without signal the app shows
+  photos per bird, optionally a call, range data and Wikipedia text). Without signal the app shows
   only downloaded birds. Delete downloads from the same screen.
 - **Sign in with Google** (📊 screen): progress is saved to your account and follows you to any
   device you sign in on. Without an account, a private sync code (same screen) does the same job.

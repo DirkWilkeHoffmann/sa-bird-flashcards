@@ -13,9 +13,10 @@ const Learn = (() => {
     POINTS: { right: 2, wrong: -2, hintRight: 1, hintWrong: -1 },
     SESSION_GAP_MS: 30 * 60 * 1000,
     AVG_WINDOW: 100,                                 // answers in the average momentum
-    L_LOW: 10, L_NORMAL: 15, L_HIGH: 25, L_MIN: 5, L_MAX: 30,
+    L_LOW: 15, L_NORMAL: 25, L_HIGH: 40, L_MIN: 8, L_MAX: 50,
     SHRINK_WINDOW: 20,                               // answers to look back for "L has shrunk"
-    FIRST_POOL: 20, ADD_MAX: 5,
+    FIRST_POOL: 20, ADD_MIN: 2, ADD_MAX: 5,
+    ADD_PERFECT: 5, ADD_BY_BAND: [4, 3, 2, 2, 2],     // birds per batch: perfect, then by momentum band
     REST_CHANCE: 0.1, REST_MAX_DAYS: 30,             // weight 7 → 6, per day
     RECENT: 3,                                       // no bird from the last 3 cards (except retries)
     RETRY_FIRST: [3, 5], RETRY_SECOND: [5, 8],       // cards before a missed bird comes back
@@ -136,7 +137,8 @@ const Learn = (() => {
 
   // Called with an area's eligible birds and groups. First visit: the 20 commonest Beginner birds.
   // After that: top L up to its target when the player is doing well, L has shrunk, or L is tiny.
-  // Returns the ids added (maybe none).
+  // Birds come in batches of 2–5 (never one at a time): more the higher the momentum, or as many as
+  // L is short if that's more. Returns the ids added (maybe none).
   function maybeAdd(state, ids, groups, now, rng = Math.random) {
     const parts = split(state, ids);
     if (!parts.l.length && !parts.mastered.length && !parts.resting.length) {
@@ -149,8 +151,11 @@ const Learn = (() => {
     if (size >= target || !parts.unadded.length) return [];
     const back = state.lSizes.length >= C.SHRINK_WINDOW ? state.lSizes[state.lSizes.length - C.SHRINK_WINDOW] : null;
     const shrunk = back !== null && size < back;
-    if (!(momentum(state) >= C.WELL || shrunk || size < C.L_MIN)) return [];
-    const list = chooseNew(state, groups, Math.min(C.ADD_MAX, target - size), rng);
+    const m = momentum(state);
+    if (!(m >= C.WELL || shrunk || size < C.L_MIN)) return [];
+    const byMomentum = m >= C.PERFECT ? C.ADD_PERFECT : C.ADD_BY_BAND[band(m)];
+    const x = clamp(Math.max(target - size, byMomentum), C.ADD_MIN, C.ADD_MAX);
+    const list = chooseNew(state, groups, x, rng);
     addBirds(state, list);
     if (list.length) state.lSizes = [];  // a fresh start for "has L shrunk"
     return list;
