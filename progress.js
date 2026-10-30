@@ -533,7 +533,7 @@ function devProgress() {
   const again = document.createElement("button");
   again.type = "button";
   again.className = "btn ghost";
-  again.textContent = "Show the walkthrough again (starts this phone's learning over)";
+  again.textContent = "Show the walkthrough again (finishing it starts this phone's learning over)";
   again.addEventListener("click", () => { closeSheet($("progress")); showWalkthrough(); });
   box.innerHTML = `<p class="prog-h">Dev: learning state</p>
     <table class="dev-table"><tbody>${rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("")}</tbody></table>

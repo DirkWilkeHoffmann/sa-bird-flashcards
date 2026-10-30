@@ -14,6 +14,19 @@ momentum, the size of the learning group L and which birds are in it.
   wins and the experience answer is ignored ("Welcome back!").
 - **Dev only:** a "Show the walkthrough again" button in the Dev stats, for testing.
 
+## Reworked 30 Oct (after Dirk tried it on his phone)
+
+- **Phone browser → home screen first.** In Safari or Chrome on a phone the walkthrough is only:
+  welcome, then how to add the app to the home screen (iPhone: ••• / Share → Add to Home Screen;
+  Android: the install button, or ⋮ → Add to Home screen). The questions happen in the home-screen
+  app, which on iPhone starts with its own, empty storage anyway. "Continue in the browser instead"
+  keeps going in the browser.
+- **Area step:** "Which birds do you want to learn?" with two choices: 📍 Birds around me (location)
+  or a place you choose (the area list), and how many birds that is.
+- **Dev:** buttons under the Dev line run the walkthrough, as on the home screen or as in a browser.
+
+The screens below are the first version; steps 2–4 are the same apart from the area step's text.
+
 ## The screens
 
 Three or four full-screen steps over the app, each with one choice and a big button. A small

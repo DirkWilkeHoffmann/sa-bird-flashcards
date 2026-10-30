@@ -75,12 +75,17 @@ the area* stops it.
 - When every bird in the area or family is mastered: "Well done! All birds in this section are
   mastered. Select a new area or family in settings", with a Settings button (also for areas).
 
-### 4. First-time walkthrough (built on Dev, 30 Oct)
-New players get four short, skippable steps: welcome, how well they know birds, where they bird
-(Near me or an area), and Google sign-in. Their level sets the first session's momentum, the L
-target and the first birds (`onboard.js`, `Learn.setup`). Built as drafted in
-[plan-first-time-walkthrough.md](plan-first-time-walkthrough.md); its questions were left at the
-draft's answers. Dev stats have "Show the walkthrough again" for testing.
+### 4. First-time walkthrough (built on Dev, reworked 30 Oct)
+- **In a phone's browser:** welcome, then **Add SA Birds to your home screen**: step-by-step for
+  iPhone Safari (••• / Share → Add to Home Screen), Android's own install button when Chrome offers
+  it, or its ⋮ menu otherwise. "Continue in the browser instead" carries on there.
+- **On the home screen** (or a computer): welcome, how well you know birds, **Which birds do you want
+  to learn?** (📍 Birds around me, or a place you choose), then Google sign-in. On iPhone the
+  home-screen app doesn't share the browser's data, so this is where a new player really starts;
+  signing in brings back progress made anywhere else.
+- The level sets the first session's momentum, the L target and the first birds (`onboard.js`,
+  `Learn.setup`); plan: [plan-first-time-walkthrough.md](plan-first-time-walkthrough.md).
+- **Dev:** "▶ Walkthrough" and "▶ Walkthrough as in a phone's browser" under the Dev line.
 
 ## Open questions on recent work
 7. **Afrikaans names (live).** 840 of 852 birds have one (mostly from Afrikaans Wikipedia).
