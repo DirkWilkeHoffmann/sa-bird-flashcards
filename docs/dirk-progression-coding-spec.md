@@ -122,6 +122,13 @@ Deterministic rules, with the last choice made at random (Q21).
   pool = birds already added that are found in the new area; new birds come from the new area's
   groups. Switching back loses nothing.
 
+**Studying one family (added 30 Oct):** chosen from a family's bird list or the settings. It covers
+the family in **all areas**: all its birds are added to the pool at once, so they're L; everything
+else (weights, momentum, picks, retries) works as normal. When every bird in the area or family is
+mastered (L empty, nothing left to add), a notification says "Well done! All birds in this section
+are mastered. Select a new area or family in settings", with a Settings button. It shows again if
+something there needs learning and then gets mastered again.
+
 ## 7. Photos only while guessing (Q26)
 
 Cards are always photos: no call cards, no card-type setting, no "listen" hint while guessing.

@@ -22,7 +22,7 @@ let stats = load(STATS_KEY, {});   // { [speciesId]: { right, wrong, hint, strea
 let settings = settingsFrom(load(SETTINGS_KEY, {}));
 // Settings from before the Dirk Progression (levels, countries, card type) become one area.
 function settingsFrom(old) {
-  if (old.v === 2) return old;
+  if (old.v === 2) return { family: "", ...old };
   let area = "c:ZA";
   if (old.area === "near" && old.near) area = "near";
   else if (old.area && old.area !== "near") area = old.area;
@@ -89,8 +89,15 @@ const photoUrl = (p, size) => `${p.base}/${size}.${p.ext}`;
 /* ---------- The area ---------- */
 
 // One area at a time: everywhere, a country ("c:ZA"), a region (today's areas) or near me.
+// Or one family, across all areas (chosen in the settings or from a family's bird list).
 // Players don't pick levels: the birds come from the Dirk Progression (learn.js).
 function areaHas(s) {
+  if (settings.family) return s.family === settings.family;
+  return inArea(s);
+}
+
+// Whether a bird lives in the selected area, whatever family is being studied.
+function inArea(s) {
   const a = settings.area;
   if (a === "all") return true;
   if (a.startsWith("c:")) return s.countries.includes(a.slice(2));
@@ -108,7 +115,14 @@ function placeOk(s) {
 // The birds in the player's pool here (offline.js downloads these).
 const inSet = (s) => areaHas(s) && Learn.bird(learn, s.id).added;
 
-function areaName(area = settings.area) {
+const familyLabel = (code) => species.find((s) => s.family === code)?.familyName || code;
+
+// The name of what's being studied: the family ("Cuckoos · all areas") or the area.
+function areaName() {
+  return settings.family ? `${familyLabel(settings.family)} · all areas` : areaNameOf(settings.area);
+}
+
+function areaNameOf(area) {
   if (area === "all") return "Everywhere";
   if (area === "near") return "Near me";
   if (area.startsWith("c:")) return COUNTRY_NAMES[area.slice(2)] || area.slice(2);
@@ -123,10 +137,10 @@ function summary() {
 // common, widespread and easily confused each bird is: see Learn.groupsFor).
 let areaCache = { key: null };
 function areaInfo() {
-  const key = `${settings.area}|${settings.area === "near" ? nearSet?.size : ""}|${species.length}`;
+  const key = `${settings.family}|${settings.area}|${settings.area === "near" ? nearSet?.size : ""}|${species.length}`;
   if (areaCache.key === key) return areaCache;
   const byId = new Map(species.map((s) => [s.id, s]));
-  const listed = areaSets[settings.area] ? areas.birds[settings.area].map((id) => byId.get(id)).filter(Boolean)
+  const listed = !settings.family && areaSets[settings.area] ? areas.birds[settings.area].map((id) => byId.get(id)).filter(Boolean)
     : [...species].sort((x, y) => y.obs - x.obs);
   const list = listed.filter((s) => areaHas(s) && s.photos.length);
   const ids = list.map((s) => s.id);
@@ -134,7 +148,7 @@ function areaInfo() {
   const info = Object.fromEntries(list.map((s) => [s.id, {
     rank: rank[s.id], spread: spread[s.id] || 0, mixups: s.similar.filter((x) => x.why === "mixup").length,
   }]));
-  const groups = Learn.groupsFor(ids, info, settings.area === "near" || Boolean(areaSets[settings.area]));
+  const groups = Learn.groupsFor(ids, info, !settings.family && (settings.area === "near" || Boolean(areaSets[settings.area])));
   const groupOf = {};
   groups.forEach((g, i) => g.forEach((id) => { groupOf[id] = Learn.GROUPS[i]; }));
   areaCache = { key, ids, rank, groups, groupOf };
@@ -166,12 +180,19 @@ const areaSplit = () => Learn.split(learn, eligibleIds());
 let speciesById = new Map();
 
 // Top up the pool (first visit: the 20 commonest Beginner birds). Returns the birds added.
+// A family is studied whole: all its birds join the pool at once (they're the learning group).
 function topUp() {
   const info = areaInfo();
-  const added = Learn.maybeAdd(learn, eligibleIds(), info.groups, Date.now());
+  let added = [];
+  if (settings.family) {
+    added = eligibleIds().filter((id) => !Learn.bird(learn, id).added);
+    Learn.addBirds(learn, added);
+  } else {
+    added = Learn.maybeAdd(learn, eligibleIds(), info.groups, Date.now());
+  }
   if (added.length) {
     saveLearn();
-    logEvent("added", null, { n: added.length, group: info.groupOf[added[0]], area: settings.area });
+    logEvent("added", null, { n: added.length, group: info.groupOf[added[0]], area: settings.area, family: settings.family || undefined });
   }
   return added;
 }
@@ -1152,13 +1173,21 @@ function record(result, picked) {
   devLine();
 }
 
-// Every bird here is mastered and resting: say so once per area.
+// Every bird in the area (or family) is mastered: say so, with a way to the settings, so nobody is
+// left practising birds they already know. Once, until something here needs learning again.
 function allKnownMessage() {
   const parts = areaSplit();
-  if (parts.l.length || parts.unadded.length || learn.allKnown[settings.area]) return;
-  learn.allKnown[settings.area] = true;
+  const key = settings.family ? `family:${settings.family}` : settings.area;
+  if (parts.l.length || parts.unadded.length) {
+    if (learn.allKnown[key]) { delete learn.allKnown[key]; saveLearn(); }
+    return;
+  }
+  if (learn.allKnown[key] || !(parts.mastered.length + parts.resting.length)) return;
+  learn.allKnown[key] = true;
   saveLearn();
-  showToast(`You know every bird in ${areaName()}!`);
+  logEvent("all_mastered", null, { area: settings.area, family: settings.family || undefined });
+  showToast("Well done! All birds in this section are mastered. Select a new area or family in settings",
+    { action: { label: "Settings", run: openSettings }, ms: 10000 });
 }
 
 // Reminders to sign in, so progress isn't lost: once after the first 10 answers on this phone,
@@ -1538,6 +1567,16 @@ function locate() {
   });
 }
 
+// Families, A–Z, with how many birds each has across all areas.
+function fillFamilySelect() {
+  const sel = $("familySelect");
+  sel.innerHTML = `<option value="">All birds in the area</option>`;
+  const counts = new Map();
+  for (const s of species) if (s.photos.length) counts.set(s.family, (counts.get(s.family) || 0) + 1);
+  [...counts.keys()].sort((a, b) => familyLabel(a).localeCompare(familyLabel(b)))
+    .forEach((f) => sel.append(new Option(`${familyLabel(f)} (${counts.get(f)})`, f)));
+}
+
 // One list: Everywhere, Near me, each country, then each country's regions.
 function fillAreaSelect() {
   const sel = $("areaSelect");
@@ -1584,6 +1623,7 @@ function openSettings() {
     if (el.name === "names") el.checked = el.value === (afFirst ? "af" : "en");
   }
   $("areaSelect").value = settings.area;
+  $("familySelect").value = settings.family || "";
   pendingNear = settings.near;
   updateCount();
   openSheet($("settings"));
@@ -1591,7 +1631,7 @@ function openSettings() {
 
 function readSettings() {
   const area = $("areaSelect").value || "all";
-  return { v: 2, area, near: area === "near" ? pendingNear : null, u: settings.u };
+  return { v: 2, area, near: area === "near" ? pendingNear : null, family: $("familySelect").value, u: settings.u };
 }
 
 function updateCount() {
@@ -1621,17 +1661,18 @@ let nearPending = null;  // location lookup still running when the sheet closes
 $("settings").addEventListener("close", async () => {
   if (nearPending) await nearPending.catch(() => {});
   const next = readSettings();
-  if (next.area === settings.area && JSON.stringify(next.near) === JSON.stringify(settings.near)) return;
+  if (next.area === settings.area && JSON.stringify(next.near) === JSON.stringify(settings.near)
+      && next.family === (settings.family || "")) return;
   if (next.area === "near" && !next.near) return;  // location was refused: keep the area
-  applyArea(next.area, next.near);
+  applyArea(next.area, next.near, { family: next.family });
 });
 
-// A new area: the birds already learned keep their weights everywhere; new birds come from this
-// area's own groups (Beginner first).
-function applyArea(area, near, { fromSync = false } = {}) {
-  settings = { v: 2, area, near, u: fromSync ? settings.u : new Date().toISOString() };
+// A new area or family: the birds already learned keep their weights everywhere; new birds come
+// from this area's own groups (Beginner first), or the whole family joins at once.
+function applyArea(area, near, { family = "", fromSync = false } = {}) {
+  settings = { v: 2, area, near, family, u: fromSync ? settings.u : new Date().toISOString() };
   save(SETTINGS_KEY, settings);
-  if (!fromSync) logEvent("area", null, { area });
+  if (!fromSync) logEvent(family ? "family" : "area", null, { area, family: family || undefined });
   $("filterSummary").textContent = summary();
   topUp();
   const ids = areaInfo().ids;
@@ -1639,7 +1680,13 @@ function applyArea(area, near, { fromSync = false } = {}) {
   if (!fromSync) showToast(`${areaName()}: you've mastered ${known} of its ${ids.length} birds`);
   queue = [];
   nextCard();
+  allKnownMessage();
   if (!fromSync && typeof syncSoon === "function") syncSoon();
+}
+
+// Study one family across all areas (from its bird list), or go back to the whole area.
+function studyFamily(family) {
+  applyArea(settings.area, settings.near, { family });
 }
 /* ---------- Suggest a better Afrikaans name ---------- */
 
@@ -1758,6 +1805,7 @@ Promise.all([
         .map(([id, why]) => ({ s: byId.get(id), why }));
     }
     speciesById = new Map(species.map((s) => [s.id, s]));
+    fillFamilySelect();
     // First load after the Dirk Progression arrived: today's progress becomes weights.
     if (!learn) { learn = Learn.migrate(stats, [...seenBirds], Date.now()); saveLearn(); }
     wakeLearn();

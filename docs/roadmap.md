@@ -54,16 +54,19 @@ led to them.
 ### 2. See the list of mastered birds (built on Dev, 30 Oct)
 On the progress screen (📊), tapping **Mastered**, **Learning** or **To be seen** opens the area's
 birds in three sections (Mastered, then Learning, then To be seen), sorted by family with a small
-heading per family, and scrolled to the section tapped. Tapping a group or family row opens the same
-list for just those birds. Tapping a bird opens it on its own, like one side of Compare: photos,
-names, how it's going (Mastered / Learning / To be seen), its group in the area, family, call, range
-map and description. Mastered includes every bird at weight 4–7. This area only.
-- **Later:** a "Study only these birds" button on a family's list.
+heading per family, and scrolled to the section tapped. Below them, **Other areas** lists the
+birds that don't live in this area, in the same three sections. Tapping a group or family row opens
+the same list for just those birds (a family also lists its birds from other areas). Tapping a bird
+opens it on its own, like one side of Compare. Mastered includes every bird at weight 4–7. Every
+sheet keeps its title and ✕ at the top; dragging the title bar down closes it.
 
-### 3. Study a family from the progress screen (later)
-- Tapping a row used to switch the study set. It was taken out because it made the app harder to
-  navigate ([later.md](later.md)). Dirk wants families back at a later stage (spec Q23).
-- If it returns: a clearly separate "Practise these" action that is easy to leave.
+### 3. Study one family (built on Dev, 30 Oct)
+**Study only these birds** at the top of a family's list (or ⚙ → *Study one family*) studies that
+family across **all areas**: all its birds join the pool at once and are the learning group; the
+weights, momentum and picking work as normal. The line above the photos shows "Cuckoos · all
+areas". *Stop: back to …* (on the list or the progress screen) or ⚙ goes back to the area.
+- When every bird in the area or family is mastered: "Well done! All birds in this section are
+  mastered. Select a new area or family in settings", with a Settings button (also for areas).
 
 ## Open questions on recent work
 6. **Small display glitch.** The thin line above the Got it / Next buttons, and the bird's name in the

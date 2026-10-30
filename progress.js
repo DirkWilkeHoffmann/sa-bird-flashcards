@@ -162,8 +162,9 @@ async function syncProfile() {
   if (remote) {
     changed = Learn.merge(learn, remote);
     const rs = remote.settings;
-    if (rs?.u && (!settings.u || rs.u > settings.u) && rs.area !== settings.area) {
-      applyArea(rs.area, rs.near || null, { fromSync: true });
+    const other = rs && (rs.area !== settings.area || (rs.family || "") !== (settings.family || ""));
+    if (rs?.u && (!settings.u || rs.u > settings.u) && other) {
+      applyArea(rs.area, rs.near || null, { family: rs.family || "", fromSync: true });
       settings.u = rs.u;
       save(SETTINGS_KEY, settings);
     } else if (rs?.u && (!settings.u || rs.u > settings.u)) {
@@ -175,7 +176,7 @@ async function syncProfile() {
   const remoteBehind = !remote || (settings.u && settings.u !== remote.settings?.u);
   if (!learnDirty && !remoteBehind && !(remote && Object.keys(learn.birds).length > Object.keys(remote.birds || {}).length)) return;
   const birds = Object.fromEntries(Object.entries(learn.birds).map(([id, b]) => [id, { w: b.w, seen: b.seen, added: b.added, run: b.run, u: b.u }]));
-  await rpc("profile_push", { p_key: syncCode(), p_data: { v: 1, birds, settings: { area: settings.area, near: settings.near, u: settings.u } } });
+  await rpc("profile_push", { p_key: syncCode(), p_data: { v: 1, birds, settings: { area: settings.area, near: settings.near, family: settings.family || "", u: settings.u } } });
   learnDirty = false;
   save("sabirds.learnDirty.v1", false);
 }
@@ -321,14 +322,14 @@ function bar(list) {
 
 // One group or family with its progress bar; tapping it lists its birds. (A "Study only these
 // birds" button may come later: changing the study set belongs in the settings sheet for now.)
-function row(label, list, title = label) {
+function row(label, list, title = label, opts = {}) {
   const b = document.createElement("button");
   b.type = "button";
   b.className = "prog-row";
   const { m, l, html } = bar(list);
   b.innerHTML = `<span></span><small>${m} of ${list.length} mastered${l ? ` · ${l} learning` : ""} ${icon("chevron", "small")}</small>${html}`;
   b.querySelector("span").textContent = label;
-  b.addEventListener("click", () => openBirdList(title, list));
+  b.addEventListener("click", () => openBirdList(title, list, null, opts));
   return b;
 }
 
@@ -337,20 +338,52 @@ function row(label, list, title = label) {
 const LIST_SECTIONS = [["mastered", "Mastered"], ["learning", "Learning"], ["new", "To be seen"]];
 const familyName = (s) => s.familyName || s.family || "";
 
-// A list of birds in three sections. Lists with more than one family are sorted by family, with a
-// small heading per family; tapping a bird shows its info. `at` scrolls to a section.
-function openBirdList(title, list, at = null) {
-  logEvent("bird_list", null, { title, n: list.length });
+// A list of birds in three sections: Mastered, Learning, To be seen. Lists with more than one family
+// are sorted by family, with a small heading per family; tapping a bird shows its info. `at`
+// scrolls to a section. `others`: the same kind of birds from other areas, in three more sections
+// at the bottom. `family`: a family's list, with "Study only these birds" at the top.
+function openBirdList(title, list, at = null, { others = [], family = null } = {}) {
+  logEvent("bird_list", null, { title, n: list.length, others: others.length });
   $("birdListTitle").textContent = title;
   const body = $("birdListBody");
   body.replaceChildren();
+  if (family) {
+    const studying = settings.family === family;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "btn primary study-family";
+    b.textContent = studying ? `Stop: back to ${areaNameOf(settings.area)}` : `Study only these birds (${list.length + others.length})`;
+    b.addEventListener("click", () => {
+      closeSheet($("birdList"));
+      closeSheet($("progress"));
+      studyFamily(studying ? "" : family);
+    });
+    const note = document.createElement("p");
+    note.className = "note";
+    note.textContent = studying ? "You're studying this family in all areas." : "All of this family's birds, from every area, become your learning group.";
+    body.append(b, note);
+  }
+  birdSections(body, list, "");
+  if (others.length) {
+    const h = document.createElement("h3");
+    h.className = "list-other";
+    h.id = "list-other";
+    h.textContent = "Other areas";
+    body.append(h);
+    birdSections(body, others, "other-");
+  }
+  openSheet($("birdList"));
+  if (at) $(`list-${at}`)?.scrollIntoView({ block: "start" });
+}
+
+function birdSections(body, list, prefix) {
   const families = new Set(list.map((s) => s.family)).size > 1;
   const order = (a, b) => (families && familyName(a).localeCompare(familyName(b))) || nameOf(a).localeCompare(nameOf(b));
   for (const [key, label] of LIST_SECTIONS) {
     const birds = list.filter((s) => status(s.id) === key).sort(order);
     const h = document.createElement("p");
     h.className = `prog-h list-h ${key}`;
-    h.id = `list-${key}`;
+    h.id = `list-${prefix}${key}`;
     h.textContent = `${label} · ${birds.length}`;
     body.append(h);
     if (!birds.length) {
@@ -392,8 +425,6 @@ function openBirdList(title, list, at = null) {
       grid.append(b);
     }
   }
-  openSheet($("birdList"));
-  if (at) $(`list-${at}`)?.scrollIntoView({ block: "start" });
 }
 
 function renderProgress() {
@@ -403,22 +434,37 @@ function renderProgress() {
   const here = info.ids.map((id) => speciesById.get(id)).filter(Boolean);
   const counts = { mastered: 0, learning: 0, new: 0 };
   for (const s of here) counts[status(s.id)]++;
+  const fam = settings.family;
   const place = document.createElement("p");
   place.className = "prog-h";
   place.textContent = `📍 ${areaName()}`;
+  // Birds of the same kind that live elsewhere, listed under "Other areas" at the bottom.
+  const elsewhere = (list) => species.filter((s) => s.photos.length && !inArea(s) && list(s));
   const total = document.createElement("div");
   total.className = "prog-total";
   total.innerHTML = `<button type="button" class="m" data-at="mastered"><b>${counts.mastered}</b><span>Mastered</span></button>
     <button type="button" class="l" data-at="learning"><b>${counts.learning}</b><span>Learning</span></button>
     <button type="button" data-at="new"><b>${counts.new}</b><span>To be seen</span></button>`;
   for (const b of total.querySelectorAll("button")) {
-    b.addEventListener("click", () => openBirdList(areaName(), here, b.dataset.at));
+    b.addEventListener("click", () => openBirdList(areaName(), here, b.dataset.at,
+      fam ? { family: fam } : { others: elsewhere(() => true) }));
   }
   const legend = document.createElement("p");
   legend.className = "legend";
   legend.innerHTML = `Mastered = you've shown you know it. More birds join as you learn. Tap a number, group or family to see its birds.<br>
     <i style="background:var(--good)"></i>Mastered<i style="background:var(--tint)"></i>Learning<i style="background:var(--fill-2)"></i>To be seen`;
   body.append(place, total, legend);
+  if (fam) {
+    // Studying one family: no groups or families to break it into.
+    const back = document.createElement("button");
+    back.type = "button";
+    back.className = "btn ghost";
+    back.textContent = `Stop: back to ${areaNameOf(settings.area)}`;
+    back.addEventListener("click", () => { closeSheet($("progress")); studyFamily(""); });
+    body.append(back);
+    if (IS_DEV) body.append(devProgress());
+    return;
+  }
 
   const h1 = document.createElement("p");
   h1.className = "prog-h";
@@ -440,7 +486,8 @@ function renderProgress() {
   }
   const sorted = [...families.entries()].sort((a, b) => b[1].length - a[1].length);
   for (const [family, list] of sorted) {
-    body.append(row(list[0].familyName || family, list));
+    body.append(row(list[0].familyName || family, list, undefined,
+      { family, others: elsewhere((s) => s.family === family) }));
   }
   if (IS_DEV) body.append(devProgress());
 }

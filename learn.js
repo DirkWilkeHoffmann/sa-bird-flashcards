@@ -317,7 +317,7 @@ const Learn = (() => {
   };
 
   return { C, GROUPS, blank, bird, touch, momentum, band, averageMomentum, targetL, split, groupsFor,
-           maybeAdd, chooseNew, pick, shown, answer, restDecay, dayKey, migrate, merge, status };
+           maybeAdd, chooseNew, addBirds, pick, shown, answer, restDecay, dayKey, migrate, merge, status };
 })();
 
 if (typeof module !== "undefined") module.exports = Learn;
