@@ -1034,3 +1034,50 @@ body.titled .subbar { border-bottom-color: var(--separator); }
 .compare .cmp-range { margin: 0 0 10px; border-radius: var(--radius-sm); overflow: hidden; background: var(--map-bg); }
 .compare .cmp-range svg { display: block; width: 100%; height: auto; }
 .compare .cmp-range:not(:has(svg)) { padding: 10px; font-size: var(--fs-caption); color: var(--label-2); }
+
+/* ---------- First-time walkthrough ---------- */
+.onboard {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: calc(12px + env(safe-area-inset-top)) max(20px, env(safe-area-inset-right))
+    calc(16px + env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  background: var(--bg);
+}
+body.onboarding { background: var(--bg); }
+.onb-top { display: flex; align-items: center; justify-content: space-between; min-height: var(--tap); }
+.onb-dots { display: flex; gap: 6px; }
+.onb-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--fill-2); }
+.onb-dots i.on { width: 18px; border-radius: 4px; background: var(--tint); }
+.onb-top .link-btn { color: var(--label-2); text-decoration: none; min-height: var(--tap); padding: 0 4px; }
+.onb-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; gap: 12px; padding: 8px 0; }
+.onb-body h1 { margin: 0; font-size: var(--fs-large); font-weight: 700; letter-spacing: -.02em; line-height: 1.12; text-wrap: balance; }
+.onb-emoji { margin: 0; font-size: 3rem; line-height: 1; }
+.onb-lead { margin: 0; font-size: var(--fs-body); color: var(--label-2); }
+.onb-options { display: grid; gap: 10px; margin-top: 6px; }
+.onb-option {
+  display: grid;
+  gap: 2px;
+  min-height: var(--tap);
+  padding: 14px 16px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  text-align: left;
+  font: inherit;
+  color: var(--label);
+  background: var(--fill);
+  box-shadow: inset 0 0 0 2px transparent;
+}
+.onb-option b { font-size: var(--fs-headline); font-weight: 600; }
+.onb-option span { font-size: var(--fs-subhead); color: var(--label-2); }
+.onb-option[aria-pressed="true"] { background: color-mix(in srgb, var(--tint) 14%, var(--bg-elev)); box-shadow: inset 0 0 0 2px var(--tint); }
+.onb-near { flex: none; width: 100%; }
+.onb-label { margin-top: 6px; font-size: var(--fs-footnote); font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--label-2); }
+.onb-count { margin: 0; font-size: var(--fs-subhead); color: var(--label-2); }
+.onb-actions { display: grid; gap: 10px; padding-top: 8px; }
+.onb-actions .btn { width: 100%; }

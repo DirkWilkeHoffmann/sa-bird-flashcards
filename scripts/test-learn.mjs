@@ -139,6 +139,25 @@ check("new birds come 2–5 at a time, more with higher momentum", () => {
   assert.equal(oneShort([2, 2, 2, 2, 2, 2, -2, -2, 2, 2]), 3, "doing well");
 });
 
+check("walkthrough levels set momentum, L target and the first birds", () => {
+  const want = { start: [5, 15, 15, -2], some: [8, 25, 25, -2], most: [12, 25, 40, -1], expert: [16, 40, 40, 0] };
+  for (const [level, [m, target, n, w]] of Object.entries(want)) {
+    const s = Learn.blank();
+    Learn.touch(s, now0);
+    const ids = Learn.setup(s, level, groups);
+    assert.equal(Learn.momentum(s), m, `${level} momentum`);
+    assert.equal(Learn.targetL(s), target, `${level} target`);
+    assert.equal(ids.length, n, `${level} birds`);
+    assert.ok(ids.every((id) => Learn.bird(s, id).w === w && Learn.bird(s, id).added));
+  }
+  const s = Learn.blank();
+  Learn.touch(s, now0);
+  Learn.setup(s, "expert", groups);
+  assert.deepEqual([groups[0], groups[1], groups[2]].map((g) => g.filter((id) => s.birds[id]).length), [15, 15, 10]);
+  Learn.touch(s, now0 + 3600000);
+  assert.equal(Learn.momentum(s), 5, "only the first session starts higher");
+});
+
 check("resting birds (7) drop to 6 now and then, others never", () => {
   const s = Learn.blank();
   for (const id of ids) s.birds[id] = { ...Learn.bird(s, id), added: true, w: id <= 100 ? 7 : 6 };

@@ -75,9 +75,12 @@ the area* stops it.
 - When every bird in the area or family is mastered: "Well done! All birds in this section are
   mastered. Select a new area or family in settings", with a Settings button (also for areas).
 
-### 4. First-time walkthrough (draft, waiting for Dirk)
-Experience level, area and Google sign-in for new players, setting the starting momentum, the size
-of L and its birds. Draft and questions: [plan-first-time-walkthrough.md](plan-first-time-walkthrough.md).
+### 4. First-time walkthrough (built on Dev, 30 Oct)
+New players get four short, skippable steps: welcome, how well they know birds, where they bird
+(Near me or an area), and Google sign-in. Their level sets the first session's momentum, the L
+target and the first birds (`onboard.js`, `Learn.setup`). Built as drafted in
+[plan-first-time-walkthrough.md](plan-first-time-walkthrough.md); its questions were left at the
+draft's answers. Dev stats have "Show the walkthrough again" for testing.
 
 ## Open questions on recent work
 7. **Afrikaans names (live).** 840 of 852 birds have one (mostly from Afrikaans Wikipedia).

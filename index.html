@@ -155,6 +155,12 @@
     </form>
   </dialog>
 
+  <div class="onboard" id="onboard" hidden role="dialog" aria-modal="true" aria-label="Getting started">
+    <div class="onb-top"><span class="onb-dots" id="onbDots"></span><button class="link-btn" id="onbSkip" type="button">Skip</button></div>
+    <div class="onb-body" id="onbBody"></div>
+    <div class="onb-actions" id="onbActions"></div>
+  </div>
+
   <dialog class="sheet" id="birdList">
     <form method="dialog">
       <div class="sheet-head">
@@ -250,5 +256,6 @@
   <script src="progress.js"></script>
   <script src="vendor/supabase-2.45.4.js"></script>
   <script src="auth.js"></script>
+  <script src="onboard.js"></script>
 </body>
 </html>

@@ -1824,6 +1824,8 @@ Promise.all([
         .map(([id, why]) => ({ s: byId.get(id), why }));
     }
     speciesById = new Map(species.map((s) => [s.id, s]));
+    // Nothing learned on this phone yet: a new player, who gets the first-time walkthrough.
+    const newPlayer = !learn && !Object.keys(stats).length && !seenBirds.size;
     // First load after the Dirk Progression arrived: today's progress becomes weights.
     if (!learn) { learn = Learn.migrate(stats, [...seenBirds], Date.now()); saveLearn(); }
     wakeLearn();
@@ -1833,6 +1835,7 @@ Promise.all([
     devLine();
     logEvent("open", null, { area: settings.area, offline: !navigator.onLine });
     startSync();
+    if (typeof startWalkthrough === "function") startWalkthrough(newPlayer);
   })
   .catch(() => {
     $("carousel").textContent = "Could not load bird data. Check your connection.";

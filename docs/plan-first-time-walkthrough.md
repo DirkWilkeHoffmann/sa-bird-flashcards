@@ -1,6 +1,7 @@
 # First-time walkthrough: draft
 
-*30 Oct 2026. Draft for Dirk to check before anything is built.* A very short start for a new
+*30 Oct 2026. Built on Dev as drafted (`onboard.js`, `Learn.setup` in `learn.js`); the questions at
+the end were left at the answers shown here.* A very short start for a new
 player: how well they know birds, where they bird, and signing in. Their answer sets the starting
 momentum, the size of the learning group L and which birds are in it.
 

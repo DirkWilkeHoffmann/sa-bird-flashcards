@@ -22,6 +22,16 @@ const Learn = (() => {
     RETRY_FIRST: [3, 5], RETRY_SECOND: [5, 8],       // cards before a missed bird comes back
     BAND_MASTERED: [0.05, 0.10, 0.15, 0.25, 0.35],   // chance of a mastered bird, by momentum band
     GROUP_SHARES: [0.15, 0.20, 0.30], BEGINNER_MIN: 20, // Beginner, Easy, Medium; Hard = the rest
+    // The first-time walkthrough (docs/plan-first-time-walkthrough.md): by how well the player says
+    // they know birds, the first session's momentum, the average momentum it seeds (so L's target),
+    // how many of the area's Beginner / Easy / Medium birds start in L, and their starting weight.
+    LEVELS: {
+      start: { m: 5, avg: 5, take: [15, 0, 0], w: -2 },
+      some: { m: 8, avg: 10, take: [25, 0, 0], w: -2 },
+      most: { m: 12, avg: 12, take: [25, 15, 0], w: -1 },
+      expert: { m: 16, avg: 16, take: [15, 15, 10], w: 0 },
+    },
+    SEED_ANSWERS: 20,                                 // how many answers the seeded average counts as
     SCORE: { common: 0.6, spread: 0.25, plain: 0.15 },
     // In a region or near me, spread across all of southern Africa says little (a Cape Sugarbird is
     // everywhere in Cape Town), so there only how common and how easily confused count.
@@ -51,10 +61,11 @@ const Learn = (() => {
   }
 
   // The sum of the last N answers' points; the starting +5 fades out as the window fills.
+  // The first session after the walkthrough starts from the player's level instead of +5.
   function momentum(state) {
     const a = state.session.answers.slice(-C.N);
     const sum = a.reduce((x, y) => x + y, 0);
-    return sum + (C.M_START * (C.N - a.length)) / C.N;
+    return sum + ((state.session.start ?? C.M_START) * (C.N - a.length)) / C.N;
   }
 
   // Band 0 (doing very well) to 4 (struggling).
@@ -159,6 +170,18 @@ const Learn = (() => {
     addBirds(state, list);
     if (list.length) state.lSizes = [];  // a fresh start for "has L shrunk"
     return list;
+  }
+
+  // A new player's start, from the walkthrough: replaces the pool with the area's commonest birds
+  // for their level. Call after touch(). Returns the ids added.
+  function setup(state, level, groups) {
+    const L = C.LEVELS[level] || C.LEVELS.start;
+    state.birds = {};
+    state.session.start = L.m;
+    state.avg = Array(C.SEED_ANSWERS).fill(L.avg);
+    const ids = groups.flatMap((g, i) => g.slice(0, L.take[i] || 0));
+    for (const id of ids) state.birds[id] = { ...bird(state, id), w: L.w, added: true };
+    return ids;
   }
 
   /* ---------- Choosing the next bird ---------- */
@@ -317,7 +340,7 @@ const Learn = (() => {
   };
 
   return { C, GROUPS, blank, bird, touch, momentum, band, averageMomentum, targetL, split, groupsFor,
-           maybeAdd, chooseNew, addBirds, pick, shown, answer, restDecay, dayKey, migrate, merge, status };
+           maybeAdd, chooseNew, addBirds, setup, pick, shown, answer, restDecay, dayKey, migrate, merge, status };
 })();
 
 if (typeof module !== "undefined") module.exports = Learn;

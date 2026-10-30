@@ -530,12 +530,18 @@ function devProgress() {
   const pool = [...parts.l, ...parts.mastered, ...parts.resting]
     .map((id) => ({ s: speciesById.get(id), b: Learn.bird(learn, id) }))
     .sort((x, y) => x.b.w - y.b.w);
+  const again = document.createElement("button");
+  again.type = "button";
+  again.className = "btn ghost";
+  again.textContent = "Show the walkthrough again (starts this phone's learning over)";
+  again.addEventListener("click", () => { closeSheet($("progress")); showWalkthrough(); });
   box.innerHTML = `<p class="prog-h">Dev: learning state</p>
     <table class="dev-table"><tbody>${rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join("")}</tbody></table>
     <p class="prog-h">Dev: pool birds by weight (${pool.length})</p>
     <table class="dev-table"><thead><tr><th>Bird</th><th>Group</th><th class="n">Weight</th><th class="n">Run</th></tr></thead><tbody>
     ${pool.map(({ s, b }) => `<tr><td>${s ? s.name : "?"}${b.seen ? "" : " (new)"}</td><td>${areaInfo().groupOf[s?.id] || ""}</td>`
       + `<td class="n">${b.w}</td><td class="n">${b.run || 0}</td></tr>`).join("")}</tbody></table>`;
+  box.append(again);
   return box;
 }
 

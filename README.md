@@ -13,6 +13,8 @@ It is a Progressive Web App: no App Store needed.
 
 ## How it works
 
+- **First time:** a short walkthrough asks how well you know birds, where you bird and whether to
+  sign in with Google, and starts you with birds that fit (it can be skipped).
 - A bird photo appears (calls are out of the guessing for now; you can still hear the call after
   the answer). Swipe sideways through all its photos; pinch or double-tap to zoom.
 - Think of the name, then tap **Reveal** and mark yourself **Got it** or **Missed it**.
