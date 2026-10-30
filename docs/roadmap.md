@@ -19,9 +19,8 @@
 on opening ("Welcome back! Sign in to save your 8 mastered birds"). Sign-ins record which reminder
 led to them.
 
-**To do before merging `dev` into `main`:** apply `supabase/migrations/20261030_admin_dirk_progression.sql`
-(admin page: mastered / learning from the weights, area and family per player; the page works
-without it but counts mastered the old way and shows no area).
+**To do: merge `dev` into `main`** once Dirk has finished testing. All database changes are
+applied (`20261029_learner_profiles.sql`, `20261030_admin_dirk_progression.sql`, both 30 Oct).
 
 Also on Dev (30 Oct): the admin page reads the new events (hint answers, new birds, mastered,
 area, family, bird lists); English/Afrikaans order and birds hidden for a day sync to the account;
