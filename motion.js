@@ -157,12 +157,14 @@ function setupSheet(d) {
     if (e.clientY < r.top) closeSheet(d);  // tapped the dimmed page above the sheet
   });
 
-  // Drag down from the top of the content (or the grabber) to close.
+  // Drag down from the top of the content, or from the grabber or title bar wherever you've
+  // scrolled to, to close.
   let drag = null;
   d.addEventListener("touchstart", (e) => {
     if (e.touches.length !== 1 || d.dataset.closing) { drag = null; return; }
     const t = e.touches[0];
-    drag = { x: t.clientX, y: t.clientY, top: d.scrollTop <= 0, active: false, track: tracker(), h: d.offsetHeight };
+    const onBar = Boolean(e.target.closest?.(".grabber, .sheet-head"));
+    drag = { x: t.clientX, y: t.clientY, top: d.scrollTop <= 0 || onBar, active: false, track: tracker(), h: d.offsetHeight };
     drag.track.add(0, 0);
   }, { passive: true });
   d.addEventListener("touchmove", (e) => {

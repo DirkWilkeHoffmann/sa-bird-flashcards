@@ -587,11 +587,17 @@ textarea.select { resize: none; line-height: 1.4; padding: 10px 14px; }
   border-radius: 3px;
   background: var(--fill-2);
 }
+/* The title and ✕ stay pinned under the grabber, so a long sheet can be closed from anywhere. */
 .sheet-head {
+  position: sticky;
+  top: 16px;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 8px 0 14px -4px;
+  margin: 0 -20px 14px;
+  padding: 8px 20px 8px 16px;
+  background: var(--bg-elev);
 }
 .sheet:focus { outline: none; }
 .sheet .sheet-head h2 { margin: 0; }
