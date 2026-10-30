@@ -1,20 +1,25 @@
 # SA Birds roadmap
 
-*Last updated: 29 October 2026.* Live app: <https://dirkwilkehoffmann.github.io/sa-bird-flashcards/>
+*Last updated: 30 October 2026.* Live app: <https://dirkwilkehoffmann.github.io/sa-bird-flashcards/>
 (main). Test builds: `/dev/` (dev branch) and `/tips/` (tips branch).
 
-## Main focus: Dirk Progression
-The new way of choosing birds and growing each player's pool. No other features until this is right;
-no code changes until Dirk gives the go-ahead. Work happens on `dev` and goes to `main` once tested.
-
-- Spec: [dirk-progression-spec.md](dirk-progression-spec.md) (from Dirk's handwritten notes, 29 Oct),
-  with the open questions at the end.
-- Earlier progression ideas (Spec v2, the adaptive learning plan and its review, the old open
-  questions on batches and levels) are in [archive/](archive/roadmap-progression-oct-2026.md).
-- **Built on Dev (29 Oct):** [dirk-progression-coding-spec.md](dirk-progression-coding-spec.md) with Dirk's answers.
-  `learn.js` + `scripts/test-learn.mjs`; one area at a time; photos only; Dev shows the numbers.
-  Weights, pool and area sync to the account (`supabase/migrations/20261029_learner_profiles.sql`,
+## Done on Dev, waiting to go to main
+**Dirk Progression: closed 30 Oct 2026.** Dirk is happy with it; no more progression work planned.
+- Spec: [dirk-progression-spec.md](dirk-progression-spec.md) (Dirk's notes and his answers) and
+  [dirk-progression-coding-spec.md](dirk-progression-coding-spec.md) (how it's built). Earlier ideas
+  are in [archive/](archive/roadmap-progression-oct-2026.md).
+- What's in it: per-bird weights and momentum (`learn.js`, checked by `node scripts/test-learn.mjs`);
+  one area at a time shown above the photos; Beginner → Easy → Medium → Hard worked out per area;
+  new birds 2–5 at a time; learning group 15 / 25 / 40; photos only while guessing (calls still on
+  the answer screen); Dev shows the numbers.
+- Weights, pool and area sync to the account (`supabase/migrations/20261029_learner_profiles.sql`,
   applied 29 Oct).
+
+**Sign-in reminders** with each new batch ("5 new birds added! Sign in to keep them") and once a day
+on opening ("Welcome back! Sign in to save your 8 mastered birds"). Sign-ins record which reminder
+led to them.
+
+**To do: merge `dev` into `main`** once Dirk has finished testing on Dev.
 
 ## Pinned features
 
@@ -36,8 +41,9 @@ no code changes until Dirk gives the go-ahead. Work happens on `dev` and goes to
      - Large vs Red-throated Rock Martin
 
      Then the 129 medium-confidence pairs (mostly raptors and pipits).
-  2. Merge `tips` into `dev`. It was branched before the progression change, so the old
-     "Learning path" chip disappears in the merge.
+  2. Merge `tips` into `dev`. It was branched before both progression changes, so expect conflicts
+     in `app.js`, `index.html` and `styles.css`: keep Dev's versions (one area, no levels) and only
+     bring over the tips.
   3. Test on Dev, then merge to main.
 - **Later:**
   - Tips for the remaining ~900 Medium/Hard pairs.
@@ -45,9 +51,18 @@ no code changes until Dirk gives the go-ahead. Work happens on `dev` and goes to
   - Right after a mix-up, show the tip for that exact pair.
   - A "Suggest a tip" option for players.
 
-### 2. Study a level or family from the progress screen (removed for now)
+### 2. See the list of mastered birds (to build)
+*Asked for by Dirk, 30 Oct 2026.* Players can see which birds they've mastered, not just how many.
+- **Where:** the progress screen (📊). Tapping **Mastered** opens the list (and the same for each
+  group and family row, filtered to that row).
+- **Each bird:** its photo, name (English / Afrikaans in the chosen order), group in the current area,
+  and tapping it opens the bird's answer screen (description, call, range map).
+- **To decide when building:** this area only, or all areas with a switch; sort order (most recently
+  mastered, A–Z, or by family); whether resting birds (weight 7) are marked "Known well".
+
+### 3. Study a family from the progress screen (later)
 - Tapping a row used to switch the study set. It was taken out because it made the app harder to
-  navigate ([later.md](later.md)).
+  navigate ([later.md](later.md)). Dirk wants families back at a later stage (spec Q23).
 - If it returns: a clearly separate "Practise these" action that is easy to leave.
 
 ## Open questions on recent work
@@ -66,26 +81,10 @@ Full write-up: the "SA Birds Progression Review" page (flow charts of every rule
 - **Usage-count clean-up:** events grow ~5 MB a day at ~250 active players, and the free
   database holds 500 MB. Add a nightly job keeping 90 days before about 3 months after launch.
 
-### On Dev, not yet on main
-- **Sign-in reminders** with each new batch ("5 new birds unlocked! Sign in to keep them") and once a
-  day on opening ("Welcome back! Sign in to save your 8 mastered birds"). Sign-ins record which
-  reminder led to them.
-
-### Bug to fix with the Dirk Progression: settings don't follow the account
-*Reported 29 Oct 2026 (tester signing in again on another phone).* Same account, same progress
-(114 vs 117 mastered), but one phone showed **Beginner · Anywhere · "50 birds in this set"** and the
-other **all four levels · Near me · "295 of 379 birds unlocked"**.
-- **Cause:** sync (`sync_push` / `sync_pull`) only carries each bird's right/wrong/streak, mix-ups and
-  hidden photos. These stay on the phone only:
-  - the study set: cards (photos/calls), levels, area / near me, countries
-  - how many birds are unlocked for each level combination (`sabirds.progression.v1`), so a new phone
-    starts again at 20 and only catches up through the 40% rule
-  - English/Afrikaans first, NEW tags (birds already seen), birds hidden for a day
-- **Fix (do together with the Dirk Progression, which replaces the unlock counters):** save the
-  study set and the unlocked birds to the account, and on sign-in or a new phone take the account's
-  version. Decide which wins when two phones changed settings: probably the most recent change.
-- **Check:** sign in on a second phone (or after clearing Safari data) and get the same levels, area,
-  countries, card type, name order and unlocked birds as the first phone.
+### Settings that still stay on the phone
+*From the 29 Oct bug report (settings didn't follow the account).* The area, pool and every bird's
+weight now sync with the Dirk Progression, which fixes the reported case. Still on the phone only:
+English/Afrikaans first and birds hidden for a day. Small; fix if testers notice.
 
 ## Checks only Dirk can do
 7. **Dark mode status bar.** Do the clock and battery look right in dark mode on the iPhone?

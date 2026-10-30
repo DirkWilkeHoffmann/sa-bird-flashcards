@@ -1,6 +1,6 @@
 # Pinned for a later update
 
-- **Study a level or family from the progress screen.** Tapping a row under *By level* or
+- **Study a family from the progress screen** (roadmap, pinned feature 3). Tapping a row under *By level* or
   *By family* used to switch the study set to just those birds. It was taken out because it
   made the app harder to navigate (changing the set belongs in the settings sheet). If it
   comes back, it should be clearly a separate action, e.g. a "Practise these" button, and
