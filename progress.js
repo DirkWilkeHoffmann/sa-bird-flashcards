@@ -172,11 +172,28 @@ async function syncProfile() {
       save(SETTINGS_KEY, settings);
     }
     if (changed) { save(LEARN_KEY, learn); queue = []; }
+    // English / Afrikaans first: the newest change wins.
+    const rn = remote.names;
+    if (rn?.u && rn.u > (load(NAMES_U_KEY, "") || "") && (rn.first === "af") !== afFirst) {
+      afFirst = rn.first === "af";
+      save(NAMES_KEY, rn.first);
+      save(NAMES_U_KEY, rn.u);
+      if (card && $("card").classList.contains("revealed")) { showNames(card.s); $("barTitle").textContent = nameOf(card.s); }
+    }
+    // Birds hidden for a day on any phone are hidden on all of them (an Undo travels too).
+    let hid = false;
+    for (const [id, until] of Object.entries(remote.snoozed || {})) {
+      if (until > Date.now() && until > (snoozed[id] || 0)) { snoozed[id] = until; hid = true; }
+    }
+    if (hid) { save(SNOOZE_KEY, snoozed); queue = []; }
   }
   const remoteBehind = !remote || (settings.u && settings.u !== remote.settings?.u);
   if (!learnDirty && !remoteBehind && !(remote && Object.keys(learn.birds).length > Object.keys(remote.birds || {}).length)) return;
   const birds = Object.fromEntries(Object.entries(learn.birds).map(([id, b]) => [id, { w: b.w, seen: b.seen, added: b.added, run: b.run, u: b.u }]));
-  await rpc("profile_push", { p_key: syncCode(), p_data: { v: 1, birds, settings: { area: settings.area, near: settings.near, family: settings.family || "", u: settings.u } } });
+  const live = Object.fromEntries(Object.entries(snoozed).filter(([, until]) => until > Date.now()));
+  await rpc("profile_push", { p_key: syncCode(), p_data: { v: 1, birds,
+    settings: { area: settings.area, near: settings.near, family: settings.family || "", u: settings.u },
+    names: { first: afFirst ? "af" : "en", u: load(NAMES_U_KEY, null) }, snoozed: live } });
   learnDirty = false;
   save("sabirds.learnDirty.v1", false);
 }

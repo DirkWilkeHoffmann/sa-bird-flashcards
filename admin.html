@@ -172,10 +172,21 @@
     const KEY = "sabirds.adminKey.v1";
     const $ = (id) => document.getElementById(id);
     const EVENT_NAMES = { open: "App opened", answer: "Answers", hint: "Hints used", skip: "Birds skipped", undo_skip: "Skips undone",
-      snooze: "Hidden for a day", batch: "New birds added", level_up: "Moved up a level", sign_in: "Signed in", sign_out: "Signed out",
+      snooze: "Hidden for a day", added: "New birds added", mastered: "Birds mastered", area: "Changed area",
+      family: "Started or stopped a family", all_mastered: "Everything in an area or family mastered",
+      bird_list: "Bird lists opened", bird_info: "Birds looked up", batch: "New birds added (before 30 Oct)",
+      level_up: "Moved up a level (before 30 Oct)", sign_in: "Signed in", sign_out: "Signed out",
       call_failed: "Calls that wouldn't play", flag_photo: "Photos flagged", compare: "Compare opened", offline_download: "Offline downloads",
       names: "Switched name language", name_report: "Afrikaans names questioned" };
     let env = "main", days = 30, names = new Map(), players = [], sortBy = "last_played";
+    // Areas and families by code, for "Kruger National Park" instead of "kruger" (from the app's data).
+    const COUNTRIES = { ZA: "South Africa", NA: "Namibia", BW: "Botswana", ZW: "Zimbabwe", MZ: "Mozambique", LS: "Lesotho", SZ: "Eswatini" };
+    let areaNames = new Map(), familyNames = new Map();
+    const areaLabel = (a) => !a ? "" : a === "all" ? "Everywhere" : a === "near" ? "Near me"
+      : a.startsWith("c:") ? COUNTRIES[a.slice(2)] || a.slice(2) : areaNames.get(a) || a;
+    const familyLabel = (f) => familyNames.get(f) || f;
+    // Where a player is studying: their family (all areas) or area; before 30 Oct, their levels.
+    const studying = (p) => (p.family ? `${familyLabel(p.family)} · all areas` : areaLabel(p.area) || p.levels || "");
 
     const rpc = (name, body) => fetch(`${RPC}/${name}`, {
       method: "POST", headers: { apikey: API_KEY, "Content-Type": "application/json" }, body: JSON.stringify(body),
@@ -273,22 +284,33 @@
           <span class="nums"><span><b>${fmt(p.answers)}</b> answers</span><span><b>${pct(p.right, p.answers)}</b> right</span>
             <span><b>${fmt(p.mastered)}</b> mastered</span><span><b>${fmt(p.learning)}</b> learning</span>
             ${p.hints ? `<span><b>${fmt(p.hints)}</b> hints</span>` : ""}${p.skips ? `<span><b>${fmt(p.skips)}</b> skips</span>` : ""}
-            ${p.levels ? `<span class="pill">${esc(p.levels)}</span>` : ""}</span>
+            ${studying(p) ? `<span class="pill">${esc(studying(p))}</span>` : ""}</span>
         </button>`).join("") || `<p class="empty">No players yet.</p>`;
     }
 
     const EVENT_VERBS = { open: "Opened the app", answer: "Answered", hint: "Used a hint", skip: "Skipped", undo_skip: "Undid a skip",
       snooze: "Hid for a day", batch: "New birds added", level_up: "Moved up a level", sign_in: "Signed in", sign_out: "Signed out",
       call_failed: "Call wouldn't play", flag_photo: "Flagged a photo", compare: "Compared", offline_download: "Downloaded for offline",
-      names: "Switched name language", name_report: "Questioned an Afrikaans name" };
+      names: "Switched name language", name_report: "Questioned an Afrikaans name", bird_list: "Opened a bird list",
+      bird_info: "Looked up", all_mastered: "Mastered everything here" };
+    // Answers since 30 Oct: right, wrong, hintRight, hintWrong, with the bird's weight after (w).
     function eventText(e) {
       const b = e.id ? ` ${bird(e.id).name}` : "";
       const d = e.d || {};
-      if (e.type === "answer") return `${d.r === "right" ? "✓ Got" : "✗ Missed"}${b}${d.hint ? " (with hint)" : ""}`;
+      if (e.type === "answer") {
+        const got = d.r === "right" || d.r === "hintRight";
+        const hinted = d.hint || String(d.r).startsWith("hint");
+        return `${got ? "✓ Got" : "✗ Missed"}${b}${hinted ? " (with hint)" : ""}${d.w !== undefined ? ` · weight ${d.w}` : ""}`;
+      }
+      if (e.type === "added") return `${d.n} new birds added${d.group ? ` (${d.group})` : ""}`;
+      if (e.type === "mastered") return `★ Mastered${b}`;
+      if (e.type === "area") return `Changed area to ${areaLabel(d.area)}`;
+      if (e.type === "family") return d.family ? `Studying ${familyLabel(d.family)} (all areas)` : `Back to ${areaLabel(d.area)}`;
+      if (e.type === "bird_list") return `Opened the list: ${d.title || ""}`;
       if (e.type === "batch") return `${d.n} new birds added`;
       if (e.type === "level_up") return `Moved up to ${d.level}${d.auto ? " (ticked automatically)" : ""}`;
       if (e.type === "compare") return `Compared${b} with ${bird(d.with).name}`;
-      if (e.type === "open") return `Opened the app${d.levels ? ` · ${d.levels}` : ""}${d.offline ? " · offline" : ""}`;
+      if (e.type === "open") return `Opened the app${d.area ? ` · ${areaLabel(d.area)}` : d.levels ? ` · ${d.levels}` : ""}${d.offline ? " · offline" : ""}`;
       if (e.type === "offline_download") return `Downloaded ${d.birds} birds for offline`;
       return `${EVENT_VERBS[e.type] || e.type}${b}`;
     }
@@ -302,9 +324,14 @@
       dlg.querySelector(".close").onclick = () => dlg.close();
       const d = await rpc("admin_player", { p_key: key(), p_id: id, p_env: env }).catch(() => null);
       if (!d) { dlg.querySelector(".msg").textContent = "Couldn't load this player."; return; }
-      const mastered = d.birds.filter((x) => x.streak >= 3);
-      const learning = d.birds.filter((x) => x.streak < 3).sort((a, b) => (b.wrong - b.right / 2) - (a.wrong - a.right / 2));
-      const chip = (x, cls = "") => `<span class="${cls}">${esc(bird(x.id).name)} <small>${x.right}✓ ${x.wrong}✗</small></span>`;
+      // Since 30 Oct mastered / learning come from the weights (seen, 4+ = mastered); before, streaks.
+      const counts = new Map(d.birds.map((x) => [String(x.id), x]));
+      const weighted = d.weights ? Object.entries(d.weights).filter(([, w]) => w.seen)
+        .map(([id, w]) => ({ id: Number(id), w: w.w, right: counts.get(id)?.right || 0, wrong: counts.get(id)?.wrong || 0 })) : null;
+      const mastered = weighted ? weighted.filter((x) => x.w >= 4).sort((a, b) => b.w - a.w) : d.birds.filter((x) => x.streak >= 3);
+      const learning = weighted ? weighted.filter((x) => x.w < 4).sort((a, b) => a.w - b.w)
+        : d.birds.filter((x) => x.streak < 3).sort((a, b) => (b.wrong - b.right / 2) - (a.wrong - a.right / 2));
+      const chip = (x, cls = "") => `<span class="${cls}">${esc(bird(x.id).name)} <small>${x.w !== undefined ? `w ${x.w} · ` : ""}${x.right}✓ ${x.wrong}✗</small></span>`;
       dlg.querySelector(".msg").outerHTML = `
         <div class="tiles">
           <div class="tile"><b>${fmt(p.answers)}</b><span>Answers · ${pct(p.right, p.answers)} right</span></div>
@@ -315,9 +342,9 @@
         <div class="facts">
           <div><span>Signed up</span>${day(p.signed_up)}</div><div><span>Last sign-in</span>${day(p.last_sign_in)}</div>
           <div><span>First played</span>${day(p.first_played)}</div><div><span>Last played</span>${day(p.last_played)}</div>
-          <div><span>Levels</span>${esc(p.levels || "—")}</div><div><span>Cards</span>${esc(p.mode || "—")}</div>
+          <div><span>Studying</span>${esc(studying(p) || "—")}</div><div><span>New-bird batches</span>${fmt(p.batches ?? p.level_ups)}</div>
           <div><span>App opens</span>${fmt(p.opens)}</div><div><span>Hints · skips</span>${fmt(p.hints)} · ${fmt(p.skips)}</div>
-          <div><span>Hidden for a day</span>${fmt(p.snoozes)}</div><div><span>Level-ups</span>${fmt(p.level_ups)}</div>
+          <div><span>Hidden for a day</span>${fmt(p.snoozes)}</div><div><span>Mastered everything here</span>${fmt(p.all_mastered)}</div>
           <div><span>Calls that failed</span>${fmt(p.call_failed)}</div><div><span>Photos hidden</span>${fmt(d.hidden_photos)}</div>
         </div>
         <h2>Finding hardest (${learning.length} learning)</h2>
@@ -426,10 +453,16 @@
       else row.querySelectorAll("button").forEach((x) => { x.disabled = false; });
     });
 
-    // Bird names and thumbnails come from the app's own data file.
-    fetch("data/species.json").then((r) => r.json()).then((list) => {
-      for (const s of list) names.set(s.id, { name: s.name, img: s.photos[0] ? `${s.photos[0].base}/square.${s.photos[0].ext}` : "" });
-    }).catch(() => {}).finally(load);
+    // Bird names, thumbnails, families and areas come from the app's own data files.
+    Promise.all([
+      fetch("data/species.json").then((r) => r.json()).then((list) => {
+        for (const s of list) {
+          names.set(s.id, { name: s.name, img: s.photos[0] ? `${s.photos[0].base}/square.${s.photos[0].ext}` : "" });
+          familyNames.set(s.family, s.familyName || s.family);
+        }
+      }),
+      fetch("data/areas.json").then((r) => r.json()).then((a) => { areaNames = new Map(a.areas.map((x) => [x.id, x.name])); }),
+    ]).catch(() => {}).finally(load);
   </script>
 </body>
 </html>

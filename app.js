@@ -32,6 +32,7 @@ function settingsFrom(old) {
 }
 // Names: English with the Afrikaans name under it, or the other way round.
 const NAMES_KEY = "sabirds.names.v1";
+const NAMES_U_KEY = "sabirds.namesChanged.v1";  // when the order was last changed (newest wins in syncing)
 let afFirst = load(NAMES_KEY, "en") === "af";
 const nameOf = (s) => (afFirst && s.af) || s.name;
 const otherNameOf = (s) => (afFirst ? (s.af ? s.name : "") : s.af || "");
@@ -166,6 +167,11 @@ let lastWhy = "";          // why the current card was picked (Dev line)
 
 function saveLearn() {
   save(LEARN_KEY, learn);
+  profileChanged();
+}
+
+// Something in the account's profile changed (weights, name order, hidden birds): push it soon.
+function profileChanged() {
   learnDirty = true;
   save("sabirds.learnDirty.v1", true);
   if (typeof syncSoon === "function") syncSoon();
@@ -214,7 +220,9 @@ const SNOOZE_KEY = "sabirds.snoozed.v1";
 const SNOOZE_MS = 24 * 60 * 60 * 1000;
 let snoozed = load(SNOOZE_KEY, {}); // { [speciesId]: hidden until (ms) }
 
-const isSnoozed = (id) => (snoozed[id] || 0) > Date.now();
+// Hidden until a time; an Undo is stored as a later "undo:" time, so the newest of the two wins
+// (also when the two come from different phones).
+const isSnoozed = (id) => (snoozed[id] || 0) > Date.now() && (snoozed[id] || 0) > (snoozed[`undo:${id}`] || 0);
 
 function pickSpecies(exclude, ahead) {
   const ids = eligibleIds();
@@ -1000,6 +1008,12 @@ $("info").addEventListener("scroll", () => {
   if ($("card").classList.contains("revealed")) scrollEdges();
 }, { passive: true });
 
+// The description, range map and Wikipedia text arrive after the answer opens; when they change the
+// height, the edge line and the small title are checked again without waiting for a scroll.
+if ("ResizeObserver" in window) {
+  new ResizeObserver(() => { if ($("card").classList.contains("revealed")) scrollEdges(); }).observe($("details"));
+}
+
 function scrollEdges() {
   const info = $("info");
   const revealed = $("card").classList.contains("revealed");
@@ -1644,6 +1658,8 @@ $("settings").addEventListener("change", (e) => {
   // Takes effect straight away, without changing the study set or the card.
   afFirst = e.target.value === "af";
   save(NAMES_KEY, afFirst ? "af" : "en");
+  save(NAMES_U_KEY, new Date().toISOString());
+  profileChanged();
   logEvent("names", null, { first: afFirst ? "af" : "en" });
   if (card && $("card").classList.contains("revealed")) {
     showNames(card.s);
@@ -1748,13 +1764,16 @@ $("snooze").addEventListener("click", () => {
   snoozed[s.id] = Date.now() + SNOOZE_MS;
   logEvent("snooze", s.id);
   save(SNOOZE_KEY, snoozed);
+  profileChanged();
   queue = queue.filter((c) => c.s.id !== s.id);
   $("snooze").disabled = true;
   $("snooze").textContent = `${nameOf(s)} is hidden until tomorrow`;
   showToast(`${nameOf(s)} hidden for a day`, {
     undo: () => {
       delete snoozed[s.id];
+      snoozed[`undo:${s.id}`] = Date.now() + SNOOZE_MS;  // so another phone's copy doesn't bring it back
       save(SNOOZE_KEY, snoozed);
+      profileChanged();
       if (card.s === s) {
         $("snooze").disabled = false;
         $("snooze").innerHTML = "Seeing this bird too often? <b>Hide it for a day</b>";

@@ -19,7 +19,13 @@
 on opening ("Welcome back! Sign in to save your 8 mastered birds"). Sign-ins record which reminder
 led to them.
 
-**To do: merge `dev` into `main`** once Dirk has finished testing on Dev.
+**To do before merging `dev` into `main`:** apply `supabase/migrations/20261030_admin_dirk_progression.sql`
+(admin page: mastered / learning from the weights, area and family per player; the page works
+without it but counts mastered the old way and shows no area).
+
+Also on Dev (30 Oct): the admin page reads the new events (hint answers, new birds, mastered,
+area, family, bird lists); English/Afrikaans order and birds hidden for a day sync to the account;
+the edge line above Got it / Next updates when the answer's text finishes loading.
 
 ## Pinned features
 
@@ -71,10 +77,6 @@ the area* stops it.
   mastered. Select a new area or family in settings", with a Settings button (also for areas).
 
 ## Open questions on recent work
-6. **Small display glitch.** The thin line above the Got it / Next buttons, and the bird's name in the
-   header, are set when you scroll. If the text finishes loading after you've scrolled to the end,
-   the line can stay until you scroll again. Fix: also update when the content finishes loading.
-
 7. **Afrikaans names (live).** 840 of 852 birds have one (mostly from Afrikaans Wikipedia).
    Still missing: 12 rare Hard birds (Sooty Gull, Black Skimmer, Saunders's Tern, Upland Sandpiper,
    Upcher's Warbler, Red-throated Rock Martin, Red-tailed Shrike, White Wagtail, Rufous-tailed
@@ -86,13 +88,7 @@ Full write-up: the "SA Birds Progression Review" page (flow charts of every rule
 - **Usage-count clean-up:** events grow ~5 MB a day at ~250 active players, and the free
   database holds 500 MB. Add a nightly job keeping 90 days before about 3 months after launch.
 
-### Settings that still stay on the phone
-*From the 29 Oct bug report (settings didn't follow the account).* The area, pool and every bird's
-weight now sync with the Dirk Progression, which fixes the reported case. Still on the phone only:
-English/Afrikaans first and birds hidden for a day. Small; fix if testers notice.
-
 ## Checks only Dirk can do
-7. **Dark mode status bar.** Do the clock and battery look right in dark mode on the iPhone?
 8. **Supabase redirect for Dev.** Is `https://dirkwilkehoffmann.github.io/sa-bird-flashcards/dev/`
    in Supabase → Authentication → URL Configuration → Redirect URLs? (Needed for Google sign-in
    on Dev.)
