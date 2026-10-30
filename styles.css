@@ -720,7 +720,21 @@ textarea.select { resize: none; line-height: 1.4; padding: 10px 14px; }
 /* ---------- Progress ---------- */
 #progress { overflow-y: auto; }
 .prog-total { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 4px 0 10px; text-align: center; }
-.prog-total div { background: var(--fill); border-radius: var(--radius-sm); padding: 12px 4px; }
+.prog-total div, .prog-total button { background: var(--fill); border-radius: var(--radius-sm); padding: 12px 4px; }
+.prog-total button { border: 0; font: inherit; color: var(--label); min-height: var(--tap); }
+.prog-total button:active, .prog-row:active, .bird-list button:active { background: var(--fill-2); }
+.prog-row small .i { color: var(--label-3); margin-left: 2px; }
+/* Bird lists (tap a number, group or family on the progress screen) */
+.list-h { display: flex; align-items: center; gap: 6px; scroll-margin-top: 12px; }
+.list-h::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--fill-2); }
+.list-h.mastered::before { background: var(--good); }
+.list-h.learning::before { background: var(--tint); }
+.list-family { margin: 12px 0 6px; font-size: var(--fs-footnote); font-weight: 600; color: var(--label); }
+.bird-list { margin-bottom: 4px; }
+/* One bird on its own: like one side of Compare */
+.compare.single { width: min(480px, 100%); }
+.compare.single .compare-body { grid-template-columns: 1fr; }
+.bird-meta { margin: 0 0 10px; font-size: var(--fs-footnote); color: var(--label-2); }
 .prog-total b { display: block; font-size: var(--fs-title); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .prog-total span { color: var(--label-2); font-size: var(--fs-footnote); }
 .prog-total .m b { color: var(--good); }

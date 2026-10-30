@@ -51,14 +51,14 @@ led to them.
   - Right after a mix-up, show the tip for that exact pair.
   - A "Suggest a tip" option for players.
 
-### 2. See the list of mastered birds (to build)
-*Asked for by Dirk, 30 Oct 2026.* Players can see which birds they've mastered, not just how many.
-- **Where:** the progress screen (📊). Tapping **Mastered** opens the list (and the same for each
-  group and family row, filtered to that row).
-- **Each bird:** its photo, name (English / Afrikaans in the chosen order), group in the current area,
-  and tapping it opens the bird's answer screen (description, call, range map).
-- **To decide when building:** this area only, or all areas with a switch; sort order (most recently
-  mastered, A–Z, or by family); whether resting birds (weight 7) are marked "Known well".
+### 2. See the list of mastered birds (built on Dev, 30 Oct)
+On the progress screen (📊), tapping **Mastered**, **Learning** or **To be seen** opens the area's
+birds in three sections (Mastered, then Learning, then To be seen), sorted by family with a small
+heading per family, and scrolled to the section tapped. Tapping a group or family row opens the same
+list for just those birds. Tapping a bird opens it on its own, like one side of Compare: photos,
+names, how it's going (Mastered / Learning / To be seen), its group in the area, family, call, range
+map and description. Mastered includes every bird at weight 4–7. This area only.
+- **Later:** a "Study only these birds" button on a family's list.
 
 ### 3. Study a family from the progress screen (later)
 - Tapping a row used to switch the study set. It was taken out because it made the app harder to

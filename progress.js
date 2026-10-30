@@ -319,15 +319,81 @@ function bar(list) {
   return { m, l, html: `<span class="prog-bar"><span class="m" style="width:${(m / n) * 100}%"></span><span class="l" style="width:${(l / n) * 100}%"></span></span>` };
 }
 
-// One level or family with its progress bar. (Tapping a row to study just those birds was
-// taken out for now: changing the study set belongs in the settings sheet.)
-function row(label, list) {
-  const b = document.createElement("div");
+// One group or family with its progress bar; tapping it lists its birds. (A "Study only these
+// birds" button may come later: changing the study set belongs in the settings sheet for now.)
+function row(label, list, title = label) {
+  const b = document.createElement("button");
+  b.type = "button";
   b.className = "prog-row";
   const { m, l, html } = bar(list);
-  b.innerHTML = `<span></span><small>${m} of ${list.length} mastered${l ? ` · ${l} learning` : ""}</small>${html}`;
+  b.innerHTML = `<span></span><small>${m} of ${list.length} mastered${l ? ` · ${l} learning` : ""} ${icon("chevron", "small")}</small>${html}`;
   b.querySelector("span").textContent = label;
+  b.addEventListener("click", () => openBirdList(title, list));
   return b;
+}
+
+/* ---------- Bird lists: Mastered, then Learning, then To be seen ---------- */
+
+const LIST_SECTIONS = [["mastered", "Mastered"], ["learning", "Learning"], ["new", "To be seen"]];
+const familyName = (s) => s.familyName || s.family || "";
+
+// A list of birds in three sections. Lists with more than one family are sorted by family, with a
+// small heading per family; tapping a bird shows its info. `at` scrolls to a section.
+function openBirdList(title, list, at = null) {
+  logEvent("bird_list", null, { title, n: list.length });
+  $("birdListTitle").textContent = title;
+  const body = $("birdListBody");
+  body.replaceChildren();
+  const families = new Set(list.map((s) => s.family)).size > 1;
+  const order = (a, b) => (families && familyName(a).localeCompare(familyName(b))) || nameOf(a).localeCompare(nameOf(b));
+  for (const [key, label] of LIST_SECTIONS) {
+    const birds = list.filter((s) => status(s.id) === key).sort(order);
+    const h = document.createElement("p");
+    h.className = `prog-h list-h ${key}`;
+    h.id = `list-${key}`;
+    h.textContent = `${label} · ${birds.length}`;
+    body.append(h);
+    if (!birds.length) {
+      const none = document.createElement("p");
+      none.className = "note";
+      none.textContent = "None yet";
+      body.append(none);
+      continue;
+    }
+    let grid = null, family = null;
+    for (const s of birds) {
+      if (!grid || (families && s.family !== family)) {
+        if (families) {
+          const f = document.createElement("p");
+          f.className = "list-family";
+          f.textContent = familyName(s);
+          body.append(f);
+        }
+        grid = document.createElement("div");
+        grid.className = "lookalikes bird-list";
+        body.append(grid);
+        family = s.family;
+      }
+      const b = document.createElement("button");
+      b.type = "button";
+      const img = document.createElement("img");
+      img.alt = "";
+      img.loading = "lazy";
+      img.src = photoUrl(s.photos[0], "small");
+      const name = document.createElement("span");
+      name.textContent = nameOf(s);
+      b.append(img, name);
+      if (otherNameOf(s)) {
+        const alt = document.createElement("small");
+        alt.textContent = otherNameOf(s);
+        b.append(alt);
+      }
+      b.addEventListener("click", () => openBird(s));
+      grid.append(b);
+    }
+  }
+  openSheet($("birdList"));
+  if (at) $(`list-${at}`)?.scrollIntoView({ block: "start" });
 }
 
 function renderProgress() {
@@ -342,12 +408,15 @@ function renderProgress() {
   place.textContent = `📍 ${areaName()}`;
   const total = document.createElement("div");
   total.className = "prog-total";
-  total.innerHTML = `<div class="m"><b>${counts.mastered}</b><span>Mastered</span></div>
-    <div class="l"><b>${counts.learning}</b><span>Learning</span></div>
-    <div><b>${counts.new}</b><span>To be seen</span></div>`;
+  total.innerHTML = `<button type="button" class="m" data-at="mastered"><b>${counts.mastered}</b><span>Mastered</span></button>
+    <button type="button" class="l" data-at="learning"><b>${counts.learning}</b><span>Learning</span></button>
+    <button type="button" data-at="new"><b>${counts.new}</b><span>To be seen</span></button>`;
+  for (const b of total.querySelectorAll("button")) {
+    b.addEventListener("click", () => openBirdList(areaName(), here, b.dataset.at));
+  }
   const legend = document.createElement("p");
   legend.className = "legend";
-  legend.innerHTML = `Mastered = you've shown you know it. More birds join as you learn.<br>
+  legend.innerHTML = `Mastered = you've shown you know it. More birds join as you learn. Tap a number, group or family to see its birds.<br>
     <i style="background:var(--good)"></i>Mastered<i style="background:var(--tint)"></i>Learning<i style="background:var(--fill-2)"></i>To be seen`;
   body.append(place, total, legend);
 
@@ -356,7 +425,8 @@ function renderProgress() {
   h1.textContent = `By group in ${areaName()}`;
   body.append(h1);
   info.groups.forEach((ids, i) => {
-    body.append(row(LEVEL_NAMES[Learn.GROUPS[i]], ids.map((id) => speciesById.get(id)).filter(Boolean)));
+    const name = LEVEL_NAMES[Learn.GROUPS[i]];
+    body.append(row(name, ids.map((id) => speciesById.get(id)).filter(Boolean), `${name} in ${areaName()}`));
   });
 
   const h2 = document.createElement("p");

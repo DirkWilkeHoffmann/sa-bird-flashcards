@@ -1468,21 +1468,40 @@ function openCompare(a, b) {
   logEvent("compare", a.id, { with: b.id });
   $("audio").pause();
   const body = $("compareBody");
-  stopCompareCalls();
+  stopCompareCalls(body);
   body.replaceChildren(compareColumn(a), compareColumn(b));
   openSheet($("compare"));
 }
 
-// Compare's recordings stop when it closes or shows another pair, and are forgotten.
-function stopCompareCalls() {
-  for (const a of $("compareBody").querySelectorAll("audio")) {
+// One bird on its own (from the bird lists on the progress screen): photos, names, how it's going,
+// its call, range map and description, like one side of Compare.
+function openBird(s) {
+  logEvent("bird_info", s.id);
+  $("audio").pause();
+  stopCompareCalls($("birdInfoBody"));
+  const col = compareColumn(s);
+  const meta = document.createElement("p");
+  meta.className = "bird-meta";
+  const group = areaInfo().groupOf[s.id];
+  const state = { mastered: "Mastered", learning: "Learning", new: "To be seen" }[Learn.status(learn, s.id)];
+  meta.textContent = [state, group && `${LEVEL_NAMES[group]} in ${areaName()}`, familyName(s)].filter(Boolean).join(" · ");
+  col.querySelector(".sci").after(meta);
+  $("birdInfoTitle").textContent = nameOf(s);
+  $("birdInfoBody").replaceChildren(col);
+  openSheet($("birdInfo"));
+}
+
+// Recordings in Compare (or the one-bird sheet) stop when it closes or shows other birds.
+function stopCompareCalls(body = $("compareBody")) {
+  for (const a of body.querySelectorAll("audio")) {
     a.pause();
     a.removeAttribute("src");
     a.load();
     callButtons.delete(a);
   }
 }
-$("compare").addEventListener("close", stopCompareCalls);
+$("compare").addEventListener("close", () => stopCompareCalls());
+$("birdInfo").addEventListener("close", () => stopCompareCalls($("birdInfoBody")));
 
 /* ---------- Where: named areas and near me ---------- */
 

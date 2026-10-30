@@ -100,7 +100,9 @@ document.body.append(scrim);
 
 function setSheetY(d, y) {
   d.style.transform = y ? `translateY(${y}px)` : "";
-  scrim.style.opacity = String(Math.max(0, Math.min(1, 1 - y / (d.offsetHeight || 1))));
+  // A sheet opened over another sheet keeps the page dimmed while it moves.
+  const under = [...document.querySelectorAll("dialog.sheet[open]")].some((x) => x !== d && !x.dataset.closing);
+  scrim.style.opacity = under ? "1" : String(Math.max(0, Math.min(1, 1 - y / (d.offsetHeight || 1))));
 }
 
 function openSheet(d) {
@@ -122,7 +124,12 @@ function closeSheet(d, velocity = 0) {
   d.dataset.closing = "1";
   const now = stopAnim(d.id)?.values.y ?? (new DOMMatrix(getComputedStyle(d).transform).m42 || 0);
   const h = d.offsetHeight;
-  const done = () => { delete d.dataset.closing; d.close(); setSheetY(d, 0); scrim.style.opacity = "0"; };
+  const done = () => {
+    delete d.dataset.closing;
+    d.close();
+    setSheetY(d, 0);
+    if (!document.querySelector("dialog.sheet[open]")) scrim.style.opacity = "0";
+  };
   // Aim a little past the bottom edge and finish as soon as the sheet is out of sight.
   animate(d.id, { y: now }, { y: h + 40 }, {
     velocity: { y: Math.max(0, velocity) }, response: 0.32,

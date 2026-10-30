@@ -38,7 +38,9 @@ It is a Progressive Web App: no App Store needed.
   within about 50 km of you.
 - **⚑** on a photo hides it (e.g. a dead bird) on all your devices and emails the owner the photo
   with Keep / Remove buttons (`review.html`). Removed photos disappear for everyone.
-- **📊 Progress**: Mastered / Learning / To be seen in your area, by group and by family. The Dev
+- **📊 Progress**: Mastered / Learning / To be seen in your area, by group and by family. Tap a
+  number, group or family to see its birds (Mastered, then Learning, then To be seen), and tap a
+  bird to see its photos, call, range and description. The Dev
   build also shows momentum, the learning group and every pool bird's weight (and a line under the
   area on the home screen).
 - **Offline**: ⚙ → *Download this set for offline use* saves the chosen study set (1, 3 or all
