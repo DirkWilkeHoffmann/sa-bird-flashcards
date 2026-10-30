@@ -55,31 +55,39 @@ function saveOnboard() {
   save(ONBOARD_KEY, onboard);
 }
 
-// In a phone's browser: welcome, then how to install. On the home screen (or a computer, or after
-// "Continue in the browser"): welcome, level, area, sign-in (when signed out).
+// In a phone's browser: a friendly welcome, what the app is, then how to add it to the home screen.
+// On the home screen (or after "Continue in the browser"): level, area, sign-in (when signed out),
+// since the welcome was in the browser. On a computer: all of it apart from the install.
+const BROWSER_STEPS = ["welcome", "about", "install"];
 function steps() {
-  if (isPhone && !standalone() && !onboard.inBrowser) return ["welcome", "install"];
-  return ["welcome", "level", "area", ...(signedOut() ? ["signin"] : [])];
+  if (reminder || (onboard.forceBrowser && !onboard.inBrowser)) return BROWSER_STEPS;
+  const browser = isPhone && !standalone() && !onboard.inBrowser && !onboard.forceHome;
+  if (browser) return BROWSER_STEPS;
+  const ask = ["level", "area", ...(signedOut() ? ["signin"] : [])];
+  return isPhone || onboard.inBrowser || onboard.forceHome ? ask : ["welcome", "about", ...ask];
 }
 
 // Called once the birds have loaded. New players get the walkthrough; someone back from Google
 // sign-in gets it finished.
 function startWalkthrough(newPlayer) {
   if (onboard?.step === "signin" && !onboard.done) { finishAfterSignIn(); return; }
-  if (newPlayer && !onboard?.done) { showWalkthrough(); return; }
+  // On the home screen, someone who only got as far as "add to home screen" in the browser (Android
+  // shares the browser's data) still has the questions to answer, unless they've answered birds since.
+  const homeNext = standalone() && onboard?.step && !Object.keys(stats).length;
+  if (!onboard?.done && (newPlayer || homeNext)) { showWalkthrough(); return; }
   remindToInstall();
 }
 
 // A phone's browser isn't where the app is meant to be played: every time it's opened there (or
-// come back to after 30+ minutes), the "add to home screen" step comes up again, unless the player
-// once tapped Skip.
+// come back to after 30+ minutes), the welcome and "add to home screen" pages come up again, unless
+// the player once tapped Skip.
 function remindToInstall() {
   if (!isPhone || standalone() || load(SKIPPED_KEY, false) || !$("onboard").hidden) return;
   reminder = true;
   $("onboard").hidden = false;
   document.body.classList.add("onboarding");
   logEvent("install_reminder", null, { device: `${device.os}-${device.browser}` });
-  showStep("install");
+  showStep(BROWSER_STEPS[0]);
 }
 let hiddenAt = 0;
 document.addEventListener("visibilitychange", () => {
@@ -87,14 +95,13 @@ document.addEventListener("visibilitychange", () => {
   if (hiddenAt && Date.now() - hiddenAt > 30 * 60 * 1000 && species.length) remindToInstall();
 });
 
-// `browser`: Dev only, show the phone-browser version (install step) even on the home screen.
-function showWalkthrough({ browser = false } = {}) {
+// Dev only: `browser` shows the phone-browser pages, `home` the home-screen ones, wherever it runs.
+function showWalkthrough({ browser = false, home = false } = {}) {
   reminder = false;
-  onboard = { level: "start", step: "welcome", forceBrowser: browser };
-  saveOnboard();
+  onboard = { level: "start", forceBrowser: browser, forceHome: home };
   $("onboard").hidden = false;
   document.body.classList.add("onboarding");
-  showStep("welcome");
+  showStep(steps()[0]);
 }
 
 function hideWalkthrough() {
@@ -122,7 +129,7 @@ function showStep(name) {
     onboard.step = name;
     saveOnboard();
   }
-  const list = reminder ? ["install"] : onboard.forceBrowser && !onboard.inBrowser ? ["welcome", "install"] : steps();
+  const list = steps();
   const at = list.indexOf(name);
   const body = $("onbBody"), actions = $("onbActions");
   body.replaceChildren();
@@ -134,13 +141,32 @@ function showStep(name) {
   body.scrollTop = 0;
 }
 
-STEP_VIEWS.welcome = (body, actions, next, list) => {
-  const installing = list[1] === "install";
-  body.append(el("p", "onb-emoji", "🐦"), el("h1", "", installing ? "Learn the birds of Southern Africa" : "Welcome to SA Birds"),
-    el("p", "onb-lead", installing
-      ? "See a photo, name the bird, and the app learns what you know. A few minutes a day is all it takes."
-      : "See a photo, name the bird, and the app learns what you know. Three quick questions and you're birding."));
-  actions.append(action(installing ? "Get started" : "Start", "primary", next));
+STEP_VIEWS.welcome = (body, actions, next) => {
+  body.append(el("p", "onb-emoji", "👋"), el("h1", "", "Hello, and welcome to SA Birds!"),
+    el("p", "onb-lead", "We're so glad you're here. Whether you can't tell a sparrow from a starling yet or "
+      + "you've been birding for years, this is a fun, easy way to get to know the birds around you."));
+  actions.append(action("Hi! Show me around", "primary", next));
+};
+
+// What the app is and how it works.
+const ABOUT = [
+  ["📷", "<b>See a photo, name the bird.</b> Pick the right name from a few choices, or ask for a hint."],
+  ["🧠", "<b>It learns what you know.</b> Birds you get wrong come back soon; the ones you know show up now and then."],
+  ["🌱", "<b>Start with the common ones.</b> New birds are added as you get better, a few at a time."],
+  ["📍", "<b>Your birds, your area.</b> Learn the birds around you, or anywhere in Southern Africa."],
+  ["🔊", "<b>Hear their calls.</b> After each answer you can listen to the bird and read about it."],
+];
+STEP_VIEWS.about = (body, actions, next) => {
+  body.append(el("h1", "", "What is SA Birds?"),
+    el("p", "onb-lead", "A flashcard game with real photos of over 850 Southern African birds. A few minutes a day is all it takes."));
+  const list = el("ul", "onb-about");
+  for (const [emoji, html] of ABOUT) {
+    const li = el("li");
+    li.innerHTML = `<span aria-hidden="true">${emoji}</span><span>${html}</span>`;
+    list.append(li);
+  }
+  body.append(list);
+  actions.append(action("Next", "primary", next));
 };
 
 // How to add the app to the home screen, for this phone and browser. Each step is [icon, text].
@@ -229,7 +255,9 @@ STEP_VIEWS.installed = (body) => {
     el("p", "onb-lead", "You can close this browser tab. We'll finish setting up there."));
 };
 
-STEP_VIEWS.level = (body, actions, next) => {
+STEP_VIEWS.level = (body, actions, next, steps) => {
+  // On the home screen this is the first page: say hello and what's coming.
+  if (steps[0] === "level") body.append(el("p", "onb-label", "Welcome! Let's set up your birds"));
   body.append(el("h1", "", "How well do you know birds?"),
     el("p", "onb-lead", "Be honest — the app adjusts as you play."));
   const list = el("div", "onb-options");
@@ -387,7 +415,7 @@ $("onbSkip").addEventListener("click", () => {
 // Dev: run the walkthrough on command (as it is here, or as a phone's browser would show it).
 if (IS_DEV) {
   $("devTour").hidden = false;
-  $("devTour").addEventListener("click", () => showWalkthrough());
+  $("devTour").addEventListener("click", () => showWalkthrough({ home: true }));
   $("devTourBrowser").hidden = false;
   $("devTourBrowser").addEventListener("click", () => showWalkthrough({ browser: true }));
 }

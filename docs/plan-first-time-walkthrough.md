@@ -25,6 +25,18 @@ momentum, the size of the learning group L and which birds are in it.
   or a place you choose (the area list), and how many birds that is.
 - **Dev:** buttons under the Dev line run the walkthrough, as on the home screen or as in a browser.
 
+## Reworked again 30 Oct
+
+- **Phone browser: three pages**, every time it's opened there until the player taps Skip once:
+  1. a friendly welcome ("Hello, and welcome to SA Birds!");
+  2. what SA Birds is and how it works (photo → name, it learns what you know, common birds first,
+     your area, calls);
+  3. add to the home screen.
+- **Home-screen app:** straight into the questions (how well you know birds, which birds, sign in),
+  with "Welcome! Let's set up your birds" on the first one. This also happens on Android, where the
+  home-screen app shares the browser's data, as long as no birds were answered in the browser.
+- **Dev:** "▶ Walkthrough as on the home screen" and "▶ Walkthrough as in a phone's browser".
+
 The screens below are the first version; steps 2–4 are the same apart from the area step's text.
 
 ## The screens
