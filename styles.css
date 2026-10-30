@@ -739,6 +739,8 @@ textarea.select { resize: none; line-height: 1.4; padding: 10px 14px; }
 .bird-list { margin-bottom: 4px; }
 .list-other { margin: 28px 0 0; padding-top: 16px; border-top: .5px solid var(--separator); font-size: var(--fs-headline); font-weight: 700; }
 .study-family { margin: 0 0 6px; }
+.family-now { margin: -6px 0 16px; }
+.link-btn { padding: 0; border: 0; background: none; font: inherit; color: var(--tint); text-decoration: underline; }
 /* One bird on its own: like one side of Compare */
 .compare.single { width: min(480px, 100%); }
 .compare.single .compare-body { grid-template-columns: 1fr; }

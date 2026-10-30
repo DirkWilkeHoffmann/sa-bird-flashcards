@@ -41,7 +41,7 @@ It is a Progressive Web App: no App Store needed.
 - **📊 Progress**: Mastered / Learning / To be seen in your area, by group and by family. Tap a
   number, group or family to see its birds (Mastered, then Learning, then To be seen, then the
   same for other areas), and tap a bird to see its photos, call, range and description.
-- **Study one family**: *Study only these birds* on a family's list (or ⚙) studies that family
+- **Study one family**: *Study only these birds* on a family's list studies that family
   across all areas. When everything in the area or family is mastered, the app says so and points
   to the settings. The Dev
   build also shows momentum, the learning group and every pool bird's weight (and a line under the

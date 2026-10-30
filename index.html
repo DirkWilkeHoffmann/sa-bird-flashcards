@@ -111,11 +111,8 @@
         <legend>Area</legend>
         <select class="select" id="areaSelect" name="area" aria-label="Area"></select>
       </fieldset>
-      <fieldset>
-        <legend>Study one family</legend>
-        <select class="select" id="familySelect" name="family" aria-label="Family"></select>
-        <p class="note">A family covers all areas: all its birds become your learning group.</p>
-      </fieldset>
+      <p class="note family-now" id="familyNow" hidden>Studying <b id="familyNowName"></b> in all areas.
+        Pick an area, or <button class="link-btn" id="familyStop" type="button">go back to the area</button>.</p>
       <fieldset>
         <legend>Bird names</legend>
         <div class="chips" id="nameChips">

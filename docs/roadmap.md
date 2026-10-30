@@ -61,10 +61,12 @@ opens it on its own, like one side of Compare. Mastered includes every bird at w
 sheet keeps its title and ✕ at the top; dragging the title bar down closes it.
 
 ### 3. Study one family (built on Dev, 30 Oct)
-**Study only these birds** at the top of a family's list (or ⚙ → *Study one family*) studies that
+**Study only these birds** at the top of a family's list studies that
 family across **all areas**: all its birds join the pool at once and are the learning group; the
 weights, momentum and picking work as normal. The line above the photos shows "Cuckoos · all
-areas". *Stop: back to …* (on the list or the progress screen) or ⚙ goes back to the area.
+areas". *Stop: back to …* (on the list or the progress screen) goes back to the area; in ⚙ (area
+only, no family list) a note says which family is being studied, and picking an area or *go back to
+the area* stops it.
 - When every bird in the area or family is mastered: "Well done! All birds in this section are
   mastered. Select a new area or family in settings", with a Settings button (also for areas).
 

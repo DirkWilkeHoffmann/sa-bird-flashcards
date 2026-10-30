@@ -1567,16 +1567,6 @@ function locate() {
   });
 }
 
-// Families, A–Z, with how many birds each has across all areas.
-function fillFamilySelect() {
-  const sel = $("familySelect");
-  sel.innerHTML = `<option value="">All birds in the area</option>`;
-  const counts = new Map();
-  for (const s of species) if (s.photos.length) counts.set(s.family, (counts.get(s.family) || 0) + 1);
-  [...counts.keys()].sort((a, b) => familyLabel(a).localeCompare(familyLabel(b)))
-    .forEach((f) => sel.append(new Option(`${familyLabel(f)} (${counts.get(f)})`, f)));
-}
-
 // One list: Everywhere, Near me, each country, then each country's regions.
 function fillAreaSelect() {
   const sel = $("areaSelect");
@@ -1623,7 +1613,9 @@ function openSettings() {
     if (el.name === "names") el.checked = el.value === (afFirst ? "af" : "en");
   }
   $("areaSelect").value = settings.area;
-  $("familySelect").value = settings.family || "";
+  $("familyNow").hidden = !settings.family;
+  $("familyNowName").textContent = settings.family ? familyLabel(settings.family) : "";
+  familyStop = false;
   pendingNear = settings.near;
   updateCount();
   openSheet($("settings"));
@@ -1631,7 +1623,9 @@ function openSettings() {
 
 function readSettings() {
   const area = $("areaSelect").value || "all";
-  return { v: 2, area, near: area === "near" ? pendingNear : null, family: $("familySelect").value, u: settings.u };
+  // A family is chosen from its bird list; picking an area (or "go back") stops it.
+  const family = familyStop || area !== settings.area ? "" : settings.family || "";
+  return { v: 2, area, near: area === "near" ? pendingNear : null, family, u: settings.u };
 }
 
 function updateCount() {
@@ -1657,6 +1651,12 @@ $("settings").addEventListener("change", (e) => {
   }
 });
 let nearPending = null;  // location lookup still running when the sheet closes
+let familyStop = false;  // "go back to the area" tapped in the settings
+
+$("familyStop").addEventListener("click", () => {
+  familyStop = true;
+  closeSheet($("settings"));
+});
 
 $("settings").addEventListener("close", async () => {
   if (nearPending) await nearPending.catch(() => {});
@@ -1805,7 +1805,6 @@ Promise.all([
         .map(([id, why]) => ({ s: byId.get(id), why }));
     }
     speciesById = new Map(species.map((s) => [s.id, s]));
-    fillFamilySelect();
     // First load after the Dirk Progression arrived: today's progress becomes weights.
     if (!learn) { learn = Learn.migrate(stats, [...seenBirds], Date.now()); saveLearn(); }
     wakeLearn();

@@ -122,7 +122,8 @@ Deterministic rules, with the last choice made at random (Q21).
   pool = birds already added that are found in the new area; new birds come from the new area's
   groups. Switching back loses nothing.
 
-**Studying one family (added 30 Oct):** chosen from a family's bird list or the settings. It covers
+**Studying one family (added 30 Oct):** chosen from a family's bird list (not in the settings,
+which only pick the area; picking an area there stops the family). It covers
 the family in **all areas**: all its birds are added to the pool at once, so they're L; everything
 else (weights, momentum, picks, retries) works as normal. When every bird in the area or family is
 mastered (L empty, nothing left to add), a notification says "Well done! All birds in this section
