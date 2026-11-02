@@ -34,6 +34,19 @@ combines both, keeping the further-along copy of each bird, and the phone's walk
 goes to the account. Any bird the account has right/wrong answers for but the progression lost is
 rebuilt on the next sync, which restores wiped accounts. Main never had this code.
 
+**Ready for 500+ players (2 Nov):**
+- **Sync** at most once a minute while playing, straight away on leaving the app, and on return
+  after 2 minutes, instead of after every answer. Keeps Supabase's data downloads within the free
+  5 GB a month (would have been ~10 GB with 500 players).
+- **Walkthrough:** only real Chrome counts as Chrome on Android (Opera, Xiaomi, Huawei, Brave… get
+  Open in Chrome); WhatsApp/Gmail built-in browser hints on iPhone and Android; Google sign-in
+  inside in-app browsers explains to open Chrome or Safari (Google blocks it there).
+- **To apply:** `supabase/migrations/20261102_events_cleanup.sql` (nightly, keeps 100 days of usage
+  events and folds older ones into daily totals). Waiting for Dirk's confirmation in Supabase.
+- Capacity checked: database 14 MB of 500 MB, ~1 KB per player's progression record, sign-ins and
+  Google OAuth have no limit that 500 players reach. No backups on the free plan (Dirk: stay free
+  for now).
+
 **Also on Dev (2 Nov):**
 - **Daily goal and streak** (`streak.js`): 10 Right answers a day (no hint), a celebration when it's
   reached, and a streak that starts again after a missed day. The progress screen opens with the
