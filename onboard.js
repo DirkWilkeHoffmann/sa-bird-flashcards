@@ -213,7 +213,35 @@ const OPEN_IN_BROWSER = {
     ["", "Then follow the steps there to add SA Birds to your home screen"]],
 };
 
+// Open this page in Chrome on Android (an intent link). Chrome is the easiest place to install
+// SA Birds, so every other Android browser, and apps like WhatsApp, send people there first.
+function openInChrome() {
+  logEvent("onboard", null, { step: "open_chrome", from: device.browser });
+  location.href = `intent://${location.host}${location.pathname}${location.search}#Intent;scheme=https;package=com.android.chrome;end`;
+}
+
 STEP_VIEWS.install = (body, actions) => {
+  // Android, not in Chrome: one button to open the page in Chrome, then Chrome's steps.
+  if (device.os === "android" && device.browser !== "chrome") {
+    body.append(el("p", "onb-emoji", "📲"), el("h1", "", "Open SA Birds in Chrome"),
+      el("p", "onb-lead", "Chrome is the easiest way to add SA Birds to your home screen. Then it opens full screen like an app and works offline."));
+    actions.append(action("Open in Chrome", "primary", openInChrome));
+    body.append(el("p", "note", "Then, in Chrome:"));
+    const how = el("ol", "onb-howto");
+    for (const [iconName, html] of INSTALL_STEPS["android-chrome"]) {
+      const li = el("li");
+      li.innerHTML = `${iconName ? icon(iconName) : ""}<span>${html}</span>`;
+      how.append(li);
+    }
+    body.append(how);
+    actions.append(action("Continue in the browser instead", "ghost", () => {
+      if (reminder) { reminder = false; hideWalkthrough(); return; }
+      onboard.inBrowser = true;
+      onboard.forceBrowser = false;
+      showStep("level");
+    }));
+    return;
+  }
   const inApp = device.browser === "inapp";
   body.append(el("p", "onb-emoji", "📲"), el("h1", "", inApp ? "Open SA Birds in your browser" : "Add SA Birds to your home screen"),
     el("p", "onb-lead", inApp

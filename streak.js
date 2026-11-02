@@ -70,7 +70,7 @@ function mergeDays(remote) {
 // Missed days are just plain dates, with nothing to make anyone feel bad.
 
 const MAX_WEEKS_BACK = 52;
-let weekOffset = 0;  // 0 = the last 7 days up to today, -1 = the 7 days before that, ...
+let weekOffset = 0;  // 0 = this week (Monday to Sunday), -1 = last week, ...
 
 function streakCard() {
   const box = document.createElement("section");
@@ -87,7 +87,7 @@ function week() {
   const wrap = document.createElement("div");
   wrap.className = "week";
   const now = new Date();
-  const first = addDays(now, -6 + 7 * weekOffset);
+  const first = addDays(now, -((now.getDay() + 6) % 7) + 7 * weekOffset);  // that week's Monday
   const todayKey = dayKey(now);
   const prev = document.createElement("button");
   prev.type = "button";
@@ -105,7 +105,7 @@ function week() {
   row.className = "week-days";
   for (let i = 0; i < 7; i++) {
     const date = addDays(first, i);
-    const letter = "SMTWTFS"[date.getDay()];
+    const letter = "MTWTFSS"[i];
     const k = dayKey(date);
     const d = days[k];
     const day = document.createElement("div");

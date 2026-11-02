@@ -29,12 +29,15 @@ the edge line above Got it / Next updates when the answer's text finishes loadin
 **Also on Dev (2 Nov):**
 - **Daily goal and streak** (`streak.js`): 10 Right answers a day (no hint), a celebration when it's
   reached, and a streak that starts again after a missed day. The progress screen opens with the
-  streak and the last 7 days (goal days filled, played days ringed, ★ with the number of birds
-  mastered); arrows go back a week. Kept deliberately simple and encouraging. Days sync with the
+  streak and this week, Monday to Sunday (goal days filled, played days ringed, ★ with the number of
+  birds mastered); arrows or a sideways swipe go back a week. Kept deliberately simple and encouraging. Days sync with the
   learner profile.
 - **Faster first photo:** a blurred small preview at once; the photo on screen loads first, the
   rest after; the call list no longer delays the first card. Slow mobile: ~3–4 s instead of 3–8 s.
 - **Android icon:** a maskable version, so the Hoopoe fills the round icon.
+- **Android install goes through Chrome:** in the walkthrough, every Android browser except Chrome
+  (Samsung Internet, Firefox, Edge, WhatsApp/Facebook in-app) shows "Open in Chrome" first (an
+  intent link), then Chrome's steps. Tested with a friend's phone: Chrome is the easiest way.
 - **Usage events:** the database list now accepts the progression, bird-list and walkthrough events
   (`supabase/migrations/20261102_log_events_allow_list.sql`). They were being dropped before, so the
   admin page had nothing for them until now. **Every new `logEvent` type must be added there.**
