@@ -41,8 +41,9 @@ rebuilt on the next sync, which restores wiped accounts. Main never had this cod
 - **Walkthrough:** only real Chrome counts as Chrome on Android (Opera, Xiaomi, Huawei, Brave… get
   Open in Chrome); WhatsApp/Gmail built-in browser hints on iPhone and Android; Google sign-in
   inside in-app browsers explains to open Chrome or Safari (Google blocks it there).
-- **To apply:** `supabase/migrations/20261102_events_cleanup.sql` (nightly, keeps 100 days of usage
-  events and folds older ones into daily totals). Waiting for Dirk's confirmation in Supabase.
+- **Usage-event clean-up (applied 2 Nov):** `supabase/migrations/20261102_events_cleanup.sql` runs
+  nightly at 01:17 UTC, keeps 100 days of usage events and folds older ones into daily totals
+  (`events_daily`). The dashboard's 90-day view is unaffected.
 - Capacity checked: database 14 MB of 500 MB, ~1 KB per player's progression record, sign-ins and
   Google OAuth have no limit that 500 players reach. No backups on the free plan (Dirk: stay free
   for now).

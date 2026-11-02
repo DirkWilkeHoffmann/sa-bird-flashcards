@@ -1,4 +1,3 @@
--- NOT APPLIED YET (2 Nov 2026): waiting for Dirk to confirm in Supabase. Remove this line once applied.
 -- Usage events: keep 100 days of detail (the dashboard looks back at most 90), and fold older
 -- events into daily totals every night, so the free 500 MB database never fills up.
 -- Progress, accounts, learner profiles and photo/name reviews are never touched.
