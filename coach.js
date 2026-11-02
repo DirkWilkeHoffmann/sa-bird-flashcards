@@ -1,7 +1,12 @@
 "use strict";
 // Tips on the first card, after the walkthrough: what to do with a card (look, hint or reveal, then
 // mark yourself honestly) and what the momentum bird is. Shown once, as small speech bubbles next
-// to the thing they explain; any tap on the card's own buttons moves the tips along.
+// to the thing they explain.
+//
+// The player can do anything meanwhile (skip or swipe the card away, take a hint, reveal straight
+// away, open a sheet), so the tips follow what's on screen rather than which button was tapped:
+// the card's panels (#ask, #grade, #after, #choices) are watched and the right tip is picked for
+// whichever one is showing.
 
 const COACH_KEY = "sabirds.coach.v1";
 const COACH = {
@@ -11,11 +16,43 @@ const COACH = {
   grade: ["grade", "Be honest: Got it or Missed it. That decides which birds you see and when they come back."],
   momentum: ["score", "This is your momentum bird. It fills up as you get birds right, and the fuller it is, the faster new birds are added."],
 };
-let coachStep = null;  // the bubble showing now, or "waitGrade" / "waitNext" between bubbles
+const INTRO = ["look", "hint", "reveal"];
+
+// null = not running. intro: which of INTRO is next; answered: the player has answered a card
+// (revealed, or finished a hint); gradeSeen: the Got it / Missed it tip has been shown or dismissed.
+let coach = null;
+let coachStep = null;  // the bubble showing now
 
 function startCoach({ force = false } = {}) {
   if (!force && load(COACH_KEY, false)) return;
-  showCoach("look");
+  coach = { intro: 0, answered: false, gradeSeen: false };
+  syncCoach();
+}
+
+function finishCoach() {
+  coach = null;
+  hideCoach();
+  save(COACH_KEY, true);
+}
+
+// Which tip fits what's on screen now.
+function syncCoach() {
+  if (!coach) return;
+  const showing = (id) => !$(id).hidden;
+  // The walkthrough or the home-screen pages are on top: wait for them.
+  if (showing("onboard")) { hideCoach(); return; }
+  let want = null;
+  if (showing("grade")) {
+    coach.answered = true;
+    if (!coach.gradeSeen) want = "grade";
+  } else if (showing("choices") || showing("after")) {
+    coach.answered = true;  // a hint: nothing to point at until the next card
+  } else if (showing("ask")) {
+    want = coach.answered ? "momentum" : INTRO[coach.intro] || null;
+  }
+  if (want === coachStep) { placeCoach(); return; }
+  hideCoach();
+  if (want) showCoach(want);
 }
 
 function showCoach(step) {
@@ -23,9 +60,8 @@ function showCoach(step) {
   const [anchorId, text] = COACH[step];
   const bubble = $("coach");
   $("coachText").textContent = text;
-  $("coachNext").textContent = step === "reveal" || step === "momentum" ? "Got it" : "Next";
+  $("coachNext").textContent = step === "reveal" || step === "grade" || step === "momentum" ? "Got it" : "Next";
   bubble.hidden = false;
-  document.querySelectorAll(".coach-target").forEach((x) => x.classList.remove("coach-target"));
   $(anchorId).classList.add("coach-target");
   placeCoach();
   animate("coach", { o: 0, y: 6 }, { o: 1, y: 0 }, {
@@ -35,11 +71,13 @@ function showCoach(step) {
 }
 
 function hideCoach() {
+  coachStep = null;
   $("coach").hidden = true;
   document.querySelectorAll(".coach-target").forEach((x) => x.classList.remove("coach-target"));
 }
 
 // Above the thing it explains when there's room, otherwise below; the arrow points at its middle.
+// The photo is big, so that tip sits inside its lower part.
 function placeCoach() {
   if (!coachStep || $("coach").hidden) return;
   const target = $(COACH[coachStep][0]).getBoundingClientRect();
@@ -49,48 +87,39 @@ function placeCoach() {
   const left = Math.max(16, Math.min(innerWidth - w - 16, target.left + target.width / 2 - w / 2));
   bubble.style.left = `${left}px`;
   const h = bubble.offsetHeight;
-  // The photo is big: point at its lower part from inside it.
-  const below = coachStep === "momentum" || coachStep === "look";
-  const top = coachStep === "look" ? target.bottom - h - 24
-    : below ? target.bottom + 12 : target.top - h - 12;
-  bubble.style.top = `${Math.max(12, top)}px`;
-  bubble.classList.toggle("below", below && coachStep !== "look");
+  const inside = coachStep === "look", below = coachStep === "momentum";
+  const top = inside ? target.bottom - h - 24 : below ? target.bottom + 12 : target.top - h - 12;
+  bubble.style.top = `${Math.max(12, Math.min(innerHeight - h - 12, top))}px`;
+  bubble.classList.toggle("below", below);
+  bubble.classList.toggle("no-arrow", inside);
   bubble.style.setProperty("--arrow", `${target.left + target.width / 2 - left}px`);
-  bubble.classList.toggle("no-arrow", coachStep === "look");
 }
 addEventListener("resize", placeCoach);
+addEventListener("scroll", placeCoach, { passive: true });
+$("card").addEventListener("scroll", placeCoach, { passive: true, capture: true });
 
-function nextCoach() {
+$("coachNext").addEventListener("click", () => {
+  if (!coach) return;
   const step = coachStep;
-  hideCoach();
-  if (step === "look") showCoach("hint");
-  else if (step === "hint") showCoach("reveal");
-  else if (step === "reveal") coachStep = "waitGrade";
-  else if (step === "grade") coachStep = "waitNext";
-  else finishCoach();
-}
-$("coachNext").addEventListener("click", nextCoach);
-
-function finishCoach() {
-  coachStep = null;
-  hideCoach();
-  save(COACH_KEY, true);
-}
-
-// The card's own buttons move the tips along: Reveal → the Got it / Missed it tip; marking yourself
-// (or Next bird after a hint) → the momentum bird.
-$("reveal").addEventListener("click", () => {
-  if (!coachStep) return;
-  hideCoach();
-  setTimeout(() => { if (!$("grade").hidden) showCoach("grade"); }, 350);
+  if (step === "momentum") { finishCoach(); return; }
+  if (INTRO.includes(step)) coach.intro = INTRO.indexOf(step) + 1;
+  if (step === "grade") coach.gradeSeen = true;
+  syncCoach();
 });
-$("hint").addEventListener("click", () => { if (coachStep) { hideCoach(); coachStep = "waitNext"; } });
-for (const id of ["gotIt", "missed", "next"]) {
-  $(id).addEventListener("click", () => {
-    if (!coachStep) return;
-    hideCoach();
-    setTimeout(() => showCoach("momentum"), 1200);
-  });
+
+// Watch the card's panels and the walkthrough; a new card (skip, swipe) moves things, so place again.
+const coachWatch = new MutationObserver(() => setTimeout(syncCoach, 0));
+for (const id of ["ask", "grade", "after", "choices", "onboard"]) {
+  coachWatch.observe($(id), { attributes: true, attributeFilter: ["hidden"] });
+}
+coachWatch.observe($("carousel"), { childList: true });
+// Once marked (Got it / Missed it), the grade tip is done with.
+for (const id of ["gotIt", "missed"]) $(id).addEventListener("click", () => { if (coach) coach.gradeSeen = true; });
+
+// Closed the app halfway through the tips (or before the first card loaded)? Carry on next time,
+// as long as they've only just started playing.
+if (load(ONBOARD_KEY, null)?.done && !load(COACH_KEY, false) && Object.keys(stats).length < 10) {
+  setTimeout(() => startCoach(), 1500);
 }
 
 if (IS_DEV) {

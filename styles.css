@@ -1001,6 +1001,7 @@ body.titled .subbar { border-bottom-color: var(--separator); }
   .badge { -webkit-backdrop-filter: none; backdrop-filter: none; }
   .badge.good { background: var(--good); }
   .badge.star { background: var(--tint); }
+  .badge.kept { background: #e3a92b; }
 }
 @media (prefers-reduced-motion: reduce) {
   .bar h1, .bar-title { transition: none; }
@@ -1163,8 +1164,7 @@ body.onboarding { background: var(--bg); }
 .momentum.high svg { filter: drop-shadow(0 0 5px color-mix(in srgb, #e8b923 70%, transparent)); }
 .momentum.low .mb-fill { fill: color-mix(in srgb, var(--tint) 45%, var(--label-2)); }
 /* Kept: a mastered bird answered right again. */
-.badge.kept { flex-direction: column; font-size: 2.2rem; height: 112px; border-radius: 56px;
-  background: linear-gradient(145deg, #f4cf55, #c98a12); color: #3b2504; box-shadow: 0 0 0 6px color-mix(in srgb, #f4cf55 35%, transparent), var(--shadow); }
+.badge.kept { font-size: 2.4rem; height: 112px; border-radius: 56px; background: color-mix(in srgb, #e3a92b 88%, transparent); color: #2e1d03; }
 .onb-about { display: grid; gap: 10px; margin: 6px 0 0; padding: 0; list-style: none; }
 .onb-about li { display: grid; grid-template-columns: 32px 1fr; align-items: start; gap: 10px; padding: 12px 14px;
   border-radius: var(--radius-sm); background: var(--fill); font-size: var(--fs-subhead); color: var(--label-2); }

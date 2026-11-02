@@ -909,7 +909,7 @@ const MASTERED_MESSAGES = [
   (name) => `Bird mastered! ${name} can't hide from you now.`,
 ];
 const MASTERED_FIRST = 5;      // the first five always show, in order (the first explains mastering)
-const MASTERED_CHANCE = 0.7;   // after that, a random one 70% of the time
+const MASTERED_CHANCE = 0.42;  // after that, a random one now and then
 function celebrateMastered(s) {
   const shown = load(MASTERED_SHOWN_KEY, 0);
   if (shown >= MASTERED_FIRST && Math.random() > MASTERED_CHANCE) return;
@@ -920,13 +920,12 @@ function celebrateMastered(s) {
   showToast(MASTERED_MESSAGES[i](nameOf(s), n));
 }
 
-// A mastered bird answered right again: a gold badge instead of the green tick.
-const KEPT_WORDS = ["Still got it", "Locked in", "Rock solid", "Never forgot", "Know it cold", "Easy one"];
-const keptBadge = () => `✦<small>${KEPT_WORDS[Math.floor(Math.random() * KEPT_WORDS.length)]}</small>`;
+// A mastered bird answered right again: a gold badge, the same shape as the Mastered one.
+const keptBadge = () => `🧠<small>Well remembered</small>`;
 
 // After a miss, now and then: encouragement, a birding tip, or (for a bird with known look-alikes)
 // a way to compare it with one of them.
-const MISSED_CHANCE = 0.5;
+const MISSED_CHANCE = 0.3;
 const MISSED_MESSAGES = [
   "No worries. That one will come back in a few cards.",
   "Missing it is how you learn it. It'll be back soon.",
@@ -945,7 +944,8 @@ const MISSED_MESSAGES = [
 ];
 function encourageAfterMiss(s, picked) {
   if (!$("toast").hidden && $("toastText").textContent.startsWith("Daily goal")) return;
-  const other = picked || (Math.random() < 0.4 ? s.similar?.[0]?.s : null);
+  if (picked && Math.random() > 0.6) return;
+  const other = picked || (Math.random() < 0.24 ? s.similar?.[0]?.s : null);
   if (other) {
     showToast(picked ? `Mixed up ${nameOf(s)} and ${nameOf(other)}? See them side by side`
       : `${nameOf(s)} is easily confused with ${nameOf(other)}`,
