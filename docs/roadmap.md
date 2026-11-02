@@ -26,6 +26,18 @@ Also on Dev (30 Oct): the admin page reads the new events (hint answers, new bir
 area, family, bird lists); English/Afrikaans order and birds hidden for a day sync to the account;
 the edge line above Got it / Next updates when the answer's text finishes loading.
 
+**Also on Dev (2 Nov):**
+- **Daily goal and streak** (`streak.js`): 10 Right answers a day (no hint), a celebration when it's
+  reached, and a streak that starts again after a missed day. The progress screen opens with today's
+  ring, the streak and best streak, and a month calendar (played, goal reached, ★ bird mastered).
+  Days sync with the learner profile.
+- **Faster first photo:** a blurred small preview at once; the photo on screen loads first, the
+  rest after; the call list no longer delays the first card. Slow mobile: ~3–4 s instead of 3–8 s.
+- **Android icon:** a maskable version, so the Hoopoe fills the round icon.
+- **Usage events:** the database list now accepts the progression, bird-list and walkthrough events
+  (`supabase/migrations/20261102_log_events_allow_list.sql`). They were being dropped before, so the
+  admin page had nothing for them until now. **Every new `logEvent` type must be added there.**
+
 ## Pinned features
 
 ### 1. How to tell lookalikes apart (built, waiting for review)
