@@ -321,16 +321,44 @@ const Learn = (() => {
     return state;
   }
 
+  // Birds answered before (right/wrong counts, kept with the account) that the pool doesn't have:
+  // added with the same weights as migrate(), dated when last answered so newer changes still win.
+  // Brings back birds an earlier walkthrough start wiped from an account. Returns how many.
+  function fillFromStats(state, stats, now) {
+    let n = 0;
+    for (const [id, st] of Object.entries(stats || {})) {
+      if (state.birds[id] || !(st.right || st.wrong)) continue;
+      const w = (st.streak || 0) >= 3 ? C.MASTERED : clamp(C.START + (st.right || 0) - (st.wrong || 0), C.FLOOR, C.MASTERED - 1);
+      state.birds[id] = { w, seen: true, added: true, run: 0, t: 0, u: st.updated || new Date(now).toISOString() };
+      n++;
+    }
+    return n;
+  }
+
   // Newest change per bird wins. A pool that was started over (the walkthrough) replaces any copy
   // from before: this phone's newer start ignores the account's older birds, and an account that
   // started over more recently replaces this phone's. Returns true when anything here changed.
-  function merge(state, remote) {
+  // Joining an account (signing in, or using another phone's sync code) is different: the birds of
+  // both are kept, newest per bird, and this phone's walkthrough start never wipes the account.
+  function merge(state, remote, { joining = false } = {}) {
     let changed = false;
     const mine = state.resetAt || "", theirs = remote?.resetAt || "";
-    if (mine > theirs) return false;
-    if (theirs > mine) { state.birds = {}; state.resetAt = theirs; changed = true; }
+    if (joining) {
+      if (theirs) state.resetAt = theirs; else delete state.resetAt;
+      changed = true;
+    } else {
+      if (mine > theirs) return false;
+      if (theirs > mine) { state.birds = {}; state.resetAt = theirs; changed = true; }
+    }
     for (const [id, rb] of Object.entries(remote?.birds || {})) {
       const lb = state.birds[id];
+      // Joining: for a bird both have, keep whichever is further along, so no progress is lost.
+      if (joining && lb) {
+        if ((rb.w ?? -Infinity) >= (lb.w ?? -Infinity)) {
+          state.birds[id] = { ...bird(state, id), ...rb, seen: Boolean(rb.seen || lb.seen) };
+        }
+        continue;
+      }
       if (!lb || !lb.u || (rb.u && rb.u > lb.u)) {
         state.birds[id] = { ...bird(state, id), ...rb };
         changed = true;
@@ -346,7 +374,7 @@ const Learn = (() => {
   };
 
   return { C, GROUPS, blank, bird, touch, momentum, band, averageMomentum, targetL, split, groupsFor,
-           maybeAdd, chooseNew, addBirds, setup, pick, shown, answer, restDecay, dayKey, migrate, merge, status };
+           maybeAdd, chooseNew, addBirds, setup, pick, shown, answer, restDecay, dayKey, migrate, merge, fillFromStats, status };
 })();
 
 if (typeof module !== "undefined") module.exports = Learn;

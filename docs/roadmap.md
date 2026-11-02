@@ -26,6 +26,14 @@ Also on Dev (30 Oct): the admin page reads the new events (hint answers, new bir
 area, family, bird lists); English/Afrikaans order and birds hidden for a day sync to the account;
 the edge line above Got it / Next updates when the answer's text finishes loading.
 
+**Fixed on Dev (2 Nov): signing in could wipe an account's progress.** The walkthrough marks a
+new phone's start as a "reset". If that player tapped Not now and signed in later, the newer reset
+beat the account and the phone's few birds replaced the account's (Dirk's Dev account went from its
+full record to 45 birds on 30 Oct). Now joining an account (sign-in or another phone's sync code)
+combines both, keeping the further-along copy of each bird, and the phone's walkthrough start never
+goes to the account. Any bird the account has right/wrong answers for but the progression lost is
+rebuilt on the next sync, which restores wiped accounts. Main never had this code.
+
 **Also on Dev (2 Nov):**
 - **Daily goal and streak** (`streak.js`): 10 Right answers a day (no hint), a celebration when it's
   reached, and a streak that starts again after a missed day. The progress screen opens with the

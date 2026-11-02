@@ -159,8 +159,14 @@ async function syncProfile() {
   try { remote = await rpc("profile_pull", { p_key: syncCode() }); }
   catch (e) { if (/ 404$/.test(e.message)) profileMissing = true; throw e; }
   let changed = false;
+  const joining = load("sabirds.joining.v1", false);
+  if (remote || joining) {
+    changed = Learn.merge(learn, remote, { joining });
+    if (joining) { learnDirty = true; save("sabirds.joining.v1", false); }
+  }
+  // Birds in the account's right/wrong record that the pool lost come back.
+  if (Learn.fillFromStats(learn, stats, Date.now())) { changed = true; learnDirty = true; save("sabirds.learnDirty.v1", true); save(LEARN_KEY, learn); }
   if (remote) {
-    changed = Learn.merge(learn, remote);
     const rs = remote.settings;
     const other = rs && (rs.area !== settings.area || (rs.family || "") !== (settings.family || ""));
     if (rs?.u && (!settings.u || rs.u > settings.u) && other) {
@@ -329,6 +335,7 @@ function startFresh() {
 async function adoptCode(code) {
   Object.keys(stats).forEach((id) => dirty.add(id));
   save(SYNC_CODE_KEY, code);
+  save("sabirds.joining.v1", true);  // the next profile sync combines this phone and the account
   await syncNow();
   if ($("progress").open) renderProgress();
 }
