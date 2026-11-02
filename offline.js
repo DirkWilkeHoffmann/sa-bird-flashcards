@@ -8,7 +8,7 @@ const PHOTO_CACHE = IS_DEV ? "sabirds-dev-photos-v1" : "sabirds-photos-v1";  // 
 const OFFLINE_KEY = "sabirds.offline.v1";
 const PHOTO_KB = 100, THUMB_KB = 5, CALL_KB = 550, TEXT_KB = 6; // measured averages
 const PARALLEL = 4;
-const SHELL = ["./", "index.html", "styles.css", "motion.js", "app.js", "progress.js", "offline.js", "auth.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
+const SHELL = ["./", "index.html", "styles.css", "motion.js", "learn.js", "app.js", "progress.js", "offline.js", "auth.js", "onboard.js", "streak.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
   "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "data/near.json",
   "icons/icon-192.png", "icons/apple-touch-icon.png"];
 

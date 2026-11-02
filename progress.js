@@ -186,15 +186,20 @@ async function syncProfile() {
       if (until > Date.now() && until > (snoozed[id] || 0)) { snoozed[id] = until; hid = true; }
     }
     if (hid) { save(SNOOZE_KEY, snoozed); queue = []; }
+    // Days played and the streak: the highest count of each day from any phone.
+    if (typeof mergeDays === "function" && mergeDays(remote.days) && $("progress").open) renderProgress();
   }
   const remoteBehind = !remote || (settings.u && settings.u !== remote.settings?.u);
-  if (!learnDirty && !remoteBehind && !(remote && Object.keys(learn.birds).length > Object.keys(remote.birds || {}).length)) return;
+  const daysBehind = typeof daysDirty !== "undefined" && daysDirty;
+  if (!learnDirty && !daysBehind && !remoteBehind && !(remote && Object.keys(learn.birds).length > Object.keys(remote.birds || {}).length)) return;
   const birds = Object.fromEntries(Object.entries(learn.birds).map(([id, b]) => [id, { w: b.w, seen: b.seen, added: b.added, run: b.run, u: b.u }]));
   const live = Object.fromEntries(Object.entries(snoozed).filter(([, until]) => until > Date.now()));
   await rpc("profile_push", { p_key: syncCode(), p_data: { v: 1, birds, resetAt: learn.resetAt || null,
     settings: { area: settings.area, near: settings.near, family: settings.family || "", u: settings.u },
-    names: { first: afFirst ? "af" : "en", u: load(NAMES_U_KEY, null) }, snoozed: live } });
+    names: { first: afFirst ? "af" : "en", u: load(NAMES_U_KEY, null) }, snoozed: live,
+    days: typeof days !== "undefined" ? days : undefined } });
   learnDirty = false;
+  if (typeof daysDirty !== "undefined") { daysDirty = false; save("sabirds.daysDirty.v1", false); }
   save("sabirds.learnDirty.v1", false);
 }
 
@@ -470,6 +475,7 @@ function renderProgress() {
   legend.className = "legend";
   legend.innerHTML = `Mastered = you've shown you know it. More birds join as you learn. Tap a number, group or family to see its birds.<br>
     <i style="background:var(--good)"></i>Mastered<i style="background:var(--tint)"></i>Learning<i style="background:var(--fill-2)"></i>To be seen`;
+  if (typeof streakCard === "function") body.append(streakCard());
   body.append(place, total, legend);
   if (fam) {
     // Studying one family: no groups or families to break it into.

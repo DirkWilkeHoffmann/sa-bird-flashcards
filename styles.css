@@ -747,6 +747,40 @@ textarea.select { resize: none; line-height: 1.4; padding: 10px 14px; }
 
 /* ---------- Progress ---------- */
 #progress { overflow-y: auto; }
+/* Daily goal, streak and calendar (streak.js) at the top of the progress screen. */
+.streak { padding: 14px; margin: 0 0 18px; border-radius: var(--radius-sm); background: var(--fill); }
+.streak-top { display: flex; align-items: center; gap: 14px; }
+.streak .ring { flex: none; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%;
+  background: conic-gradient(var(--good) calc(var(--p) * 1turn), var(--fill-2) 0); }
+.streak .ring span { display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: var(--bg-elev, var(--bg));
+  font-weight: 700; font-size: var(--fs-headline); font-variant-numeric: tabular-nums; }
+.streak .ring small { font-size: .7em; font-weight: 500; color: var(--label-2); }
+.streak-words { display: grid; gap: 2px; min-width: 0; }
+.streak-words b { font-size: var(--fs-title3, 1.15rem); }
+.streak-words span { color: var(--label-2); font-size: var(--fs-subhead); }
+.streak-words .best { font-size: var(--fs-footnote); }
+.cal { margin-top: 14px; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; }
+.cal-head b { font-size: var(--fs-subhead); }
+.cal-nav { width: var(--tap); height: var(--tap); border: 0; border-radius: 50%; background: none; color: var(--tint); font-size: 1.4rem; }
+.cal-nav:disabled { color: var(--label-3, var(--label-2)); opacity: .35; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px 4px; margin-top: 4px; text-align: center; }
+.cal-dow { font-size: var(--fs-caption, .7rem); color: var(--label-2); padding-bottom: 2px; }
+.cal-day { position: relative; aspect-ratio: 1; max-width: 34px; width: 100%; margin: 0 auto; padding: 0; border: 0; border-radius: 50%;
+  background: none; color: var(--label); font: inherit; font-size: var(--fs-footnote); font-variant-numeric: tabular-nums; }
+.cal-day.played { background: color-mix(in srgb, var(--good) 22%, transparent); }
+.cal-day.goal { background: var(--good); color: #fff; font-weight: 700; }
+.cal-day.today { box-shadow: inset 0 0 0 2px var(--tint); }
+.cal-day.sel { outline: 2px solid var(--label); outline-offset: 1px; }
+.cal-day.future { color: var(--label-2); opacity: .45; }
+.cal-day i { position: absolute; top: -3px; right: -1px; font-style: normal; font-size: .7rem; color: var(--tint); }
+.cal-day.goal i { color: #ffd257; }
+.cal-detail { margin: 8px 0 0; min-height: 1.4em; font-size: var(--fs-footnote); color: var(--label); }
+.cal-key { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 6px 0 0; font-size: var(--fs-caption, .72rem); color: var(--label-2); }
+.cal-key i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; }
+.cal-key .k-played { background: color-mix(in srgb, var(--good) 22%, transparent); }
+.cal-key .k-goal { background: var(--good); }
+.cal-key span { color: var(--tint); }
 .prog-total { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 4px 0 10px; text-align: center; }
 .prog-total div, .prog-total button { background: var(--fill); border-radius: var(--radius-sm); padding: 12px 4px; }
 .prog-total button { border: 0; font: inherit; color: var(--label); min-height: var(--tap); }

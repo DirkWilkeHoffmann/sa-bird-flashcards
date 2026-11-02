@@ -1192,6 +1192,7 @@ function record(result, picked) {
   lastAnswer = Learn.answer(learn, card.s.id, result, Date.now(), areaSplit().l.length);
   logEvent("answer", card.s.id, { r: result, kind: "photo", w: lastAnswer.after, m: lastAnswer.m, why: card.why });
   if (lastAnswer.mastered) logEvent("mastered", card.s.id, { w: lastAnswer.after });
+  const goalNow = typeof noteDay === "function" && noteDay(right, lastAnswer.mastered);
   const added = topUp();
   saveLearn();
   queue = [];  // the next bird depends on this answer
@@ -1204,6 +1205,9 @@ function record(result, picked) {
     const birds = `${added.length} new bird${added.length === 1 ? "" : "s"}`;
     showToast(signedOut() ? `${birds} added! Sign in to keep them`
       : `${birds} added — ${PRAISE[Math.floor(Math.random() * PRAISE.length)]}`, keep);
+    if (goalNow) setTimeout(celebrateGoal, 2600);
+  } else if (goalNow) {
+    celebrateGoal();
   } else {
     nudgeSignIn();
   }
