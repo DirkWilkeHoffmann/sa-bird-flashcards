@@ -305,8 +305,18 @@ function similar(target) {
 
 /* ---------- Reporting bad photos ---------- */
 
-// Hidden at once, with Undo; the report (email to the owner) goes out when the Undo toast goes away.
-function hidePhoto() {
+// The flag asks first (people tapped it not knowing it removes the photo), with why: the photo is
+// then hidden at once, with Undo; the report (email to the owner) goes out when the toast goes away.
+function askHidePhoto() {
+  if (card.photos.length < 2) return;
+  openSheet($("hideSheet"));
+}
+$("hideSheet").querySelectorAll("[data-reason]").forEach((b) => b.addEventListener("click", () => {
+  closeSheet($("hideSheet"));
+  hidePhoto(b.dataset.reason);
+}));
+
+function hidePhoto(reason) {
   const p = card.photos[slideIndex];
   if (!p || card.photos.length < 2) return;
   const c = card, s = card.s;
@@ -316,7 +326,7 @@ function hidePhoto() {
   s.photos = s.photos.filter((x) => x.id !== p.id);
   c.photos = c.photos.filter((x) => x.id !== p.id);
   showSlides(Math.min(slideIndex, c.photos.length - 1));
-  showToast("Photo hidden", {
+  showToast("Photo hidden and reported. Thank you!", {
     undo: () => {
       hiddenPhotos.delete(p.id);
       save(HIDDEN_KEY, [...hiddenPhotos]);
@@ -326,7 +336,7 @@ function hidePhoto() {
         showSlides(at.card);
       }
     },
-    commit: () => { noteHidden(p.id, s.id); reportPhoto(p, s); logEvent("flag_photo", s.id); },
+    commit: () => { noteHidden(p.id, s.id); reportPhoto(p, s); logEvent("flag_photo", s.id, { reason }); },
   });
 }
 
@@ -878,6 +888,23 @@ function hideBadge() {
   $("badge").hidden = true;
 }
 
+// The first few birds a player masters get a message, so they learn what the star means.
+const MASTERED_SHOWN_KEY = "sabirds.masteredShown.v1";
+const MASTERED_MESSAGES = [
+  () => "Bird mastered! You clearly know this one. It'll only come back now and then.",
+  (name) => `Another one mastered! ${name} is yours.`,
+  (name) => `Bird mastered! You've got ${name} down.`,
+  (name, n) => `Nice! ${name} mastered. That's ${n} so far.`,
+  (name) => `Bird mastered! ${name} won't fool you again.`,
+];
+function celebrateMastered(s) {
+  const shown = load(MASTERED_SHOWN_KEY, 0);
+  if (shown >= MASTERED_MESSAGES.length) return;
+  save(MASTERED_SHOWN_KEY, shown + 1);
+  const n = Object.keys(learn.birds).filter(mastered).length;
+  showToast(MASTERED_MESSAGES[shown](nameOf(s), n));
+}
+
 // Got it / Missed it: a moment of feedback, then the next bird rises in.
 let grading = false;
 function grade(result) {
@@ -888,6 +915,7 @@ function grade(result) {
   if (result === "right") {
     haptic(mastered ? [12, 60, 12] : 10);
     popBadge(mastered ? `★<small>Mastered</small>` : "✓", mastered ? "star" : "good");
+    if (mastered) celebrateMastered(card.s);
   } else {
     haptic(10);
   }
@@ -1171,7 +1199,7 @@ function choose(chosen, message) {
   const ok = chosen === card.s;
   record(ok && !card.hintMiss ? "hintRight" : "hintWrong", ok ? null : chosen);
   showInfo({ ok, picked: nameOf(chosen), message });
-  if (lastAnswer.mastered) popBadge(`★<small>Mastered</small>`, "star");
+  if (lastAnswer.mastered) { popBadge(`★<small>Mastered</small>`, "star"); celebrateMastered(card.s); }
   setPanels({ after: true });
 }
 
@@ -1783,7 +1811,7 @@ $("missed").addEventListener("click", () => grade("wrong"));
 $("next").addEventListener("click", nextCard);
 $("skip").addEventListener("click", skipCard);
 for (const id of ["reveal", "hint"]) $(id).addEventListener("click", hideToast);
-$("flag").addEventListener("click", hidePhoto);
+$("flag").addEventListener("click", askHidePhoto);
 
 // "Seeing this bird too often?": keep it out of the cards for a day (with Undo).
 $("snooze").addEventListener("click", () => {

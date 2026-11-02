@@ -65,7 +65,7 @@
       <div class="dots" id="dots" aria-hidden="true"></div>
       <div class="badge" id="badge" hidden aria-live="polite"></div>
       <span class="new-tag" id="newTag" hidden>New</span>
-      <button class="flag" id="flag" type="button" aria-label="Hide this photo" title="Hide this photo"><svg class="i"><use href="#i-flag"/></svg></button>
+      <button class="flag" id="flag" type="button" aria-label="Report this photo" title="Report this photo"><svg class="i"><use href="#i-flag"/></svg></button>
       <div class="sound" id="sound" hidden>
         <button class="play" id="play" type="button" aria-label="Play call"><svg class="i"><use href="#i-play"/></svg></button>
         <p id="soundType"></p>
@@ -149,6 +149,23 @@
         <textarea class="select" id="nameNote" rows="2" maxlength="500" placeholder="e.g. that's the old name"></textarea>
       </label>
       <button class="btn primary" id="nameSend" type="button" disabled>Send</button>
+    </form>
+  </dialog>
+
+  <dialog class="sheet" id="hideSheet">
+    <form method="dialog">
+      <div class="sheet-head">
+        <button class="close-x" type="submit" aria-label="Close"><svg class="i"><use href="#i-xmark"/></svg></button>
+        <h2>Report this photo?</h2>
+      </div>
+      <p class="hide-lead">Only for photos that are wrong or no use for learning. The photo is hidden for you and sent to us to check.</p>
+      <p class="note">Not sure which bird it is? That's the game: tap <b>Reveal</b> or <b>Hint</b> instead.</p>
+      <div class="hide-reasons">
+        <button class="btn ghost" type="button" data-reason="wrong">It's the wrong bird</button>
+        <button class="btn ghost" type="button" data-reason="hidden">The bird is too small or hidden</button>
+        <button class="btn ghost" type="button" data-reason="poor">Poor photo (blurry, dark, cut off)</button>
+      </div>
+      <button class="btn primary" type="submit">Keep this photo</button>
     </form>
   </dialog>
 
