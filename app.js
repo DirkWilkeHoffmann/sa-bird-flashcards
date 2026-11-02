@@ -273,6 +273,7 @@ function fillQueue() {
 /* ---------- Dev: the numbers behind the next bird ---------- */
 
 function devLine() {
+  updateMomentum();
   if (!IS_DEV || !species.length) return;
   const m = Learn.momentum(learn), parts = areaSplit();
   const w = card ? Learn.bird(learn, card.s.id).w : null;
@@ -896,15 +897,78 @@ const MASTERED_MESSAGES = [
   (name) => `Bird mastered! You've got ${name} down.`,
   (name, n) => `Nice! ${name} mastered. That's ${n} so far.`,
   (name) => `Bird mastered! ${name} won't fool you again.`,
+  (name) => `Bird mastered! ${name} is locked into memory.`,
+  (name) => `Sharp eyes! ${name} mastered.`,
+  (name) => `Mastered! You'd spot ${name} anywhere now.`,
+  (name) => `Another one for the list: ${name} mastered.`,
+  (name) => `${name}: mastered. Next time you see one, you'll know.`,
+  (name, n) => `Mastered! That's ${n} birds you know cold.`,
+  () => "Bird mastered! Even a field guide would be impressed.",
+  (name) => `★ ${name} mastered. Your birding brain is growing.`,
+  (name) => `${name} mastered. Keep that momentum going!`,
+  (name) => `Bird mastered! ${name} can't hide from you now.`,
 ];
+const MASTERED_FIRST = 5;      // the first five always show, in order (the first explains mastering)
+const MASTERED_CHANCE = 0.7;   // after that, a random one 70% of the time
 function celebrateMastered(s) {
   const shown = load(MASTERED_SHOWN_KEY, 0);
-  if (shown >= MASTERED_MESSAGES.length) return;
+  if (shown >= MASTERED_FIRST && Math.random() > MASTERED_CHANCE) return;
   if (!$("toast").hidden && $("toastText").textContent.startsWith("Daily goal")) return;  // that one wins
   save(MASTERED_SHOWN_KEY, shown + 1);
   const n = Object.keys(learn.birds).filter(mastered).length;
-  showToast(MASTERED_MESSAGES[shown](nameOf(s), n));
+  const i = shown < MASTERED_FIRST ? shown : 1 + Math.floor(Math.random() * (MASTERED_MESSAGES.length - 1));
+  showToast(MASTERED_MESSAGES[i](nameOf(s), n));
 }
+
+// A mastered bird answered right again: a gold badge instead of the green tick.
+const KEPT_WORDS = ["Still got it", "Locked in", "Rock solid", "Never forgot", "Know it cold", "Easy one"];
+const keptBadge = () => `✦<small>${KEPT_WORDS[Math.floor(Math.random() * KEPT_WORDS.length)]}</small>`;
+
+// After a miss, now and then: encouragement, a birding tip, or (for a bird with known look-alikes)
+// a way to compare it with one of them.
+const MISSED_CHANCE = 0.5;
+const MISSED_MESSAGES = [
+  "No worries. That one will come back in a few cards.",
+  "Missing it is how you learn it. It'll be back soon.",
+  "Tricky one! You'll get it next time.",
+  "Even experienced birders mix that one up.",
+  "Every miss teaches you something. Keep going!",
+  "Take a good look next time. It's coming back soon.",
+  "Tip: start with the bill. Its shape says a lot about a bird.",
+  "Tip: check the eye. Eye colour and eye rings set many look-alikes apart.",
+  "Tip: look at the legs. Their colour and length are easy clues.",
+  "Tip: shape and size first, colours second. Light can change colours.",
+  "Tip: where is it? Water, grass, trees or sky narrows it down fast.",
+  "Tip: wing bars, tail patterns and face stripes are the classic field marks.",
+  "Tip: listen to its call on the answer screen. Calls often split look-alikes.",
+  "Tip: little brown birds are hard for everyone. Focus on one mark at a time.",
+];
+function encourageAfterMiss(s, picked) {
+  if (!$("toast").hidden && $("toastText").textContent.startsWith("Daily goal")) return;
+  const other = picked || (Math.random() < 0.4 ? s.similar?.[0]?.s : null);
+  if (other) {
+    showToast(picked ? `Mixed up ${nameOf(s)} and ${nameOf(other)}? See them side by side`
+      : `${nameOf(s)} is easily confused with ${nameOf(other)}`,
+      { action: { label: "Compare", run: () => openCompare(s, other) }, ms: 7000 });
+    return;
+  }
+  if (Math.random() < MISSED_CHANCE) showToast(MISSED_MESSAGES[Math.floor(Math.random() * MISSED_MESSAGES.length)]);
+}
+
+// The momentum bird fills from empty (M −20) to full (M +20); gold when momentum is high.
+function updateMomentum() {
+  if (!learn) return;
+  const m = Learn.momentum(learn);
+  const f = Math.max(0.04, Math.min(1, (m + 20) / 40));
+  const el = $("score");
+  el.style.setProperty("--mb-y", `${(1 - f) * 38}px`);
+  el.classList.toggle("high", m >= Learn.C.HIGH);
+  el.classList.toggle("low", m < -4);
+  el.setAttribute("aria-label", `Momentum: ${Math.round(f * 100)}%`);
+}
+$("score").addEventListener("click", () => showToast(
+  "Your momentum bird fills up as you get birds right and drops when you miss. The fuller it is, the faster new birds are added.",
+  { ms: 7000 }));
 
 // Got it / Missed it: a moment of feedback, then the next bird rises in.
 let grading = false;
@@ -915,10 +979,12 @@ function grade(result) {
   pulseScore(result === "right");
   if (result === "right") {
     haptic(mastered ? [12, 60, 12] : 10);
-    popBadge(mastered ? `★<small>Mastered</small>` : "✓", mastered ? "star" : "good");
+    const kept = !mastered && lastAnswer.before >= Learn.C.MASTERED;
+    popBadge(mastered ? `★<small>Mastered</small>` : kept ? keptBadge() : "✓", mastered ? "star" : kept ? "kept" : "good");
     if (mastered) celebrateMastered(card.s);
   } else {
     haptic(10);
+    encourageAfterMiss(card.s);
   }
   grading = true;
   $("grade").querySelectorAll("button").forEach((x) => { x.disabled = true; });
@@ -1201,6 +1267,8 @@ function choose(chosen, message) {
   record(ok && !card.hintMiss ? "hintRight" : "hintWrong", ok ? null : chosen);
   showInfo({ ok, picked: nameOf(chosen), message });
   if (lastAnswer.mastered) { popBadge(`★<small>Mastered</small>`, "star"); celebrateMastered(card.s); }
+  else if (ok && !card.hintMiss && lastAnswer.before >= Learn.C.MASTERED) popBadge(keptBadge(), "kept");
+  if (!ok) encourageAfterMiss(card.s, chosen);
   setPanels({ after: true });
 }
 
@@ -1227,7 +1295,7 @@ function record(result, picked) {
   queue = [];  // the next bird depends on this answer
   session.seen++;
   if (right) session.right++;
-  $("score").textContent = `${session.right} / ${session.seen}`;
+  updateMomentum();
   // While signed out, each new batch also offers to sign in, so the new birds aren't lost.
   const keep = signedOut() ? { action: { label: "Sign in", run: () => signInFrom("batch") }, ms: 7000 } : {};
   if (added.length) {

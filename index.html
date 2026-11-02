@@ -53,12 +53,25 @@
     <button class="set-line" id="setLine" type="button" aria-label="Change area">
       <span class="pin" aria-hidden="true">📍</span><span id="filterSummary">South Africa</span><svg class="i small"><use href="#i-chevron"/></svg>
     </button>
-    <span class="score" id="score" aria-live="polite" title="Right this session">0 / 0</span>
+    <button class="score momentum" id="score" type="button" aria-label="Momentum">
+      <svg viewBox="0 0 44 41" aria-hidden="true">
+        <defs><clipPath id="birdBody"><ellipse cx="21" cy="24.5" rx="16" ry="15"/><circle cx="31" cy="11" r="8.5"/></clipPath></defs>
+        <path class="mb-tail" d="M7 21 0 14l2 12z"/>
+        <g class="mb-line"><ellipse cx="21" cy="24.5" rx="16" ry="15"/><circle cx="31" cy="11" r="8.5"/></g>
+        <g clip-path="url(#birdBody)"><rect class="mb-base" x="0" y="0" width="44" height="41"/><rect class="mb-empty" x="0" y="0" width="44" height="41"/>
+          <rect class="mb-fill" id="momentumFill" x="0" y="0" width="44" height="41"/></g>
+        <path class="mb-beak" d="M38.6 9 44 11.4l-5.4 2.3z"/>
+        <circle class="mb-eye" cx="33.4" cy="9.6" r="1.6"/>
+        <path class="mb-wing" d="M12 24.5c3 6 10 7.5 15 3.5"/>
+        <path class="mb-feet" d="M17 39.4v1.4M25 39.4v1.4"/>
+      </svg>
+    </button>
   </div>
 
   <p class="dev-line" id="devLine" hidden></p>
   <p class="dev-tools"><button class="link-btn" id="devTour" type="button" hidden>▶ Walkthrough as on the home screen</button>
-    <button class="link-btn" id="devTourBrowser" type="button" hidden>▶ Walkthrough as in a phone's browser</button></p>
+    <button class="link-btn" id="devTourBrowser" type="button" hidden>▶ Walkthrough as in a phone's browser</button>
+    <button class="link-btn" id="devCoach" type="button" hidden>▶ First-card tips</button></p>
   <main class="card" id="card">
     <section class="media" id="media">
       <div class="carousel" id="carousel" aria-label="Bird photos"></div>
@@ -179,6 +192,11 @@
     </form>
   </dialog>
 
+  <div class="coach" id="coach" hidden role="dialog" aria-live="polite">
+    <p id="coachText"></p>
+    <button class="btn primary small" id="coachNext" type="button">Next</button>
+  </div>
+
   <div class="onboard" id="onboard" hidden role="dialog" aria-modal="true" aria-label="Getting started">
     <div class="onb-top"><span class="onb-dots" id="onbDots"></span><button class="link-btn" id="onbSkip" type="button">Skip</button></div>
     <div class="onb-body" id="onbBody"></div>
@@ -282,5 +300,6 @@
   <script src="vendor/supabase-2.45.4.js"></script>
   <script src="auth.js"></script>
   <script src="onboard.js"></script>
+  <script src="coach.js"></script>
 </body>
 </html>

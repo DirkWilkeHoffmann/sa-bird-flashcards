@@ -1134,6 +1134,37 @@ body.onboarding { background: var(--bg); }
 .dev-tools:not(:has(button:not([hidden]))) { display: none; }
 .hide-lead { margin: 0 0 8px; }
 .hide-reasons { display: grid; gap: 10px; margin: 16px 0 12px; }
+/* First-card tips: a speech bubble next to the thing it explains. */
+.coach { position: fixed; z-index: 40; display: grid; gap: 10px; padding: 14px 16px; border-radius: var(--radius);
+  background: var(--label); color: var(--bg); box-shadow: var(--shadow); font-size: var(--fs-subhead); line-height: 1.4; }
+.coach p { margin: 0; }
+.coach .btn { justify-self: end; width: auto; min-height: 36px; padding: 0 16px; }
+.coach::after { content: ""; position: absolute; left: calc(var(--arrow, 50%) - 8px); bottom: -7px; width: 16px; height: 16px;
+  background: inherit; transform: rotate(45deg); border-radius: 3px; }
+.coach.below::after { bottom: auto; top: -7px; }
+.coach.no-arrow::after { display: none; }
+.coach-target { position: relative; z-index: 1; box-shadow: 0 0 0 3px var(--tint); border-radius: var(--radius-sm); }
+#media.coach-target { box-shadow: inset 0 0 0 3px var(--tint); }
+
+/* Momentum bird: a round bird that fills up as momentum rises (replaces the session counter). */
+.momentum { display: grid; place-items: center; width: 44px; height: 40px; padding: 0; border: 0; background: none; color: var(--label-2); cursor: pointer; }
+.momentum svg { width: 42px; height: 39px; overflow: visible; }
+.momentum .mb-base { fill: var(--bg); }
+.momentum .mb-empty { fill: var(--fill); }
+.momentum .mb-fill { fill: var(--tint); transform-box: view-box;
+  transform: translateY(var(--mb-y, 20px)); transition: transform 700ms cubic-bezier(.3, 1.4, .5, 1), fill 400ms; }
+.momentum .mb-line { fill: none; stroke: var(--label); stroke-width: 3.4; }
+.momentum .mb-wing, .momentum .mb-feet { fill: none; stroke: var(--label); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.momentum .mb-wing { stroke-width: 1.4; opacity: .55; }
+.momentum .mb-tail { fill: var(--label); opacity: .75; }
+.momentum .mb-beak { fill: #e8a317; }
+.momentum .mb-eye { fill: var(--label); }
+.momentum.high .mb-fill { fill: #e8b923; }
+.momentum.high svg { filter: drop-shadow(0 0 5px color-mix(in srgb, #e8b923 70%, transparent)); }
+.momentum.low .mb-fill { fill: color-mix(in srgb, var(--tint) 45%, var(--label-2)); }
+/* Kept: a mastered bird answered right again. */
+.badge.kept { flex-direction: column; font-size: 2.2rem; height: 112px; border-radius: 56px;
+  background: linear-gradient(145deg, #f4cf55, #c98a12); color: #3b2504; box-shadow: 0 0 0 6px color-mix(in srgb, #f4cf55 35%, transparent), var(--shadow); }
 .onb-about { display: grid; gap: 10px; margin: 6px 0 0; padding: 0; list-style: none; }
 .onb-about li { display: grid; grid-template-columns: 32px 1fr; align-items: start; gap: 10px; padding: 12px 14px;
   border-radius: var(--radius-sm); background: var(--fill); font-size: var(--fs-subhead); color: var(--label-2); }

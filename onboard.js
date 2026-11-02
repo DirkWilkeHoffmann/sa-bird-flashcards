@@ -412,6 +412,7 @@ function startPlaying({ signedIn = false, skipped = false } = {}) {
   queue = [];
   nextCard();
   showToast(`Here are your first ${ids.length} birds. Good luck!`);
+  if (typeof startCoach === "function") setTimeout(startCoach, 600);
 }
 
 // Back from Google: wait for the account to link and sync. An account with progress keeps it.
