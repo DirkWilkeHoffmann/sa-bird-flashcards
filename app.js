@@ -243,19 +243,24 @@ function makeCard(exclude, ahead) {
   // Offline, a card only uses the photos and call that were downloaded.
   const view = typeof offlineView === "function" ? offlineView(s) : null;
   const allPhotos = view ? view.photos : s.photos;
-  const allCalls = view ? view.calls : s.calls;
-  // While xeno-canto is failing, only recordings from other sources (iNaturalist) are used.
-  const working = xenoFailing() ? allCalls.filter((c) => !isXeno(c)) : allCalls;
-  const calls = working.length ? working : allCalls;
+  const { calls } = cardCalls(s, view);
   // Start the carousel at a random photo so repeats look different.
   const start = Math.floor(Math.random() * allPhotos.length);
   const photos = [...allPhotos.slice(start), ...allPhotos.slice(0, start)];
   const c = { s, why, kind: "photo", photos, calls, callIndex: Math.floor(Math.random() * Math.max(1, calls.length)) };
   // Warm the cache: first photo and info of each upcoming card.
-  warmPhotos(photos.slice(0, 1));
+  warmPhotos(photos.slice(0, 1), "small");
   loadInfo(s);
   loadWiki(s);
   return c;
+}
+
+// The recordings a card can use. Offline, only downloaded ones; while xeno-canto is failing,
+// only recordings from other sources (iNaturalist).
+function cardCalls(s, view = typeof offlineView === "function" ? offlineView(s) : null) {
+  const allCalls = view ? view.calls : s.calls;
+  const working = xenoFailing() ? allCalls.filter((c) => !isXeno(c)) : allCalls;
+  return { calls: working.length ? working : allCalls, canCall: working.length > 0 };
 }
 
 function fillQueue() {
@@ -346,15 +351,16 @@ function buildCarousel(photos) {
     img.alt = "Bird photo";
     img.draggable = false;
     img.dataset.i = i;
-    const spin = document.createElement("span");
-    spin.className = "spinner";
-    spin.textContent = "Loading…";
+    // A small, blurred copy shows within a moment while the full photo arrives.
+    const preview = document.createElement("div");
+    preview.className = "preview";
     img.addEventListener("load", () => {
-      spin.hidden = true;
+      slide.classList.add("loaded");
       notePhotoKept(p);
       if (Number(img.dataset.i) === slideIndex) upgrade(img, p);
+      if (i === 0) loadRest();
     });
-    slide.append(spin, img);
+    slide.append(preview, img);
     carousel.append(slide);
     $("dots").append(document.createElement("span"));
   });
@@ -362,13 +368,24 @@ function buildCarousel(photos) {
   slideIndex = 0;
   $("dots").hidden = photos.length < 2;
   $("flag").hidden = photos.length < 2;
+  // The photo on screen first, with nothing competing; the bird's other photos once it shows,
+  // so swiping through them never waits (and the next bird's after that, see nextCard).
+  const first = carousel.children[0]?.querySelector("img");
+  if (first) first.fetchPriority = "high";
+  restLoading = false;
+  function loadRest() {
+    if (restLoading || carousel.children[0]?.querySelector("img") !== first) return;
+    restLoading = true;
+    onSlide(slideIndex);
+    photos.forEach((_, i) => loadSlide(i));
+  }
+  setTimeout(loadRest, 2500);  // in case the first photo is slow or fails
   onSlide(0);
-  // Load every photo of this bird now, so swiping through them never waits.
-  photos.forEach((p, i) => loadSlide(i));
 }
 
 // Fetch photos into the phone's photo store ahead of time, a few at once.
 const warmed = new Set();
+let restLoading = false;  // the bird's other photos may load (after the first one shows)
 function warmPhotos(photos, size = "medium") {
   for (const p of photos) {
     const url = photoUrl(p, size);
@@ -381,8 +398,13 @@ function warmPhotos(photos, size = "medium") {
 }
 
 function loadSlide(i) {
-  const img = carousel.children[i]?.querySelector("img");
-  if (img && !img.getAttribute("src")) img.src = photoUrl(card.photos[i], "medium");
+  const slide = carousel.children[i];
+  const img = slide?.querySelector("img");
+  if (!img || img.getAttribute("src")) return;
+  const p = card.photos[i];
+  const preview = slide.querySelector(".preview");
+  if (preview) preview.style.backgroundImage = `url("${photoUrl(p, "small")}")`;
+  img.src = photoUrl(p, "medium");
 }
 
 // Show the small photo fast, then swap in the sharp one once it has arrived.
@@ -398,9 +420,11 @@ function onSlide(i) {
   slideIndex = i;
   [...$("dots").children].forEach((d, j) => d.classList.toggle("on", j === i));
   loadSlide(i);
-  loadSlide(i + 1);
-  loadSlide(i - 1);
-  if (card.photos[i + 1]) warmPhotos([card.photos[i + 1]], "large");  // the sharp version of the next photo too
+  if (restLoading || i > 0) {
+    loadSlide(i + 1);
+    loadSlide(i - 1);
+    if (card.photos[i + 1]) warmPhotos([card.photos[i + 1]], "large");  // the sharp version of the next photo too
+  }
   const img = carousel.children[i]?.querySelector("img");
   if (img?.complete && img.naturalWidth) upgrade(img, card.photos[i]);
 }
@@ -917,9 +941,9 @@ function nextCard() {
   card.hintMiss = false;
   $("newTag").hidden = !card.isNew;
   fillQueue();
-  // Once this bird's photos have had a head start, fetch all of the next bird's too.
+  // Once this bird's photos are on their way, fetch the next bird's too.
   const upcoming = queue[0];
-  setTimeout(() => warmPhotos(upcoming.photos), 1500);
+  setTimeout(() => warmPhotos(upcoming.photos), 3000);
   stopAnim("reveal");
   stopAnim("card");
   hideBadge();
@@ -1796,9 +1820,12 @@ if ("serviceWorker" in navigator) {
 }
 
 $("filterSummary").textContent = summary();
+// The call list isn't needed for the first card: the first bird shows without waiting for it,
+// and the recordings are added when they arrive.
+const callsLoaded = fetch("data/calls.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
 Promise.all([
   fetch("data/species.json").then((r) => r.json()),
-  fetch("data/calls.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
+  {},  // recordings: added once they arrive, so the first bird never waits for them
   fetch("data/similar.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
   fetch("data/areas.json").then((r) => (r.ok ? r.json() : null)).catch(() => null),
   fetch("data/spread.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
@@ -1832,6 +1859,12 @@ Promise.all([
     topUp();
     $("filterSummary").textContent = summary();
     nextCard();
+    // The recordings arrive after the first bird is showing (see callsLoaded above).
+    callsLoaded.then((all) => {
+      for (const s of species) s.calls = all[s.id] || [];
+      for (const c of [card, ...queue]) c.calls = cardCalls(c.s).calls;
+      if (!$("info").hidden) $("hearCall").hidden = card.calls.length === 0;
+    });
     devLine();
     logEvent("open", null, { area: settings.area, offline: !navigator.onLine });
     startSync();

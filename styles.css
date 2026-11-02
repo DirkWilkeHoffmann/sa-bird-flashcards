@@ -244,7 +244,29 @@ button:disabled:active { transform: none; }
   will-change: transform;
   -webkit-user-drag: none;
 }
-.slide .spinner { position: absolute; color: rgba(255, 255, 255, .6); font-size: var(--fs-footnote); }
+/* While a photo loads: a gentle shimmer, then a blurred small copy, then the photo fades in. */
+.slide .preview {
+  position: absolute;
+  inset: -12px;
+  background: center / contain no-repeat;
+  filter: blur(10px);
+  transition: opacity .25s;
+}
+.slide:not(.loaded)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .07) 50%, transparent 70%) 0 0 / 300% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+@keyframes shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+.slide img { opacity: 0; transition: opacity .25s; position: relative; }
+.slide.loaded img { opacity: 1; }
+.slide.loaded .preview { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .slide:not(.loaded)::before { animation: none; }
+  .slide img, .slide .preview { transition: none; }
+}
 
 .dots {
   position: absolute;
