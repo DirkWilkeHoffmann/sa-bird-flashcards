@@ -1174,3 +1174,4 @@ body.onboarding { background: var(--bg); }
 .onb-count { margin: 0; font-size: var(--fs-subhead); color: var(--label-2); }
 .onb-actions { display: grid; gap: 10px; padding-top: 8px; }
 .onb-actions .btn { width: 100%; }
+.onb-actions .btn:disabled { opacity: .4; }

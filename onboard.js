@@ -348,44 +348,58 @@ STEP_VIEWS.area = (body, actions, next, steps) => {
   const select = el("select", "select");
   select.id = "onbArea";
   pickTitle.htmlFor = "onbArea";
-  // The same list as the settings, without Near me (it's the first choice).
+  // Nothing is chosen at first: the player picks (Next waits). The same list as the settings,
+  // without Near me (it's the first choice).
+  const none = el("option", "", "Choose a place…");
+  none.value = "";
+  none.disabled = true;
+  select.append(none);
   for (const node of $("areaSelect").children) {
     if (node.value !== "near") select.append(node.cloneNode(true));
   }
-  select.value = settings.area === "near" ? "c:ZA" : settings.area;
+  let picked = Boolean(onboard.areaPicked);
+  select.value = picked && settings.area !== "near" ? settings.area : "";
   pick.append(pickTitle, el("span", "", "Everywhere, a country, or a region like Kruger or Cape Town"), select);
   list.append(here, pick);
   const status = el("p", "onb-count");
   body.append(list, status);
 
   const mark = () => {
-    here.setAttribute("aria-pressed", String(settings.area === "near"));
-    pick.setAttribute("aria-pressed", String(settings.area !== "near"));
-    status.textContent = `${areaName()}: ${birdsIn(settings.area)} birds to learn`;
+    here.setAttribute("aria-pressed", String(picked && settings.area === "near"));
+    pick.setAttribute("aria-pressed", String(picked && settings.area !== "near"));
+    status.textContent = picked ? `${areaName()}: ${birdsIn(settings.area)} birds to learn` : "Choose one to carry on.";
+    nextBtn.disabled = !picked;
   };
+  const pickedNow = () => { picked = true; onboard.areaPicked = true; saveOnboard(); mark(); };
   here.addEventListener("click", async () => {
     status.textContent = "Finding your location…";
     try {
       const pos = await locate();
       nearSet = await computeNear(pos);
       settings = { ...settings, area: "near", near: pos, family: "" };
-      mark();
+      select.value = "";
+      pickedNow();
     } catch {
       status.textContent = "Couldn't get your location. Allow location for this app, or pick a place below.";
     }
   });
-  const choose = () => { settings = { ...settings, area: select.value, near: null, family: "" }; mark(); };
+  const choose = () => { settings = { ...settings, area: select.value, near: null, family: "" }; pickedNow(); };
   select.addEventListener("change", choose);
-  pick.addEventListener("click", (e) => { if (e.target !== select && settings.area === "near") choose(); });
+  pick.addEventListener("click", (e) => {
+    if (e.target === select) return;
+    if (select.value) choose(); else select.focus();
+  });
   if (settings.area === "near" && !settings.near) settings = { ...settings, area: "c:ZA" };
-  mark();
-  actions.append(action("Next", "primary", () => {
+  const nextBtn = action("Next", "primary", () => {
+    if (!picked) return;
     settings = { ...settings, u: new Date().toISOString() };
     save(SETTINGS_KEY, settings);
     // Already signed in (or sign-in isn't available): nothing to ask, start straight away.
     if (!signedOut()) { startPlaying({ signedIn: Boolean(account) }); return; }
     next();
-  }));
+  });
+  actions.append(nextBtn);
+  mark();
 };
 
 STEP_VIEWS.signin = (body, actions) => {

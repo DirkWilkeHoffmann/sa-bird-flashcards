@@ -4,9 +4,9 @@
 // to the thing they explain.
 //
 // The player can do anything meanwhile (skip or swipe the card away, take a hint, reveal straight
-// away, open a sheet), so the tips follow what's on screen rather than which button was tapped:
-// the card's panels (#ask, #grade, #after, #choices) are watched and the right tip is picked for
-// whichever one is showing.
+// away, open a sheet), so the tips are a checklist: each one waits until the thing it explains is
+// on screen (the card's panels #ask, #grade, #after, #choices are watched), and the tips only end
+// once all five have been shown. Where they've got to is saved, so closing the app doesn't lose it.
 
 const COACH_KEY = "sabirds.coach.v1";
 const COACH = {
@@ -16,10 +16,11 @@ const COACH = {
   grade: ["grade", "Be honest: Got it or Missed it. That decides which birds you see and when they come back."],
   momentum: ["score", "This is your momentum bird. It fills up as you get birds right, and the fuller it is, the faster new birds are added."],
 };
-const INTRO = ["look", "hint", "reveal"];
+const ORDER = ["look", "hint", "reveal", "grade", "momentum"];
+const COACH_DONE_KEY = "sabirds.coachDone.v1";
 
-// null = not running. intro: which of INTRO is next; answered: the player has answered a card
-// (revealed, or finished a hint); gradeSeen: the Got it / Missed it tip has been shown or dismissed.
+// null = not running; otherwise { done: { look: true, … }, answered } (answered: a card has been
+// answered, so the momentum bird has something to show).
 let coach = null;
 let coachStep = null;  // the bubble showing now
 
@@ -37,15 +38,24 @@ function maybeStartCoach() {
   startCoach();
 }
 
-function startCoach() {
-  coach = { intro: 0, answered: false, gradeSeen: false };
+function startCoach({ fresh = false } = {}) {
+  const saved = fresh ? {} : load(COACH_DONE_KEY, {});
+  coach = { done: saved.done || {}, answered: Boolean(saved.answered) };
   syncCoach();
+}
+
+function tipDone(step) {
+  if (!coach || coach.done[step]) return;
+  coach.done[step] = true;
+  save(COACH_DONE_KEY, coach);
+  if (ORDER.every((x) => coach.done[x])) finishCoach();
 }
 
 function finishCoach() {
   coach = null;
   hideCoach();
   save(COACH_KEY, true);
+  save(COACH_DONE_KEY, {});
   markTipsSeen();
 }
 
@@ -57,20 +67,19 @@ function markTipsSeen() {
     .catch(() => {});
 }
 
-// Which tip fits what's on screen now.
+// Which tip fits what's on screen now: the first one not yet shown whose button is showing.
 function syncCoach() {
   if (!coach) return;
   const showing = (id) => !$(id).hidden;
   // The walkthrough or the home-screen pages are on top: wait for them.
   if (showing("onboard")) { hideCoach(); return; }
+  if (showing("grade") || showing("after")) coach.answered = true;
+  const todo = (x) => !coach.done[x];
   let want = null;
-  if (showing("grade")) {
-    coach.answered = true;
-    if (!coach.gradeSeen) want = "grade";
-  } else if (showing("choices") || showing("after")) {
-    coach.answered = true;  // a hint: nothing to point at until the next card
-  } else if (showing("ask")) {
-    want = coach.answered ? "momentum" : INTRO[coach.intro] || null;
+  if (showing("grade")) want = todo("grade") ? "grade" : null;
+  else if (showing("ask")) {
+    want = ["look", "hint", "reveal"].find(todo) || null;
+    if (!want && coach.answered && todo("momentum")) want = "momentum";
   }
   if (want === coachStep) { placeCoach(); return; }
   hideCoach();
@@ -123,9 +132,8 @@ $("card").addEventListener("scroll", placeCoach, { passive: true, capture: true 
 $("coachNext").addEventListener("click", () => {
   if (!coach) return;
   const step = coachStep;
-  if (step === "momentum") { finishCoach(); return; }
-  if (INTRO.includes(step)) coach.intro = INTRO.indexOf(step) + 1;
-  if (step === "grade") coach.gradeSeen = true;
+  hideCoach();
+  tipDone(step);
   syncCoach();
 });
 
@@ -135,8 +143,13 @@ for (const id of ["ask", "grade", "after", "choices", "onboard"]) {
   coachWatch.observe($(id), { attributes: true, attributeFilter: ["hidden"] });
 }
 coachWatch.observe($("carousel"), { childList: true });
-// Once marked (Got it / Missed it), the grade tip is done with.
-for (const id of ["gotIt", "missed"]) $(id).addEventListener("click", () => { if (coach) coach.gradeSeen = true; });
+// A tip is ticked off when its bubble is closed, or when the player taps what it points at while
+// it's showing (the "have a good look" tip counts as read once they tap Hint or Reveal under it).
+// A tip they went ahead without (say Reveal while the Hint tip was up) shows on a later card.
+const readByTap = { hint: ["hint", "look"], reveal: ["reveal", "look"], gotIt: ["grade"], missed: ["grade"] };
+for (const [id, steps] of Object.entries(readByTap)) {
+  $(id).addEventListener("click", () => { if (steps.includes(coachStep)) tipDone(coachStep); });
+}
 
 // A phone that has seen the tips, signed in to an account that has too (from another phone):
 // nothing to do. Seen on this phone but not by this account: the tips play (maybeStartCoach). Seen
@@ -144,5 +157,5 @@ for (const id of ["gotIt", "missed"]) $(id).addEventListener("click", () => { if
 
 if (IS_DEV) {
   $("devCoach").hidden = false;
-  $("devCoach").addEventListener("click", () => startCoach());
+  $("devCoach").addEventListener("click", () => startCoach({ fresh: true }));
 }
