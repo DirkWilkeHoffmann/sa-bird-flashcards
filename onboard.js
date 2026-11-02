@@ -36,7 +36,10 @@ function browserInfo() {
   }
   const browser = os === "ios"
     ? (/CriOS/.test(ua) ? "chrome" : /FxiOS/.test(ua) ? "firefox" : /EdgiOS/.test(ua) ? "edge" : "safari")
-    : /SamsungBrowser/.test(ua) ? "samsung" : /Firefox/.test(ua) ? "firefox" : /EdgA/.test(ua) ? "edge" : "chrome";
+    : /SamsungBrowser/.test(ua) ? "samsung" : /Firefox/.test(ua) ? "firefox" : /EdgA/.test(ua) ? "edge"
+    // Only Google's own Chrome counts as Chrome: Opera, Xiaomi, Huawei, Brave and others look like it.
+    : /Chrome\/\d/.test(ua) && !/OPR\/|Opera|YaBrowser|MiuiBrowser|XiaoMi|HuaweiBrowser|HeyTapBrowser|VivoBrowser|UCBrowser|DuckDuckGo|Vivaldi|Brave/.test(ua)
+      && !navigator.brave ? "chrome" : "other";
   // Safari's version (Version/26.0): from 26 the Share button sits in a menu and Add to Home Screen
   // is under View More in the share sheet.
   const version = Number(ua.match(/Version\/(\d+)/)?.[1]) || 0;
@@ -234,6 +237,7 @@ STEP_VIEWS.install = (body, actions) => {
       how.append(li);
     }
     body.append(how);
+    body.append(el("p", "note", "Google sign-in also works best in Chrome."));
     actions.append(action("Continue in the browser instead", "ghost", () => {
       if (reminder) { reminder = false; hideWalkthrough(); return; }
       onboard.inBrowser = true;
@@ -269,6 +273,18 @@ STEP_VIEWS.install = (body, actions) => {
   body.append(how);
   if (isIOS && device.browser !== "safari" && !inApp) {
     body.append(el("p", "note", "Not seeing Add to Home Screen? Open this page in Safari and add it from there."));
+  }
+  // Links opened from WhatsApp, Gmail and the like can show a built-in browser that looks like
+  // Safari or Chrome but can't add to the home screen.
+  if (isIOS && device.browser === "safari" && !inApp) {
+    const tip = el("p", "note");
+    tip.innerHTML = "Opened this from WhatsApp or Gmail? Tap the <b>Safari</b> (compass) button at the bottom first, then follow the steps.";
+    body.append(tip);
+  }
+  if (device.os === "android" && device.browser === "chrome" && !inApp) {
+    const tip = el("p", "note");
+    tip.innerHTML = "Opened this from WhatsApp or Gmail? Tap <b>⋮</b> and <b>Open in Chrome</b> first, then follow the steps.";
+    body.append(tip);
   }
   actions.append(action("Continue in the browser instead", "ghost", () => {
     if (reminder) { reminder = false; hideWalkthrough(); return; }

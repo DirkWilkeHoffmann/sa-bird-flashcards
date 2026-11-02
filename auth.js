@@ -43,6 +43,15 @@ async function linkAccount(user) {
 }
 
 async function signIn() {
+  // Google refuses to sign in inside other apps' browsers (Facebook, Instagram, …).
+  if (typeof device !== "undefined" && device.browser === "inapp") {
+    const android = device.os === "android";
+    const text = `Google sign-in doesn't work inside this app's browser. Open SA Birds in ${android ? "Chrome" : "Safari"} to sign in.`;
+    $("accountStatus").textContent = text;
+    showToast(text, android && typeof openInChrome === "function" ? { action: { label: "Open Chrome", run: openInChrome }, ms: 9000 } : { ms: 9000 });
+    logEvent("onboard", null, { step: "signin_blocked_inapp", os: device.os });
+    return;
+  }
   $("accountStatus").textContent = "Opening Google…";
   const { error } = await authClient.auth.signInWithOAuth({
     provider: "google",
