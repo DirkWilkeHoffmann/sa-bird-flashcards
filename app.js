@@ -900,6 +900,7 @@ const MASTERED_MESSAGES = [
 function celebrateMastered(s) {
   const shown = load(MASTERED_SHOWN_KEY, 0);
   if (shown >= MASTERED_MESSAGES.length) return;
+  if (!$("toast").hidden && $("toastText").textContent.startsWith("Daily goal")) return;  // that one wins
   save(MASTERED_SHOWN_KEY, shown + 1);
   const n = Object.keys(learn.birds).filter(mastered).length;
   showToast(MASTERED_MESSAGES[shown](nameOf(s), n));
