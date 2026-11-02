@@ -8,7 +8,10 @@ const MIXUPS_KEY = "sabirds.mixups.v1";
 const SYNC_CODE_KEY = "sabirds.syncCode.v1";
 const SYNC_URL = "https://oenkcaswabrkqhvukcyb.supabase.co/rest/v1/rpc";
 const SYNC_API_KEY = "sb_publishable_3n_rTfWAWYptlsWuCNqyUQ_x6emNOwB"; // public by design
-const SYNC_DELAY_MS = 4000;
+// While playing, changes are sent at most once a minute (and straight away when the app is left),
+// so a keen player doesn't download their whole record after every answer.
+const SYNC_DELAY_MS = 60 * 1000;
+const RESUME_SYNC_MS = 2 * 60 * 1000;  // coming back to the app pulls again if it's been this long
 const REVIEW_URL = "https://oenkcaswabrkqhvukcyb.supabase.co/functions/v1/photo-review";
 const REPORTS_KEY = "sabirds.pendingReports.v1";
 
@@ -281,15 +284,19 @@ async function syncNow() {
 }
 
 function syncSoon() {
-  clearTimeout(syncTimer);
+  if (syncTimer) return;  // one sync per minute while playing, not one per answer
   syncTimer = setTimeout(syncNow, SYNC_DELAY_MS);
 }
+
+// Anything on this phone not yet in the account?
+const unsynced = () => dirty.size || hiddenDirty.size || (typeof learnDirty !== "undefined" && learnDirty)
+  || (typeof daysDirty !== "undefined" && daysDirty) || (typeof events !== "undefined" && events.length);
 
 function startSync() {
   syncNow();
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden" && (dirty.size || hiddenDirty.size)) syncNow();
-    if (document.visibilityState === "visible") syncNow();
+    if (document.visibilityState === "hidden" && unsynced()) syncNow();
+    if (document.visibilityState === "visible" && (!lastSync || Date.now() - lastSync > RESUME_SYNC_MS)) syncNow();
   });
   window.addEventListener("online", syncNow);
 }
