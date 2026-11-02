@@ -753,7 +753,12 @@ textarea.select { resize: none; line-height: 1.4; padding: 10px 14px; }
 .week { display: flex; align-items: center; gap: 2px; }
 .week-nav { flex: none; width: 32px; height: var(--tap); border: 0; background: none; color: var(--tint); font-size: 1.5rem; }
 .week-nav:disabled { opacity: .25; }
-.week-days { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; min-width: 0; }
+.week-days { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; min-width: 0; touch-action: pan-y; }
+.week-days.from-left { animation: week-in-left .22s ease-out; }
+.week-days.from-right { animation: week-in-right .22s ease-out; }
+@keyframes week-in-left { from { transform: translateX(-24px); opacity: 0; } }
+@keyframes week-in-right { from { transform: translateX(24px); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .week-days.from-left, .week-days.from-right { animation: none; } }
 .wday { display: grid; justify-items: center; gap: 4px; }
 .wday small { font-size: var(--fs-caption); color: var(--label-2); }
 .wday.today small { color: var(--tint); font-weight: 700; }

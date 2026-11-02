@@ -69,6 +69,7 @@ function mergeDays(remote) {
 // in, days played have a soft ring, and a gold star shows how many birds were mastered that day.
 // Missed days are just plain dates, with nothing to make anyone feel bad.
 
+const MAX_WEEKS_BACK = 52;
 let weekOffset = 0;  // 0 = the last 7 days up to today, -1 = the 7 days before that, ...
 
 function streakCard() {
@@ -88,13 +89,12 @@ function week() {
   const now = new Date();
   const first = addDays(now, -6 + 7 * weekOffset);
   const todayKey = dayKey(now);
-  const earliest = Object.keys(days).sort()[0] || todayKey;
   const prev = document.createElement("button");
   prev.type = "button";
   prev.className = "week-nav";
   prev.textContent = "‹";
   prev.setAttribute("aria-label", "Previous week");
-  prev.disabled = dayKey(first) <= earliest;
+  prev.disabled = weekOffset <= -MAX_WEEKS_BACK;
   const next = document.createElement("button");
   next.type = "button";
   next.className = "week-nav";
@@ -125,7 +125,22 @@ function week() {
     day.append(label, dot);
     row.append(day);
   }
-  const move = (by) => { weekOffset += by; wrap.replaceWith(week()); };
+  const move = (by) => {
+    if ((by < 0 && prev.disabled) || (by > 0 && next.disabled)) return;
+    weekOffset += by;
+    const fresh = week();
+    fresh.querySelector(".week-days").classList.add(by < 0 ? "from-left" : "from-right");
+    wrap.replaceWith(fresh);
+  };
+  // Swipe the days sideways for earlier or later weeks (up and down still scrolls the page).
+  let startX = null, startY = 0;
+  row.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; }, { passive: true });
+  row.addEventListener("touchend", (e) => {
+    if (startX === null) return;
+    const dx = e.changedTouches[0].clientX - startX, dy = e.changedTouches[0].clientY - startY;
+    startX = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) move(dx > 0 ? -1 : 1);
+  }, { passive: true });
   prev.addEventListener("click", () => move(-1));
   next.addEventListener("click", () => move(1));
   wrap.append(prev, row, next);
