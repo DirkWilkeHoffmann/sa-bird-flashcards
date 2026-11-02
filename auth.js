@@ -90,6 +90,8 @@ if (authClient) {
     }
     // Opening the app signed out: today's reminder, once the first card is up.
     if (event === "INITIAL_SESSION" && !user) setTimeout(dailySignInNudge, 2500);
+    // A signed-in account that hasn't seen the first-card tips gets them (coach.js).
+    if (user && typeof maybeStartCoach === "function") setTimeout(maybeStartCoach, 2500);
     if (fresh) {
       linkAccount(user).catch(() => { $("accountStatus").textContent = "Signed in, but couldn't link your progress yet — it will retry next time."; });
     }

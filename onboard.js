@@ -62,23 +62,26 @@ function saveOnboard() {
 // On the home screen (or after "Continue in the browser"): level, area, sign-in (when signed out),
 // since the welcome was in the browser. On a computer: all of it apart from the install.
 const BROWSER_STEPS = ["welcome", "about", "install"];
+// Someone who has answered birds on this phone (or whose account has): the walkthrough never
+// resets their birds, and doesn't ask how well they know birds. (Not learn.birds: the card under
+// the walkthrough already counts as seen.)
+const hasProgress = () => Object.keys(stats).length > 0;
 function steps() {
   if (reminder || (onboard.forceBrowser && !onboard.inBrowser)) return BROWSER_STEPS;
   const browser = isPhone && !standalone() && !onboard.inBrowser && !onboard.forceHome;
   if (browser) return BROWSER_STEPS;
-  const ask = ["level", "area", ...(signedOut() ? ["signin"] : [])];
+  const ask = [...(hasProgress() ? [] : ["level"]), "area", ...(signedOut() ? ["signin"] : [])];
   return isPhone || onboard.inBrowser || onboard.forceHome ? ask : ["welcome", "about", ...ask];
 }
 
-// Called once the birds have loaded. New players get the walkthrough; someone back from Google
+// Called once the birds have loaded. Seen-or-not is kept per phone: a phone that hasn't finished
+// (or skipped) the walkthrough gets it, whether or not the player is new; someone back from Google
 // sign-in gets it finished.
-function startWalkthrough(newPlayer) {
+function startWalkthrough() {
   if (onboard?.step === "signin" && !onboard.done) { finishAfterSignIn(); return; }
-  // On the home screen, someone who only got as far as "add to home screen" in the browser (Android
-  // shares the browser's data) still has the questions to answer, unless they've answered birds since.
-  const homeNext = standalone() && onboard?.step && !Object.keys(stats).length;
-  if (!onboard?.done && (newPlayer || homeNext)) { showWalkthrough(); return; }
+  if (!onboard?.done) { showWalkthrough(); return; }
   remindToInstall();
+  if (typeof maybeStartCoach === "function") setTimeout(maybeStartCoach, 1500);
 }
 
 // A phone's browser isn't where the app is meant to be played: every time it's opened there (or
@@ -331,7 +334,8 @@ function birdsIn(area) {
 }
 
 // Which birds to learn: the ones around you (location), or the ones of an area you pick.
-STEP_VIEWS.area = (body, actions, next) => {
+STEP_VIEWS.area = (body, actions, next, steps) => {
+  if (steps[0] === "area") body.append(el("p", "onb-label", "Welcome! Let's set up your birds"));
   body.append(el("h1", "", "Which birds do you want to learn?"),
     el("p", "onb-lead", "Start with the birds where you are, or pick a place you bird or are travelling to. "
       + "You'll begin with its most common birds, and you can change it any time in settings."));
@@ -397,22 +401,27 @@ STEP_VIEWS.signin = (body, actions) => {
 };
 
 // The player's start: their level's birds in the chosen area, then the first card.
+// Someone with progress keeps their birds (only the area they picked changes).
 function startPlaying({ signedIn = false, skipped = false } = {}) {
-  learn = Learn.blank();
-  Learn.touch(learn, Date.now());
-  const ids = Learn.setup(learn, onboard.level, areaInfo().groups, Date.now());
-  saveLearn();
+  const keep = hasProgress();
+  let ids = [];
+  if (!keep) {
+    learn = Learn.blank();
+    Learn.touch(learn, Date.now());
+    ids = Learn.setup(learn, onboard.level, areaInfo().groups, Date.now());
+    saveLearn();
+  }
   const level = onboard.level;
   onboard = { level, done: true };
   saveOnboard();
-  logEvent("onboard", null, { level: skipped ? "skipped" : level, area: settings.area, signedIn,
+  logEvent("onboard", null, { level: skipped ? "skipped" : keep ? "kept" : level, area: settings.area, signedIn,
     app: standalone() ? "home screen" : "browser", device: `${device.os}-${device.browser}` });
   hideWalkthrough();
   $("filterSummary").textContent = summary();
   queue = [];
   nextCard();
-  showToast(`Here are your first ${ids.length} birds. Good luck!`);
-  if (typeof startCoach === "function") setTimeout(startCoach, 600);
+  showToast(keep ? "You're all set. Your birds are all still here." : `Here are your first ${ids.length} birds. Good luck!`);
+  if (typeof maybeStartCoach === "function") setTimeout(maybeStartCoach, 600);
 }
 
 // Back from Google: wait for the account to link and sync. An account with progress keeps it.
@@ -428,7 +437,8 @@ async function finishAfterSignIn() {
   if (!account) { showStep("signin"); return; }  // sign-in was cancelled
   await sleep(1500);  // linkAccount may switch this phone to the account's sync code
   await syncNow();
-  const returning = Object.values(learn.birds).some((b) => b.seen);
+  // Answers synced from the account (not learn.birds: the card under the walkthrough counts as seen).
+  const returning = hasProgress();
   if (!returning) { startPlaying({ signedIn: true }); return; }
   const level = onboard.level;
   onboard = { level, done: true };
@@ -439,6 +449,7 @@ async function finishAfterSignIn() {
   queue = [];
   nextCard();
   showToast("Welcome back! Your progress is here.");
+  if (typeof maybeStartCoach === "function") setTimeout(maybeStartCoach, 600);
 }
 
 // Skipping = today's defaults: Just starting, in the area shown (South Africa unless changed).

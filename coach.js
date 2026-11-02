@@ -23,8 +23,21 @@ const INTRO = ["look", "hint", "reveal"];
 let coach = null;
 let coachStep = null;  // the bubble showing now
 
-function startCoach({ force = false } = {}) {
-  if (!force && load(COACH_KEY, false)) return;
+// Seen-or-not is kept per phone (COACH_KEY) and per Google account (in the account's own details,
+// TIPS_META): a new phone, or a new account on a phone that has seen them, gets the tips again.
+const TIPS_META = IS_DEV ? "sabirds_dev_tips" : "sabirds_tips";
+function coachNeeded() {
+  if (!load(COACH_KEY, false)) return true;
+  return Boolean(account && !account.user_metadata?.[TIPS_META]);
+}
+
+// Once the walkthrough is done (or was done before) and nothing else is on top.
+function maybeStartCoach() {
+  if (coach || !load(ONBOARD_KEY, null)?.done || !coachNeeded()) return;
+  startCoach();
+}
+
+function startCoach() {
   coach = { intro: 0, answered: false, gradeSeen: false };
   syncCoach();
 }
@@ -33,6 +46,15 @@ function finishCoach() {
   coach = null;
   hideCoach();
   save(COACH_KEY, true);
+  markTipsSeen();
+}
+
+// Tell the account too (retried on the next sign-in or app open if offline now).
+function markTipsSeen() {
+  if (!account || account.user_metadata?.[TIPS_META] || !authClient) return;
+  authClient.auth.updateUser({ data: { [TIPS_META]: new Date().toISOString() } })
+    .then(({ data }) => { if (data?.user) account = data.user; })
+    .catch(() => {});
 }
 
 // Which tip fits what's on screen now.
@@ -116,13 +138,11 @@ coachWatch.observe($("carousel"), { childList: true });
 // Once marked (Got it / Missed it), the grade tip is done with.
 for (const id of ["gotIt", "missed"]) $(id).addEventListener("click", () => { if (coach) coach.gradeSeen = true; });
 
-// Closed the app halfway through the tips (or before the first card loaded)? Carry on next time,
-// as long as they've only just started playing.
-if (load(ONBOARD_KEY, null)?.done && !load(COACH_KEY, false) && Object.keys(stats).length < 10) {
-  setTimeout(() => startCoach(), 1500);
-}
+// A phone that has seen the tips, signed in to an account that has too (from another phone):
+// nothing to do. Seen on this phone but not by this account: the tips play (maybeStartCoach). Seen
+// by the account but the phone's own flag got lost: nothing to do either way.
 
 if (IS_DEV) {
   $("devCoach").hidden = false;
-  $("devCoach").addEventListener("click", () => startCoach({ force: true }));
+  $("devCoach").addEventListener("click", () => startCoach());
 }
