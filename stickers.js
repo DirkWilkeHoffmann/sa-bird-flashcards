@@ -199,7 +199,8 @@ async function prepareShare(id) {
     if (!res.ok) throw new Error(res.status);
     let blob = await res.blob();
     let ext = "webp";
-    if (onIOS()) { blob = await asPng(blob); ext = "png"; }
+    // Trying on Dev: iPhones get the WebP too, to see whether WhatsApp shows it as a sticker.
+    if (onIOS() && !IS_DEV) { blob = await asPng(blob); ext = "png"; }
     const file = new File([blob], `${stickerName(id)}.${ext}`, { type: blob.type || `image/${ext}` });
     if ($("stickerPop").dataset.id === String(id)) shareReady = { id, file };
   } catch { /* offline and never fetched: Share says so */ }
