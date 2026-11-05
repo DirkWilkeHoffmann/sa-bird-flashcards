@@ -181,7 +181,7 @@ $("stickerPop").addEventListener("click", (e) => { if (e.target === $("stickerPo
 
 let shareReady = null;  // { id, file } once fetched
 
-const isIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const onIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
 async function asPng(blob) {
   const img = await createImageBitmap(blob);
@@ -199,7 +199,7 @@ async function prepareShare(id) {
     if (!res.ok) throw new Error(res.status);
     let blob = await res.blob();
     let ext = "webp";
-    if (isIOS()) { blob = await asPng(blob); ext = "png"; }
+    if (onIOS()) { blob = await asPng(blob); ext = "png"; }
     const file = new File([blob], `${stickerName(id)}.${ext}`, { type: blob.type || `image/${ext}` });
     if ($("stickerPop").dataset.id === String(id)) shareReady = { id, file };
   } catch { /* offline and never fetched: Share says so */ }
