@@ -833,6 +833,7 @@ textarea.select { resize: none; line-height: 1.4; padding: 10px 14px; }
 .sticker-pop img { position: relative; width: 220px; height: 220px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .3)); }
 .sticker-pop h2 { margin: 6px 0 16px; font-size: var(--fs-title2); transition: opacity .35s, transform .35s; }
 .sticker-pop h2.waiting { opacity: 0; transform: translateY(6px); }
+.sticker-pop .sp-actions { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
 .sticker-pop .btn { width: 100%; }
 /* Rare and Legendary reveals: sparkles burst out once the sticker lands. */
 .sp-spark { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px; border-radius: 50%;

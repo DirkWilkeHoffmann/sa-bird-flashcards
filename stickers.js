@@ -4,8 +4,8 @@
 // tiers (data/stickers.json): Common, the familiar favourites; Rare, the special ones you hope to
 // see; and Legendary, rarities of a lifetime. Any bird can be drawn, met in the cards or not. It's
 // kept on that day (days[key].k = the bird's id), so it covers that day on the streak calendar and
-// follows the account with the days (streak.js). Uncollected stickers come first; once all are
-// in, repeats are possible. The tiers are never named to the player: they show as a soft outline
+// follows the account with the days (streak.js). A sticker is never given twice; once all are
+// in, there are no more to earn. The tiers are never named to the player: they show as a soft outline
 // (grey, yellowish, purplish), in how much an uncollected sticker gives away, and in how big the
 // reveal is.
 // Stickers: huashu-bird-sticker by Huashu, CC BY 4.0 (stickers/CREDITS.md).
@@ -38,19 +38,31 @@ function collectedStickers() {
   return got;
 }
 
-function rollTier() {
+// Starter odds make a first Legendary easy: they hold until the collection has STARTER_UNTIL
+// (1 Legendary and 3 Rares), then the usual odds take over.
+const STARTER_ODDS = [["legendary", 0.20], ["rare", 0.40], ["common", 0.40]];
+const STARTER_UNTIL = { legendary: 1, rare: 3 };
+
+function stickerOdds(got = collectedStickers()) {
+  const n = { legendary: 0, rare: 0, common: 0 };
+  for (const id of got.keys()) n[stickerOf(id).tier]++;
+  const starter = Object.entries(STARTER_UNTIL).some(([tier, need]) => n[tier] < need);
+  return starter ? STARTER_ODDS : STICKER_ODDS;
+}
+
+function rollTier(odds) {
   let x = Math.random();
-  for (const [tier, p] of STICKER_ODDS) { if (x < p) return tier; x -= p; }
+  for (const [tier, p] of odds) { if (x < p) return tier; x -= p; }
   return "common";
 }
 
-// A tier by the odds, then a sticker not collected yet from it. When that tier is complete, the
-// next tier down (then up) is tried, so a Legendary roll never turns into nothing. Everything
-// collected: a repeat from the rolled tier.
+// A tier by the odds, then a sticker not collected yet from it. A sticker is never given twice:
+// when the rolled tier is complete, the next tier down (then up) is tried, and with every
+// sticker collected there is nothing left to give (null).
 function drawSticker() {
   if (!stickerSet.length) return null;
   const got = collectedStickers();
-  const tier = rollTier();
+  const tier = rollTier(stickerOdds(got));
   const i = TIER_ORDER.indexOf(tier);
   const order = [tier, ...TIER_ORDER.slice(i + 1), ...TIER_ORDER.slice(0, i).reverse()];
   const pick = (list) => list[Math.floor(Math.random() * list.length)].id;
@@ -58,7 +70,7 @@ function drawSticker() {
     const left = stickerSet.filter((x) => x.tier === t && !got.has(x.id));
     if (left.length) return pick(left);
   }
-  return pick(stickerSet.filter((x) => x.tier === tier));
+  return null;
 }
 
 // After each answer (from record in app.js). Returns the sticker earned with this answer, if any.
@@ -66,7 +78,9 @@ function earnSticker() {
   const d = days[dayKey()];
   if (!d || d.k || d.r < STICKER_GOAL || !stickerSet.length) return null;
   const fresh = !collectedStickers().size;
-  d.k = drawSticker();
+  const id = drawSticker();
+  if (!id) return null;  // the whole collection is in
+  d.k = id;
   saveDays();
   logEvent("sticker", d.k, { tier: stickerOf(d.k)?.tier, first: fresh });
   return d.k;
@@ -104,6 +118,8 @@ function showSticker(id, { earned = false, day = null } = {}) {
   if (!st) return;
   const pop = $("stickerPop");
   pop.className = `sticker-pop ${st.tier}`;
+  pop.dataset.id = String(st.id);
+  prepareShare(st.id);
   $("stickerPopKicker").textContent = earned
     ? "Well done! You earned a sticker today."
     : day ? new Date(`${day}T12:00`).toLocaleDateString("en-ZA", { weekday: "long", day: "numeric", month: "long" }) : "";
@@ -156,6 +172,62 @@ function showSticker(id, { earned = false, day = null } = {}) {
 }
 
 $("stickerPop").addEventListener("click", (e) => { if (e.target === $("stickerPop")) $("stickerPop").close(); });
+
+/* ---------- Sharing a sticker to WhatsApp or any messenger ---------- */
+// The share image is 512x512 with a see-through background (stickers/share/), the size WhatsApp
+// uses for stickers. iPhones get a PNG, which their messengers handle better than WebP. Phones
+// only allow sharing straight after a tap, so the file is fetched when the sticker is shown and
+// handed over the moment Share is tapped. Without a share sheet (most computers), it downloads.
+
+let shareReady = null;  // { id, file } once fetched
+
+const isIOS = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+async function asPng(blob) {
+  const img = await createImageBitmap(blob);
+  const c = document.createElement("canvas");
+  c.width = img.width;
+  c.height = img.height;
+  c.getContext("2d").drawImage(img, 0, 0);
+  return new Promise((ok) => c.toBlob(ok, "image/png"));
+}
+
+async function prepareShare(id) {
+  shareReady = null;
+  try {
+    const res = await fetch(`stickers/share/${id}.webp`);
+    if (!res.ok) throw new Error(res.status);
+    let blob = await res.blob();
+    let ext = "webp";
+    if (isIOS()) { blob = await asPng(blob); ext = "png"; }
+    const file = new File([blob], `${stickerName(id)}.${ext}`, { type: blob.type || `image/${ext}` });
+    if ($("stickerPop").dataset.id === String(id)) shareReady = { id, file };
+  } catch { /* offline and never fetched: Share says so */ }
+}
+
+async function shareSticker() {
+  const id = Number($("stickerPop").dataset.id);
+  const ready = shareReady?.id === id ? shareReady : null;
+  if (!ready) { showToast("The sticker isn't ready to share yet. Try again in a moment."); prepareShare(id); return; }
+  const data = { files: [ready.file] };
+  if (navigator.canShare?.(data)) {
+    try {
+      await navigator.share(data);
+      logEvent("sticker_share", id);
+    } catch (e) {
+      if (e.name !== "AbortError") showToast("Couldn't share the sticker");
+    }
+    return;
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(ready.file);
+  a.download = ready.file.name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  logEvent("sticker_share", id, { download: true });
+}
+
+$("stickerShare").addEventListener("click", shareSticker);
 
 /* ---------- The album: Common, then Rare, then Legendary ---------- */
 
@@ -243,14 +315,16 @@ if (IS_DEV) {
     for (let i = 0; i < 400 && days[dayKey(date)]?.k; i++) date = addDays(date, -1);
     const k = dayKey(date);
     const d = days[k] || (days[k] = { a: 0, r: 0, m: 0 });
+    let id;
     if (tier) {
       const got = collectedStickers();
-      const list = stickerSet.filter((x) => x.tier === tier);
-      const left = list.filter((x) => !got.has(x.id));
-      d.k = (left.length ? left : list)[Math.floor(Math.random() * (left.length || list.length))].id;
+      const left = stickerSet.filter((x) => x.tier === tier && !got.has(x.id));
+      id = left.length ? left[Math.floor(Math.random() * left.length)].id : null;
     } else {
-      d.k = drawSticker();
+      id = drawSticker();
     }
+    if (!id) { showToast(tier ? `Every ${TIER_NAMES[tier]} sticker is collected` : "Every sticker is collected"); return; }
+    d.k = id;
     saveDays();
     if ($("progress").open) renderProgress();
     showSticker(d.k, { earned: true });
