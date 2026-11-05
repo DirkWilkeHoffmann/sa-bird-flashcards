@@ -1,9 +1,9 @@
 "use strict";
 // Stickers: a reward past the daily goal. A day with STICKER_GOAL Right answers (more than the
-// daily goal's 10) earns one sticker, drawn at random from 50 of Southern Africa's finest birds in
+// daily goal's 10) earns one sticker, drawn at random from 100 of Southern Africa's finest birds in
 // three tiers: Common, Rare and Legendary. It's kept on that day (days[key].k = the bird's id), so
 // it covers that day on the streak calendar and follows the account with the days (streak.js).
-// Uncollected stickers come first; once all 50 are in, repeats are possible.
+// Uncollected stickers come first; once all 100 are in, repeats are possible.
 // Stickers: huashu-bird-sticker by Huashu, CC BY 4.0 (stickers/CREDITS.md).
 
 const STICKER_GOAL = 25;
@@ -108,7 +108,7 @@ function stickerAlbumButton() {
   b.type = "button";
   b.className = "sticker-album-btn";
   const n = collectedStickers().size;
-  b.innerHTML = `<span>Stickers</span><b>${n} of ${stickerSet.length || 50}</b><span aria-hidden="true">›</span>`;
+  b.innerHTML = `<span>Stickers</span><b>${n} of ${stickerSet.length || 100}</b><span aria-hidden="true">›</span>`;
   b.addEventListener("click", openAlbum);
   return b;
 }
