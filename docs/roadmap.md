@@ -64,6 +64,35 @@ rebuilt on the next sync, which restores wiped accounts. Main never had this cod
   (`supabase/migrations/20261102_log_events_allow_list.sql`). They were being dropped before, so the
   admin page had nothing for them until now. **Every new `logEvent` type must be added there.**
 
+## Tester feedback from the release (5 Nov 2026), to implement on Dev
+Ten comments so far, mostly positive (photos showing habitat praised; a birding group in Groot Brak
+uses it with beginners and old hands). Main points, most-asked first:
+
+1. **Hear the call before the reveal** (asked by 3, Dirk agrees). A ▶ call button on the guessing
+   screen, not only on the answer screen. Calls were taken out of the guessing on purpose (see
+   progression), so make it an optional button that doesn't count as a hint.
+2. **Wrong calls** (2 testers). Reported: Red-eyed Dove, Black-headed Oriole, Cape Wagtail. Check
+   these in `data/calls.json`, and add a "flag this call" option (like the photo flags) so players
+   can report others.
+3. **Call-first mode.** A mode where the call plays first and you guess, then see the photo.
+   Builds on 1.
+4. **Practise lookalikes, not just repeats.** After a mistake, bring in the birds it's confused
+   with (the "Easily confused with" pairs) and birds from the same family, so the player learns to
+   tell them apart. Fits the weights in `learn.js`.
+5. **Bigger photos in Common mix-ups.** The other birds' pictures are too small on a phone; tap to
+   enlarge, or show them full width.
+6. **Filter by habitat**, like the area filter (e.g. water birds, forest, grassland).
+7. **Search for a bird** by name (English and Afrikaans) to look up its info straight away.
+8. **"Birds near me" didn't work** for one tester (had to pick South Africa). Find out why:
+   location permission denied, slow GPS or an in-app browser; show a clear message and fall back to
+   choosing an area.
+9. **Play Store** (asked once). Same wrapping work as the App Store (Bigger next steps 9); Google's
+   is $25 once and a Trusted Web Activity is enough.
+
+Question to answer, not build: *are the photos open-source from the internet?* (Peter Thorpe)
+They are Creative Commons-licensed photos from iNaturalist research-grade records, credited to
+each photographer; calls are from xeno-canto.
+
 ## Pinned features
 
 ### 1. How to tell lookalikes apart (built, waiting for review)
@@ -156,7 +185,7 @@ Full write-up: the "SA Birds Progression Review" page (flow charts of every rule
      account and Apple review.
    - Apple rejects apps that are "just a website", so offline mode, haptics and sign-in help.
    - Needs: app name, icon set, screenshots, privacy policy (done: `privacy.html`), support email.
-10. **Tester feedback.** Collect and plan the next sprint from it.
+10. **Tester feedback.** First round collected (5 Nov), see "Tester feedback from the release" above.
 11. **Smaller ideas:**
     - Calls for birds that are only available offline because their photos were kept.
     - A higher daily limit than 20 flag emails if testers flag a lot.
