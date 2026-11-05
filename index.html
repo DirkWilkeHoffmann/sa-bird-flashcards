@@ -71,7 +71,9 @@
   <p class="dev-line" id="devLine" hidden></p>
   <p class="dev-tools"><button class="link-btn" id="devTour" type="button" hidden>▶ Walkthrough as on the home screen</button>
     <button class="link-btn" id="devTourBrowser" type="button" hidden>▶ Walkthrough as in a phone's browser</button>
-    <button class="link-btn" id="devCoach" type="button" hidden>▶ First-card tips</button></p>
+    <button class="link-btn" id="devCoach" type="button" hidden>▶ First-card tips</button>
+    <button class="link-btn" id="devSticker" type="button" hidden>▶ Earn a sticker</button>
+    <button class="link-btn" id="devStickerClear" type="button" hidden>Clear stickers</button></p>
   <main class="card" id="card">
     <section class="media" id="media">
       <div class="carousel" id="carousel" aria-label="Bird photos"></div>
@@ -263,6 +265,27 @@
     </form>
   </dialog>
 
+  <dialog class="sheet" id="stickerAlbum">
+    <form method="dialog">
+      <div class="sheet-head">
+        <button class="close-x" type="submit" aria-label="Close"><svg class="i"><use href="#i-xmark"/></svg></button>
+        <h2>Your stickers</h2>
+      </div>
+      <div id="stickerAlbumBody"></div>
+    </form>
+  </dialog>
+
+  <dialog class="sticker-pop" id="stickerPop" aria-labelledby="stickerPopTitle">
+    <form method="dialog">
+      <p class="sp-kicker" id="stickerPopKicker"></p>
+      <div class="sp-stage"><img id="stickerPopImg" alt=""></div>
+      <span class="sp-tier" id="stickerPopTier"></span>
+      <h2 id="stickerPopTitle"></h2>
+      <p class="sp-note" id="stickerPopNote"></p>
+      <button class="btn primary" type="submit">Nice!</button>
+    </form>
+  </dialog>
+
   <dialog class="sheet" id="offline">
     <form method="dialog">
       <div class="sheet-head">
@@ -297,6 +320,7 @@
   <script src="offline.js"></script>
   <script src="progress.js"></script>
   <script src="streak.js"></script>
+  <script src="stickers.js"></script>
   <script src="vendor/supabase-2.45.4.js"></script>
   <script src="auth.js"></script>
   <script src="onboard.js"></script>

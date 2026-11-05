@@ -1290,6 +1290,7 @@ function record(result, picked) {
   logEvent("answer", card.s.id, { r: result, kind: "photo", w: lastAnswer.after, m: lastAnswer.m, why: card.why });
   if (lastAnswer.mastered) logEvent("mastered", card.s.id, { w: lastAnswer.after });
   const goalNow = typeof noteDay === "function" && noteDay(right, lastAnswer.mastered);
+  const stickerNow = typeof earnSticker === "function" ? earnSticker() : null;
   const added = topUp();
   saveLearn();
   queue = [];  // the next bird depends on this answer
@@ -1308,6 +1309,7 @@ function record(result, picked) {
   } else {
     nudgeSignIn();
   }
+  if (stickerNow) setTimeout(() => showSticker(stickerNow, { earned: true }), added.length ? 2600 : 1100);
   allKnownMessage();
   devLine();
 }

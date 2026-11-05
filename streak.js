@@ -58,7 +58,9 @@ function mergeDays(remote) {
   for (const [k, r] of Object.entries(remote || {})) {
     const d = days[k] || { a: 0, r: 0, m: 0 };
     const merged = { a: Math.max(d.a, r.a || 0), r: Math.max(d.r, r.r || 0), m: Math.max(d.m, r.m || 0) };
-    if (merged.a !== d.a || merged.r !== d.r || merged.m !== d.m) { days[k] = merged; changed = true; }
+    const k2 = d.k || r.k;  // the day's sticker (stickers.js): the first one earned stays
+    if (k2) merged.k = k2;
+    if (merged.a !== d.a || merged.r !== d.r || merged.m !== d.m || merged.k !== d.k) { days[k] = merged; changed = true; }
   }
   if (changed) save(DAYS_KEY, days);
   return changed;
@@ -80,6 +82,7 @@ function streakCard() {
   title.className = "streak-title";
   title.textContent = n ? `🔥 ${n}-day streak` : "Play today to start a streak 🔥";
   box.append(title, week());
+  if (typeof stickerAlbumButton === "function") box.append(stickerAlbumButton());
   return box;
 }
 
@@ -118,10 +121,26 @@ function week() {
       star.textContent = `★${d.m}`;
       dot.append(star);
     }
+    // A sticker earned that day (stickers.js) covers the day; tap it to see it big.
+    const st = d?.k && typeof stickerOf === "function" ? stickerOf(d.k) : null;
+    if (st) {
+      dot.classList.add("has-sticker", st.tier);
+      const img = new Image();
+      img.src = stickerUrl(st.id);
+      img.alt = "";
+      img.decoding = "async";
+      dot.append(img);
+      day.classList.add("tappable");
+      day.setAttribute("role", "button");
+      day.tabIndex = 0;
+      day.addEventListener("click", () => showSticker(st.id, { day: k }));
+      day.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); showSticker(st.id, { day: k }); } });
+    }
     const label = document.createElement("small");
     label.textContent = letter;
     day.setAttribute("aria-label", `${date.toLocaleDateString("en-ZA", { weekday: "long", day: "numeric", month: "long" })}`
-      + (d?.r >= DAILY_GOAL ? ", streak day" : d?.a ? ", played" : "") + (d?.m ? `, ${d.m} bird${d.m === 1 ? "" : "s"} mastered` : ""));
+      + (d?.r >= DAILY_GOAL ? ", streak day" : d?.a ? ", played" : "") + (d?.m ? `, ${d.m} bird${d.m === 1 ? "" : "s"} mastered` : "")
+      + (st ? `, sticker: ${stickerName(st.id)}` : ""));
     day.append(label, dot);
     row.append(day);
   }
