@@ -14,8 +14,9 @@
   --tint: #d47a0b;
   --on-tint: #ffffff;
   --good: #23994a;
-  --rare: #2f74d0;
-  --legend: #f0b429;
+  --tier-common: rgba(60, 72, 62, .22);
+  --tier-rare: #dcc27a;
+  --tier-legend: #b7a3dc;
   --bad: #d63b2c;
   --data: #2f8f5b;
   --map-bg: #e4e7df;
@@ -53,8 +54,9 @@
     --tint: #f2a93b;
     --on-tint: #1d1407;
     --good: #3cc46a;
-    --rare: #5a9bf0;
-    --legend: #f5c542;
+    --tier-common: rgba(170, 195, 178, .28);
+    --tier-rare: #a8924f;
+    --tier-legend: #8a76b8;
     --bad: #ff6a56;
     --data: #7fcc9c;
     --map-bg: #0f1813;
@@ -774,17 +776,18 @@ textarea.select { resize: none; line-height: 1.4; padding: 10px 14px; }
 .wday.future .wdot { opacity: .4; }
 .wdot i { position: absolute; bottom: -7px; right: -9px; padding: 1px 4px; border-radius: 999px; font-style: normal;
   font-size: .62rem; font-weight: 700; line-height: 1.3; color: #5a3d00; background: #ffd257; box-shadow: 0 0 0 2px var(--fill); }
-/* Stickers (stickers.js): a day's sticker covers its dot on the calendar. */
+/* Stickers (stickers.js). Tiers show only as a soft outline: grey Common, yellowish Rare,
+   purplish Legendary. A day's sticker covers its dot on the calendar. */
 .wday.tappable { cursor: pointer; }
 .wday.tappable:active .wdot img { transform: scale(.92); }
 .wdot.has-sticker { background: none; box-shadow: none; color: transparent; }
 .wday.today .wdot.has-sticker { box-shadow: none; }
 .wdot.has-sticker img { position: absolute; inset: -7px; width: 48px; height: 48px; object-fit: contain;
   filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .28)); transition: transform .15s; }
-.wdot.has-sticker::before { content: ""; position: absolute; inset: 2px; border-radius: 50%; }
-.wdot.has-sticker.common::before { background: color-mix(in srgb, var(--good) 18%, transparent); }
-.wdot.has-sticker.rare::before { background: color-mix(in srgb, var(--rare) 24%, transparent); }
-.wdot.has-sticker.legendary::before { background: color-mix(in srgb, var(--legend) 40%, transparent); }
+.wdot.has-sticker::before { content: ""; position: absolute; inset: 2px; border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px var(--tier-common); }
+.wdot.has-sticker.rare::before { box-shadow: inset 0 0 0 1.5px var(--tier-rare); }
+.wdot.has-sticker.legendary::before { box-shadow: inset 0 0 0 1.5px var(--tier-legend); }
 .wdot.has-sticker i { z-index: 1; }
 .sticker-album-btn { display: flex; align-items: center; gap: 8px; width: 100%; min-height: var(--tap); margin: 12px 0 0;
   padding: 0 12px; border: 0; border-radius: var(--radius-sm); font: inherit; color: var(--label); background: var(--bg-elev); }
@@ -792,42 +795,59 @@ textarea.select { resize: none; line-height: 1.4; padding: 10px 14px; }
 .sticker-album-btn b { font-weight: 600; color: var(--label-2); font-variant-numeric: tabular-nums; }
 .sticker-album-btn span:last-child { color: var(--label-2); font-size: 1.2rem; }
 
-.sp-tier { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: var(--fs-caption); font-weight: 700;
-  letter-spacing: .04em; text-transform: uppercase; color: #fff; background: var(--good); }
-.rare .sp-tier, .sp-tier.rare { background: var(--rare); }
-.legendary .sp-tier { color: #4a3000; background: linear-gradient(100deg, #f5c542, #ffe9a3 45%, #e9a92b); }
-.album-h { display: flex; align-items: center; gap: 8px; }
-.album-h .sp-tier { margin: 0; }
-.album-h.rare .sp-tier { background: var(--rare); }
-.album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; margin: 0 0 18px; }
-.album-cell { display: grid; justify-items: center; gap: 2px; padding: 8px 4px 6px; border: 0; border-radius: var(--radius-sm);
-  font: inherit; color: var(--label); background: var(--fill); }
-.album-cell.legendary:not(.missing) { background: color-mix(in srgb, var(--legend) 26%, var(--fill)); }
-.album-cell.rare:not(.missing) { background: color-mix(in srgb, var(--rare) 14%, var(--fill)); }
+.album-count { margin: 0 0 4px; font-weight: 700; font-size: var(--fs-headline); }
+.album-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; margin: 0 0 22px; }
+.album-cell { display: grid; justify-items: center; align-content: start; gap: 2px; padding: 8px 4px 6px; border: 0;
+  border-radius: var(--radius-sm); font: inherit; color: var(--label); background: var(--fill);
+  box-shadow: inset 0 0 0 1.5px var(--tier-common); }
+.album-cell.rare { box-shadow: inset 0 0 0 1.5px var(--tier-rare); }
+.album-cell.legendary { box-shadow: inset 0 0 0 1.5px var(--tier-legend); }
 .album-cell img { width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .25)); }
-.album-cell.missing img { filter: brightness(0); opacity: .12; }
-@media (prefers-color-scheme: dark) { .album-cell.missing img { filter: brightness(0) invert(1); opacity: .14; } }
 .album-cell small { font-size: var(--fs-caption); line-height: 1.2; text-align: center; color: var(--label-2); }
+/* Not collected yet: a Common shows its shape and name, a Rare is only a question mark, and a
+   Legendary is a blur of colour you can't make out. */
+.album-cell.missing.common img { filter: brightness(0); opacity: .14; }
+@media (prefers-color-scheme: dark) { .album-cell.missing.common img { filter: brightness(0) invert(1); opacity: .16; } }
+.album-cell .q { display: grid; place-items: center; width: 72px; height: 72px; font-size: 2rem; font-weight: 700;
+  color: color-mix(in srgb, var(--label-2) 60%, transparent); }
+.album-cell.missing.legendary img { filter: blur(10px) saturate(.8); opacity: .5; transform: scale(.8); }
 .album-credit { margin-top: 4px; }
 
 .sticker-pop { width: min(340px, calc(100% - 32px)); padding: 22px 20px 18px; border: 0; border-radius: 26px; text-align: center;
   color: var(--label); background: var(--bg-elev); box-shadow: 0 18px 60px rgba(0, 0, 0, .3); overflow: visible; }
 .sticker-pop::backdrop { background: var(--scrim); }
 .sticker-pop .sp-kicker { margin: 0 0 4px; font-weight: 600; color: var(--label-2); }
-.sticker-pop .sp-stage { position: relative; display: grid; place-items: center; height: 230px; margin: 0 -10px 8px; }
+.sticker-pop .sp-stage { position: relative; display: grid; place-items: center; height: 240px; margin: 0 -10px 4px; }
 .sticker-pop .sp-stage::before { content: ""; position: absolute; width: 200px; height: 200px; border-radius: 50%;
-  background: radial-gradient(circle, color-mix(in srgb, var(--good) 30%, transparent), transparent 70%); }
-.sticker-pop.rare .sp-stage::before { background: radial-gradient(circle, color-mix(in srgb, var(--rare) 42%, transparent), transparent 70%); }
-.sticker-pop.legendary .sp-stage::before { width: 250px; height: 250px;
-  background: conic-gradient(from 0deg, transparent, color-mix(in srgb, var(--legend) 70%, transparent) 10%, transparent 20%, color-mix(in srgb, var(--legend) 70%, transparent) 35%, transparent 45%, color-mix(in srgb, var(--legend) 70%, transparent) 60%, transparent 70%, color-mix(in srgb, var(--legend) 70%, transparent) 85%, transparent);
-  -webkit-mask: radial-gradient(circle, #000 25%, transparent 70%); mask: radial-gradient(circle, #000 25%, transparent 70%);
-  animation: sp-rays 14s linear infinite; }
+  background: radial-gradient(circle, color-mix(in srgb, var(--tier-common) 55%, transparent), transparent 70%); }
+.sticker-pop.rare .sp-stage::before { width: 230px; height: 230px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--tier-rare) 60%, transparent), transparent 70%);
+  animation: sp-pulse 2.4s ease-in-out infinite; }
+.sticker-pop.legendary .sp-stage::before { width: 270px; height: 270px;
+  background: conic-gradient(from 0deg, transparent, var(--tier-legend) 8%, transparent 16%, var(--tier-legend) 25%, transparent 33%,
+    var(--tier-legend) 41%, transparent 50%, var(--tier-legend) 58%, transparent 66%, var(--tier-legend) 75%, transparent 83%, var(--tier-legend) 91%, transparent);
+  -webkit-mask: radial-gradient(circle, #000 20%, transparent 70%); mask: radial-gradient(circle, #000 20%, transparent 70%);
+  animation: sp-rays 12s linear infinite; }
 @keyframes sp-rays { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .sticker-pop.legendary .sp-stage::before { animation: none; } }
+@keyframes sp-pulse { 50% { transform: scale(1.08); opacity: .8; } }
 .sticker-pop img { position: relative; width: 220px; height: 220px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .3)); }
-.sticker-pop h2 { margin: 8px 0 4px; font-size: var(--fs-title2); }
-.sticker-pop .sp-note { margin: 0 0 16px; color: var(--label-2); }
+.sticker-pop h2 { margin: 6px 0 16px; font-size: var(--fs-title2); transition: opacity .35s, transform .35s; }
+.sticker-pop h2.waiting { opacity: 0; transform: translateY(6px); }
 .sticker-pop .btn { width: 100%; }
+/* Rare and Legendary reveals: sparkles burst out once the sticker lands. */
+.sp-spark { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px; border-radius: 50%;
+  background: var(--spark); pointer-events: none; animation: sp-burst var(--t, .9s) cubic-bezier(.2, .7, .3, 1) forwards; }
+@keyframes sp-burst {
+  0% { transform: rotate(var(--a)) translateY(0) scale(.4); opacity: 1; }
+  100% { transform: rotate(var(--a)) translateY(calc(-1 * var(--d))) scale(1); opacity: 0; } }
+.sticker-pop .sp-flash { position: absolute; inset: 0; border-radius: 26px; pointer-events: none;
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--tier-legend) 55%, transparent), transparent 65%);
+  animation: sp-flash 1.1s ease-out forwards; }
+@keyframes sp-flash { from { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .sticker-pop.rare .sp-stage::before, .sticker-pop.legendary .sp-stage::before { animation: none; }
+  .sp-spark, .sticker-pop .sp-flash { display: none; }
+}
 
 .prog-total { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 4px 0 10px; text-align: center; }
 .prog-total div, .prog-total button { background: var(--fill); border-radius: var(--radius-sm); padding: 12px 4px; }
@@ -1234,5 +1254,3 @@ body.onboarding { background: var(--bg); }
 .onb-actions { display: grid; gap: 10px; padding-top: 8px; }
 .onb-actions .btn { width: 100%; }
 .onb-actions .btn:disabled { opacity: .4; }
-.album-cell.open small { color: var(--label); font-weight: 600; }
-.album-cell.open img { opacity: .3; }
