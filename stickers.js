@@ -1,15 +1,21 @@
 "use strict";
 // Stickers: a reward past the daily goal. A day with STICKER_GOAL Right answers (more than the
-// daily goal's 10) earns one sticker, drawn at random from 100 of Southern Africa's finest birds in
-// three tiers: Common, Rare and Legendary. It's kept on that day (days[key].k = the bird's id), so
-// it covers that day on the streak calendar and follows the account with the days (streak.js).
-// Uncollected stickers come first; once all 100 are in, repeats are possible.
+// daily goal's 10) earns one sticker, drawn at random from Southern Africa's finest birds in three
+// tiers (data/stickers.json): Common, the familiar favourites; Rare, the special ones you hope to
+// see; and Legendary, rarities of a lifetime. It's kept on that day (days[key].k = the bird's id),
+// so it covers that day on the streak calendar and follows the account with the days (streak.js).
+// Only birds the player has unlocked can be drawn (see STICKER_UNLOCK). Uncollected stickers come
+// first; once every unlocked one is in, repeats are possible. With none unlocked yet, the day's
+// sticker waits and the next Right answer tries again.
 // Stickers: huashu-bird-sticker by Huashu, CC BY 4.0 (stickers/CREDITS.md).
 
 const STICKER_GOAL = 25;
 const STICKER_ODDS = [["legendary", 0.05], ["rare", 0.25], ["common", 0.70]];
 const TIER_NAMES = { common: "Common", rare: "Rare", legendary: "Legendary" };
 const TIER_ORDER = ["legendary", "rare", "common"];
+// "seen": the bird has turned up in the player's cards (Learning or Mastered);
+// "mastered": only birds the player has mastered.
+const STICKER_UNLOCK = "seen";
 
 let stickerSet = [];  // [{ id, tier }]
 const stickersLoaded = fetch("data/stickers.json").then((r) => (r.ok ? r.json() : []))
@@ -22,6 +28,11 @@ const stickersLoaded = fetch("data/stickers.json").then((r) => (r.ok ? r.json() 
 const stickerUrl = (id) => `stickers/${id}.webp`;
 const stickerOf = (id) => stickerSet.find((x) => x.id === Number(id)) || null;
 const stickerName = (id) => { const s = speciesById.get(Number(id)); return s ? nameOf(s) : "A bird"; };
+
+function stickerUnlocked(id) {
+  const st = Learn.status(learn, id);
+  return STICKER_UNLOCK === "mastered" ? st === "mastered" : st !== "new";
+}
 
 // Each collected sticker and the first day it was earned.
 function collectedStickers() {
@@ -39,20 +50,26 @@ function rollTier() {
   return "common";
 }
 
-// A tier by the odds, then a sticker not collected yet from it. When that tier is complete, the
-// next tier down (then up) is tried, so a Legendary roll never turns into nothing.
-function drawSticker() {
-  if (!stickerSet.length) return null;
+// A tier by the odds, then an unlocked sticker not collected yet from it. When that tier has none,
+// the next tier down (then up) is tried, so a Legendary roll never turns into nothing. Every
+// unlocked sticker collected: a repeat. Nothing unlocked: null. (anyBird: dev only.)
+function drawSticker({ anyBird = false } = {}) {
+  const open = stickerSet.filter((x) => anyBird || stickerUnlocked(x.id));
+  if (!open.length) return null;
   const got = collectedStickers();
   const tier = rollTier();
   const i = TIER_ORDER.indexOf(tier);
   const order = [tier, ...TIER_ORDER.slice(i + 1), ...TIER_ORDER.slice(0, i).reverse()];
   const pick = (list) => list[Math.floor(Math.random() * list.length)].id;
   for (const t of order) {
-    const left = stickerSet.filter((x) => x.tier === t && !got.has(x.id));
+    const left = open.filter((x) => x.tier === t && !got.has(x.id));
     if (left.length) return pick(left);
   }
-  return pick(stickerSet.filter((x) => x.tier === tier));
+  for (const t of order) {
+    const again = open.filter((x) => x.tier === t);
+    if (again.length) return pick(again);
+  }
+  return null;
 }
 
 // After each answer (from record in app.js). Returns the sticker earned with this answer, if any.
@@ -60,8 +77,9 @@ function earnSticker() {
   const d = days[dayKey()];
   if (!d || d.k || d.r < STICKER_GOAL || !stickerSet.length) return null;
   const fresh = !collectedStickers().size;
-  d.k = drawSticker();
-  if (!d.k) return null;
+  const id = drawSticker();
+  if (!id) return null;
+  d.k = id;
   saveDays();
   logEvent("sticker", d.k, { tier: stickerOf(d.k)?.tier, first: fresh });
   return d.k;
@@ -125,7 +143,8 @@ function renderAlbum() {
   const intro = document.createElement("p");
   intro.className = "note";
   intro.textContent = `Get ${STICKER_GOAL} Right answers in a day and you earn a sticker, one a day. `
-    + "Most are Common, some are Rare and a few are Legendary. Tap a sticker on the calendar to see it again.";
+    + (STICKER_UNLOCK === "mastered" ? "Only birds you've mastered can be won" : "Only birds you've met in your cards can be won")
+    + ", so a named shadow is one you could get next. Most are Common, some are Rare and a few are Legendary.";
   body.append(intro);
   for (const tier of TIER_ORDER) {
     const list = stickerSet.filter((x) => x.tier === tier);
@@ -137,22 +156,24 @@ function renderAlbum() {
     grid.className = "album-grid";
     for (const st of list) {
       const has = got.has(st.id);
+      const open = !has && stickerUnlocked(st.id);
       const cell = document.createElement(has ? "button" : "div");
-      cell.className = `album-cell ${tier}${has ? "" : " missing"}`;
+      cell.className = `album-cell ${tier}${has ? "" : " missing"}${open ? " open" : ""}`;
       const img = new Image();
       img.src = stickerUrl(st.id);
       img.alt = "";
       img.loading = "lazy";
       img.decoding = "async";
       const name = document.createElement("small");
-      name.textContent = has ? stickerName(st.id) : "?";
+      name.textContent = has || open ? stickerName(st.id) : "?";
       cell.append(img, name);
       if (has) {
         cell.type = "button";
         cell.setAttribute("aria-label", `${stickerName(st.id)}, ${TIER_NAMES[tier]}`);
         cell.addEventListener("click", () => showSticker(st.id, { day: got.get(st.id) }));
       } else {
-        cell.setAttribute("aria-label", `${TIER_NAMES[tier]} sticker, not collected yet`);
+        cell.setAttribute("aria-label", open ? `${stickerName(st.id)}, ${TIER_NAMES[tier]}, can be won`
+          : `${TIER_NAMES[tier]} sticker, not unlocked yet`);
       }
       grid.append(cell);
     }
@@ -178,7 +199,12 @@ if (IS_DEV) {
     for (let i = 0; i < 400 && days[dayKey(date)]?.k; i++) date = addDays(date, -1);
     const k = dayKey(date);
     const d = days[k] || (days[k] = { a: 0, r: 0, m: 0 });
-    d.k = drawSticker();
+    let id = drawSticker();
+    if (!id) {
+      id = drawSticker({ anyBird: true });
+      setTimeout(() => showToast("No sticker birds unlocked yet, so this one ignored the rule"), 400);
+    }
+    d.k = id;
     saveDays();
     if ($("progress").open) renderProgress();
     showSticker(d.k, { earned: true });

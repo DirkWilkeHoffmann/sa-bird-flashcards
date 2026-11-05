@@ -1234,3 +1234,5 @@ body.onboarding { background: var(--bg); }
 .onb-actions { display: grid; gap: 10px; padding-top: 8px; }
 .onb-actions .btn { width: 100%; }
 .onb-actions .btn:disabled { opacity: .4; }
+.album-cell.open small { color: var(--label); font-weight: 600; }
+.album-cell.open img { opacity: .3; }
