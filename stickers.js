@@ -88,13 +88,13 @@ function earnSticker() {
 
 /* ---------- Showing a sticker: earned just now, or tapped on the calendar or album ---------- */
 
-// How each tier arrives when earned: a Common pops in, a Rare spins in with a glow and sparkles,
-// a Legendary spins in twice, with a flash, rays and a bigger burst.
+// Every sticker arrives the same big way: it spins in twice with a flash and a burst of sparkles.
+// The tiers differ in the glow (small green, medium yellow, big purple), the sparkles and the buzz.
+const SPIN_IN = { from: { s: 0, r: -740 }, damping: 0.5, response: 1.05, name: 1000, flash: true };
 const REVEAL = {
-  common: { from: { s: 0.2, r: -28 }, damping: 0.5, response: 0.45, name: 150, sparks: 0, buzz: [12, 50, 25] },
-  rare: { from: { s: 0.05, r: -380 }, damping: 0.55, response: 0.75, name: 550, sparks: 10, buzz: [15, 50, 15, 50, 40] },
-  legendary: { from: { s: 0, r: -740 }, damping: 0.5, response: 1.05, name: 1000, sparks: 22, flash: true,
-               buzz: [20, 50, 20, 50, 20, 50, 80] },
+  common: { ...SPIN_IN, sparks: 12, buzz: [12, 50, 25] },
+  rare: { ...SPIN_IN, sparks: 16, buzz: [15, 50, 15, 50, 40] },
+  legendary: { ...SPIN_IN, sparks: 22, buzz: [20, 50, 20, 50, 20, 50, 80] },
 };
 
 function sparkle(stage, n, color, at) {
@@ -154,7 +154,7 @@ function showSticker(id, { earned = false, day = null } = {}) {
     setTimeout(() => f.remove(), 1200);
   }
   if (r.sparks) {
-    const color = getComputedStyle(pop).getPropertyValue(st.tier === "legendary" ? "--tier-legend" : "--tier-rare").trim();
+    const color = getComputedStyle(pop).getPropertyValue("--glow").trim();
     sparkle($("stickerPopStage"), r.sparks, color, r.name * 0.55);
   }
   // The spin settles smoothly (no swinging past upright); the size has the bounce.
@@ -247,7 +247,7 @@ function openAlbum() {
 }
 
 // Collected stickers are in colour with their name. Not collected: a Common shows its shape and
-// name, a Rare only a question mark, and a Legendary a blur you can't make out.
+// name, a Rare its shape with a question mark, and a Legendary a blur you can't make out.
 function renderAlbum() {
   const body = $("stickerAlbumBody");
   body.replaceChildren();
@@ -267,21 +267,15 @@ function renderAlbum() {
       const cell = document.createElement(has ? "button" : "div");
       cell.className = `album-cell ${tier}${has ? "" : " missing"}`;
       const name = document.createElement("small");
-      if (has || tier !== "rare") {
+      {
         const img = new Image();
         img.src = stickerUrl(st.id);
         img.alt = "";
         img.loading = "lazy";
         img.decoding = "async";
         cell.append(img);
-      } else {
-        const q = document.createElement("span");
-        q.className = "q";
-        q.textContent = "?";
-        q.setAttribute("aria-hidden", "true");
-        cell.append(q);
       }
-      name.textContent = has || tier === "common" ? stickerName(st.id) : tier === "legendary" ? "?" : "";
+      name.textContent = has || tier === "common" ? stickerName(st.id) : "?";
       cell.append(name);
       if (has) {
         cell.type = "button";
