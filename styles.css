@@ -295,6 +295,29 @@ button:disabled:active { transform: none; }
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   backdrop-filter: blur(16px) saturate(160%);
 }
+/* Hear the call while guessing: bottom-left of the photo, opposite the flag. */
+#media .photo-call {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--tap);
+  padding: 0 14px 0 12px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(20, 24, 22, .45);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  font: inherit;
+  font-size: var(--fs-footnote);
+  font-weight: 600;
+}
+#media .photo-call[hidden], .card.revealed #media .photo-call { display: none; }
+#media .photo-call:is([data-state="playing"], [data-state="loading"]) { color: #fff; background: rgba(35, 153, 74, .75); }
 .flag {
   position: absolute;
   top: 8px;

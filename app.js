@@ -756,6 +756,7 @@ function showCall() {
   const call = card.calls[card.callIndex];
   stopAudio();
   $("sound").hidden = false;
+  $("photoCall").hidden = true;  // the call screen has its own big button
   $("soundType").textContent = call.type;
   $("otherCall").hidden = card.calls.length < 2;
   $("audio").src = call.url;
@@ -1121,6 +1122,7 @@ function nextCard() {
   lastWhy = card.why || "";
   card.hintMiss = false;
   $("newTag").hidden = !card.isNew;
+  $("photoCall").hidden = card.calls.length === 0;  // hearing the call while guessing is free
   fillQueue();
   // Once this bird's photos are on their way, fetch the next bird's too.
   const upcoming = queue[0];
@@ -1955,7 +1957,9 @@ $("audio").addEventListener("error", () => {
 });
 bindCall($("audio"), $("play"), "round");
 bindCall($("audio"), $("hearCall"), "long");
+bindCall($("audio"), $("photoCall"), "short");
 $("play").addEventListener("click", playCall);
+$("photoCall").addEventListener("click", (e) => { e.stopPropagation(); playCall(); });
 $("hearCall").addEventListener("click", playCall);
 $("otherCall").addEventListener("click", () => {
   card.callIndex = (card.callIndex + 1) % card.calls.length;
@@ -2051,6 +2055,7 @@ Promise.all([
       for (const s of species) s.calls = all[s.id] || [];
       for (const c of [card, ...queue]) c.calls = cardCalls(c.s).calls;
       if (!$("info").hidden) $("hearCall").hidden = card.calls.length === 0;
+      if ($("sound").hidden) $("photoCall").hidden = card.calls.length === 0;
     });
     devLine();
     logEvent("open", null, { area: settings.area, offline: !navigator.onLine, ...VISIT_SOURCE });
