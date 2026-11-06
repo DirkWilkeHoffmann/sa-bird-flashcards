@@ -111,6 +111,46 @@
     .hist img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: #000; }
     .hist p { margin: 6px 8px 8px; }
     .hist .kept { color: var(--good); font-weight: 600; } .hist .removed { color: var(--bad); font-weight: 600; }
+    /* Tabs: one part of the dashboard at a time */
+    .tabs { position: sticky; top: 0; z-index: 2; display: flex; gap: 4px; margin: 12px -16px 0; padding: 8px 16px;
+      overflow-x: auto; scrollbar-width: none; background: color-mix(in srgb, var(--bg) 92%, transparent);
+      -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-bottom: 1px solid var(--fill); }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tabs button { flex: none; min-height: 38px; padding: 0 14px; border: 0; border-radius: 999px; font: inherit; font-size: .9rem;
+      font-weight: 600; color: var(--label-2); background: none; cursor: pointer; }
+    .tabs button[aria-selected="true"] { color: var(--label); background: var(--bg-elev); box-shadow: 0 1px 3px rgba(0, 0, 0, .08); }
+    .tabs .badge { margin-left: 4px; padding: 0 6px; border-radius: 999px; font-size: .72rem; color: #fff; background: var(--tint); }
+    .panel > h2:first-child { margin-top: 18px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 10px; }
+    .filters input[type=search] { flex: 1 1 220px; min-height: 40px; padding: 0 12px; border: 0; border-radius: 10px; font: inherit;
+      color: var(--label); background: var(--bg-elev); }
+    .filters select { min-height: 40px; padding: 0 10px; border: 0; border-radius: 10px; font: inherit; color: var(--label); background: var(--bg-elev); }
+    .shown { margin: 0 0 8px; color: var(--label-2); font-size: .8rem; }
+    .more { display: block; width: 100%; min-height: 44px; margin: 10px 0 0; border: 0; border-radius: 12px; font: inherit;
+      font-weight: 600; color: var(--tint); background: var(--bg-elev); cursor: pointer; }
+    .player { padding: 10px 12px; }
+    .player .nums .stk { color: var(--label); }
+    /* Stickers */
+    .sticker-img { width: 40px; height: 40px; object-fit: contain; flex: none; }
+    .tier { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: .7rem; font-weight: 600; color: var(--label-2);
+      box-shadow: inset 0 0 0 1.5px var(--t, var(--fill-2)); }
+    .tier.common { --t: rgba(60, 72, 62, .3); } .tier.rare { --t: #dcc27a; } .tier.legendary { --t: #b7a3dc; }
+    .feed { display: grid; gap: 6px; }
+    .feed .row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; background: var(--bg-elev); font-size: .88rem; }
+    .feed .row .what { flex: 1; min-width: 0; }
+    .feed .row .what b, .feed .row .what span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .feed .row .what span { color: var(--label-2); font-size: .78rem; }
+    .feed .row .what .tier { display: inline-block; margin-left: 4px; vertical-align: 1px; color: var(--label-2); font-size: .68rem; }
+    .feed .row time { flex: none; color: var(--label-2); font-size: .78rem; text-align: right; }
+    .feed .row.link { cursor: pointer; }
+    .split { display: flex; height: 12px; overflow: hidden; border-radius: 999px; background: var(--fill); margin: 6px 0 8px; }
+    .split i { display: block; } .split .common { background: rgba(60, 72, 62, .35); } .split .rare { background: #dcc27a; } .split .legendary { background: #b7a3dc; }
+    .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .8rem; color: var(--label-2); }
+    .legend b { color: var(--label); }
+    .stk-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+    .stk-strip figure { margin: 0; width: 76px; text-align: center; font-size: .7rem; color: var(--label-2); }
+    .stk-strip img { display: block; width: 56px; height: 56px; margin: 0 auto 2px; object-fit: contain; }
+    @media (prefers-color-scheme: dark) { .tier.common { --t: rgba(170, 195, 178, .35); } .split .common { background: rgba(170, 195, 178, .35); } }
   </style>
 </head>
 <body>
@@ -132,35 +172,67 @@
         <button type="button" data-days="30" aria-pressed="true">30 days</button>
         <button type="button" data-days="90">90 days</button>
       </div>
-      <h2>At a glance</h2>
-      <div class="tiles" id="tiles"></div>
+      <nav class="tabs" id="tabs" role="tablist">
+        <button type="button" role="tab" data-tab="overview" aria-selected="true">Overview</button>
+        <button type="button" role="tab" data-tab="players">Players <span id="playerCount"></span></button>
+        <button type="button" role="tab" data-tab="stickers">Stickers <span id="stickerCount"></span></button>
+        <button type="button" role="tab" data-tab="birds">Birds</button>
+        <button type="button" role="tab" data-tab="review">To review <span id="reviewBadge"></span></button>
+      </nav>
 
-      <h2>Players <span id="playerCount"></span></h2>
-      <div class="controls sort" id="sortBtns">
-        <button type="button" data-sort="last_played" aria-pressed="true">Last played</button>
-        <button type="button" data-sort="answers">Most answers</button>
-        <button type="button" data-sort="mastered">Most mastered</button>
-        <button type="button" data-sort="signed_up">Newest sign-ups</button>
-      </div>
-      <div class="players" id="players"></div>
+      <section class="panel" data-panel="overview">
+        <h2>At a glance</h2>
+        <div class="tiles" id="tiles"></div>
+        <h2>Over time</h2>
+        <div class="grid2" id="charts"></div>
+        <h2>What players do</h2>
+        <div class="card"><table id="events"></table></div>
+      </section>
 
-      <h2>Over time</h2>
-      <div class="grid2" id="charts"></div>
+      <section class="panel" data-panel="players" hidden>
+        <h2>Players</h2>
+        <div class="filters">
+          <input type="search" id="playerSearch" placeholder="Search by name or email" autocomplete="off">
+          <select id="playerFilter" aria-label="Show">
+            <option value="all">Everyone</option>
+            <option value="signed">Signed in</option>
+            <option value="today">Played today</option>
+            <option value="week">Played this week</option>
+            <option value="stickers">Has stickers</option>
+          </select>
+          <select id="playerSort" aria-label="Sort by">
+            <option value="last_played">Last played</option>
+            <option value="answers">Most answers</option>
+            <option value="mastered">Most mastered</option>
+            <option value="stickers">Most stickers</option>
+            <option value="signed_up">Newest sign-ups</option>
+          </select>
+        </div>
+        <p class="shown" id="playersShown"></p>
+        <div class="players" id="players"></div>
+        <button class="more" type="button" id="playersMore" hidden></button>
+      </section>
 
-      <h2>What players do</h2>
-      <div class="card"><table id="events"></table></div>
+      <section class="panel" data-panel="stickers" hidden>
+        <h2>Stickers</h2>
+        <div id="stickerBody"><p class="empty">Loading…</p></div>
+      </section>
 
-      <div class="grid2">
-        <div><h2>Most-missed birds</h2><div class="card"><table id="missed"></table></div></div>
-        <div><h2>Most common mix-ups</h2><div class="card"><table id="mixups"></table></div></div>
-      </div>
+      <section class="panel" data-panel="birds" hidden>
+        <div class="grid2">
+          <div><h2>Most-missed birds</h2><div class="card"><table id="missed"></table></div></div>
+          <div><h2>Most common mix-ups</h2><div class="card"><table id="mixups"></table></div></div>
+        </div>
+      </section>
 
-      <h2>Flagged photos <span id="flagCount"></span></h2>
-      <div class="photos" id="photos"></div>
-      <details class="history" id="historyBox"><summary>Decisions so far</summary><div class="hist" id="history"></div></details>
+      <section class="panel" data-panel="review" hidden>
+        <h2>Flagged photos <span id="flagCount"></span></h2>
+        <div class="photos" id="photos"></div>
+        <details class="history" id="historyBox"><summary>Decisions so far</summary><div class="hist" id="history"></div></details>
 
-      <h2>Afrikaans name suggestions <span id="nameCount"></span></h2>
-      <div class="names" id="names"></div>
+        <h2>Afrikaans name suggestions <span id="nameCount"></span></h2>
+        <div class="names" id="names"></div>
+      </section>
     </div>
     <dialog id="playerDlg"></dialog>
   </main>
@@ -177,8 +249,17 @@
       bird_list: "Bird lists opened", bird_info: "Birds looked up", batch: "New birds added (before 30 Oct)",
       level_up: "Moved up a level (before 30 Oct)", sign_in: "Signed in", sign_out: "Signed out",
       call_failed: "Calls that wouldn't play", flag_photo: "Photos flagged", compare: "Compare opened", offline_download: "Offline downloads",
-      names: "Switched name language", name_report: "Afrikaans names questioned" };
-    let env = "main", days = 30, names = new Map(), players = [], sortBy = "last_played";
+      names: "Switched name language", name_report: "Afrikaans names questioned", sticker: "Stickers earned",
+      sticker_share: "Stickers shared", daily_goal: "Daily goal reached", onboard: "Walkthrough steps",
+      installed: "Installed the app", install_reminder: "Install reminders shown", install_nudge: "Install nudges shown",
+      install_prompt: "Install prompts shown", app_installed: "App installs" };
+    let env = "main", days = 30, names = new Map(), players = [];
+    // Players list: search, filter, sort, and how many are shown (more on request).
+    const PAGE = 30;
+    let shownPlayers = PAGE, shownFeed = 20;
+    // Stickers: every one earned (admin_stickers), and each sticker's tier (the app's data/stickers.json).
+    let stickers = null, stickerTiers = new Map(), stickersByPlayer = new Map();
+    const TIER_LABEL = { common: "Common", rare: "Rare", legendary: "Legendary" };
     // Areas and families by code, for "Kruger National Park" instead of "kruger" (from the app's data).
     const COUNTRIES = { ZA: "South Africa", NA: "Namibia", BW: "Botswana", ZW: "Zimbabwe", MZ: "Mozambique", LS: "Lesotho", SZ: "Eswatini" };
     let areaNames = new Map(), familyNames = new Map();
@@ -200,6 +281,15 @@
       history.replaceState(null, "", url);
     }
     const key = () => { try { return localStorage.getItem(KEY) || ""; } catch { return ""; } };
+
+    const remember = (k, v) => { try { localStorage.setItem(`sabirds.admin.${k}`, v); } catch { /* */ } };
+    const recall = (k) => { try { return localStorage.getItem(`sabirds.admin.${k}`); } catch { return null; } };
+    function showTab(name) {
+      if (!document.querySelector(`[data-panel="${name}"]`)) name = "overview";
+      document.querySelectorAll("#tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === name)));
+      document.querySelectorAll(".panel").forEach((x) => { x.hidden = x.dataset.panel !== name; });
+      remember("tab", name);
+    }
 
     const fmt = (n) => Number(n || 0).toLocaleString("en-ZA");
     const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -245,6 +335,8 @@
       $("mixups").innerHTML = `<tr><th>Bird</th><th>Mistaken for</th><th class="num">Times</th></tr>` + r.top_mixups.map((m) =>
         `<tr><td>${esc(bird(m.id).name)}</td><td>${esc(bird(m.picked).name)}</td><td class="num">${fmt(m.n)}</td></tr>`).join("");
       $("flagCount").textContent = r.photos.length ? `(${r.photos.length})` : "";
+      flagsWaiting = r.photos.length;
+      reviewBadge();
       $("photos").innerHTML = r.photos.length ? r.photos.map((p) => `
         <div class="photo" data-id="${p.photo_id}">
           <img src="${esc(String(p.photo_url).replace("/large.", "/medium."))}" alt="" loading="lazy">
@@ -253,6 +345,12 @@
             <div class="actions"><button class="keep" data-d="keep" type="button">Keep</button><button class="remove" data-d="remove" type="button">Remove</button></div>
           </div></div>`).join("")
         : `<p class="empty">Nothing to review. 🎉</p>`;
+    }
+
+    let flagsWaiting = 0, namesWaiting = 0;
+    function reviewBadge() {
+      const n = flagsWaiting + namesWaiting;
+      $("reviewBadge").innerHTML = n ? `<span class="badge">${n}</span>` : "";
     }
 
     // "3 h ago", "yesterday", "12 Oct"
@@ -272,20 +370,137 @@
       : `<span class="avatar">${esc((p.name || "G")[0].toUpperCase())}</span>`);
     const label = (p) => p.name || p.email || `Guest ${p.id.slice(0, 4)}`;
 
+    // In this app (Live or Dev): stickers from Dev accounts show under Dev, everyone else's under Live.
+    const inEnv = (x) => (env === "dev" ? x.app === "dev" : x.app !== "dev");
+    const stickerCount = (p) => stickersByPlayer.get(p.id)?.length || 0;
+    const startOfDay = () => new Date(new Date().toDateString()).getTime();
+
+    function filteredPlayers() {
+      const q = $("playerSearch").value.trim().toLowerCase();
+      const f = $("playerFilter").value, sortBy = $("playerSort").value;
+      const since = f === "today" ? startOfDay() : f === "week" ? Date.now() - 7 * 864e5 : 0;
+      const list = players.filter((p) => {
+        if (q && !`${p.name || ""} ${p.email || ""} ${p.id}`.toLowerCase().includes(q)) return false;
+        if (f === "signed" && !p.email) return false;
+        if (since && !(p.last_played && new Date(p.last_played).getTime() >= since)) return false;
+        if (f === "stickers" && !stickerCount(p)) return false;
+        return true;
+      });
+      const val = (p) => (sortBy === "last_played" || sortBy === "signed_up" ? new Date(p[sortBy] || 0).getTime()
+        : sortBy === "stickers" ? stickerCount(p) : p[sortBy] || 0);
+      return list.sort((x, y) => val(y) - val(x));
+    }
+
     function renderPlayers() {
-      const key = (p) => (sortBy === "last_played" || sortBy === "signed_up" ? new Date(p[sortBy] || 0).getTime() : p[sortBy] || 0);
-      const list = [...players].sort((a, b) => key(b) - key(a));
-      $("playerCount").textContent = `(${players.length})`;
-      $("players").innerHTML = list.map((p) => `
+      const list = filteredPlayers();
+      $("playerCount").textContent = players.length ? `(${fmt(players.length)})` : "";
+      $("playersShown").textContent = list.length === players.length
+        ? `${fmt(players.length)} players` : `${fmt(list.length)} of ${fmt(players.length)} players`;
+      $("players").innerHTML = list.slice(0, shownPlayers).map((p) => {
+        const n = stickerCount(p);
+        return `
         <button class="player" type="button" data-id="${esc(p.id)}">
           ${avatar(p)}
           <span class="who"><b>${esc(label(p))}</b><span>${p.email ? esc(p.email) : "Not signed in"}${p.app === "dev" ? ' · <span class="pill">Dev</span>' : ""}</span></span>
           <span class="when"><b>${ago(p.last_played)}</b>${p.days_played} day${p.days_played === 1 ? "" : "s"} played</span>
           <span class="nums"><span><b>${fmt(p.answers)}</b> answers</span><span><b>${pct(p.right, p.answers)}</b> right</span>
-            <span><b>${fmt(p.mastered)}</b> mastered</span><span><b>${fmt(p.learning)}</b> learning</span>
-            ${p.hints ? `<span><b>${fmt(p.hints)}</b> hints</span>` : ""}${p.skips ? `<span><b>${fmt(p.skips)}</b> skips</span>` : ""}
+            <span><b>${fmt(p.mastered)}</b> mastered</span>
+            ${n ? `<span class="stk"><b>${n}</b> sticker${n === 1 ? "" : "s"}</span>` : ""}
             ${studying(p) ? `<span class="pill">${esc(studying(p))}</span>` : ""}</span>
-        </button>`).join("") || `<p class="empty">No players yet.</p>`;
+        </button>`; }).join("") || `<p class="empty">${players.length ? "No players match." : "No players yet."}</p>`;
+      const left = list.length - shownPlayers;
+      $("playersMore").hidden = left <= 0;
+      $("playersMore").textContent = `Show ${Math.min(PAGE, left)} more (${fmt(left)} left)`;
+    }
+
+    /* ---------- Stickers ---------- */
+    const stickerImg = (id) => `<img class="sticker-img" src="stickers/${id}.webp" alt="" loading="lazy">`;
+    const tierOf = (id) => stickerTiers.get(id) || "common";
+    const dayLabel = (d) => new Date(`${d}T12:00`).toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" });
+
+    function indexStickers() {
+      stickersByPlayer = new Map();
+      for (const x of (stickers || []).filter(inEnv)) {
+        if (!stickersByPlayer.has(x.player)) stickersByPlayer.set(x.player, []);
+        stickersByPlayer.get(x.player).push(x);
+      }
+    }
+
+    function renderStickers() {
+      const box = $("stickerBody");
+      if (stickers === null) {
+        box.innerHTML = `<p class="empty">Sticker data isn't available yet: the dashboard's sticker report (admin_stickers) hasn't been added to the database.</p>`;
+        $("stickerCount").textContent = "";
+        return;
+      }
+      const all = stickers.filter(inEnv);
+      $("stickerCount").textContent = all.length ? `(${fmt(all.length)})` : "";
+      if (!all.length) { box.innerHTML = `<p class="empty">No stickers earned yet.</p>`; return; }
+      const today = new Date().toLocaleDateString("en-CA");
+      const weekAgo = new Date(Date.now() - 6 * 864e5).toLocaleDateString("en-CA");
+      const since = new Date(Date.now() - (days - 1) * 864e5).toLocaleDateString("en-CA");
+      const inPeriod = all.filter((x) => x.day >= since);
+      const tiers = { common: 0, rare: 0, legendary: 0 };
+      for (const x of all) tiers[tierOf(x.id)]++;
+      const tile = (n, l, sub = "") => `<div class="tile"><b>${fmt(n)}</b><span>${l}</span>${sub ? `<small>${sub}</small>` : ""}</div>`;
+      const pick = (t) => all.length ? `${Math.round((tiers[t] / all.length) * 100)}%` : "0%";
+
+      // Collectors: who has the most, with their latest
+      const collectors = [...stickersByPlayer.entries()].map(([id, list]) => ({ p: players.find((x) => x.id === id), id, list }))
+        .sort((a, b) => b.list.length - a.list.length || (b.list[0].day > a.list[0].day ? 1 : -1));
+      // Most-won stickers
+      const won = new Map();
+      for (const x of all) won.set(x.id, (won.get(x.id) || 0) + 1);
+      const topWon = [...won.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
+      const who = (id) => { const p = players.find((x) => x.id === id); return p ? label(p) : `Player ${id.slice(0, 4)}`; };
+
+      box.innerHTML = `
+        <div class="tiles">
+          ${tile(all.length, "Stickers earned", inPeriod.length ? `${fmt(inPeriod.length)} in the last ${days} days` : "")}
+          ${tile(all.filter((x) => x.day === today).length, "Earned today")}
+          ${tile(all.filter((x) => x.day >= weekAgo).length, "This week")}
+          ${tile(stickersByPlayer.size, "Players with a sticker")}
+          ${tile(collectors[0]?.list.length || 0, "Most by one player")}
+        </div>
+        <h2>Common, Rare, Legendary</h2>
+        <div class="card">
+          <div class="split">${["common", "rare", "legendary"].map((t) => `<i class="${t}" style="width:${(tiers[t] / all.length) * 100}%"></i>`).join("")}</div>
+          <div class="legend">${["common", "rare", "legendary"].map((t) => `<span><b>${fmt(tiers[t])}</b> ${TIER_LABEL[t]} (${pick(t)})</span>`).join("")}</div>
+        </div>
+        <h2>Earned per day</h2>
+        <div class="grid2">${chart("Stickers earned", countByDay(all))}</div>
+        <h2>Latest</h2>
+        <div class="feed" id="stickerFeed"></div>
+        <button class="more" type="button" id="feedMore" hidden></button>
+        <div class="grid2">
+          <div><h2>Top collectors</h2><div class="feed">${collectors.slice(0, 10).map((c) => `
+            <div class="row link" data-player="${esc(c.id)}">${c.p ? avatar(c.p) : '<span class="avatar">?</span>'}
+              <div class="what"><b>${esc(who(c.id))}</b><span>Latest: ${esc(bird(c.list[0].id).name)}, ${dayLabel(c.list[0].day)}</span></div>
+              <time><b>${c.list.length}</b> sticker${c.list.length === 1 ? "" : "s"}</time></div>`).join("")}</div></div>
+          <div><h2>Most won</h2><div class="feed">${topWon.map(([id, n]) => `
+            <div class="row">${stickerImg(id)}<div class="what"><b>${esc(bird(id).name)}</b><span><span class="tier ${tierOf(id)}">${TIER_LABEL[tierOf(id)]}</span></span></div>
+              <time>${n}×</time></div>`).join("")}</div></div>
+        </div>`;
+      renderFeed();
+    }
+
+    function renderFeed() {
+      const all = stickers.filter(inEnv);
+      $("stickerFeed").innerHTML = all.slice(0, shownFeed).map((x) => `
+        <div class="row link" data-player="${esc(x.player)}">${stickerImg(x.id)}
+          <div class="what"><b>${esc(bird(x.id).name)} <span class="tier ${tierOf(x.id)}">${TIER_LABEL[tierOf(x.id)]}</span></b>
+            <span>${esc((() => { const p = players.find((q) => q.id === x.player); return p ? label(p) : `Player ${x.player.slice(0, 4)}`; })())}</span></div>
+          <time>${dayLabel(x.day)}</time></div>`).join("");
+      const left = all.length - shownFeed;
+      $("feedMore").hidden = left <= 0;
+      $("feedMore").textContent = `Show ${Math.min(20, left)} more (${fmt(left)} left)`;
+    }
+
+    // The chart() helper wants [{ day, n }]
+    function countByDay(list) {
+      const by = new Map();
+      for (const x of list) by.set(x.day, (by.get(x.day) || 0) + 1);
+      return [...by.entries()].map(([day, n]) => ({ day, n }));
     }
 
     const EVENT_VERBS = { open: "Opened the app", answer: "Answered", hint: "Used a hint", skip: "Skipped", undo_skip: "Undid a skip",
@@ -347,6 +562,9 @@
           <div><span>Hidden for a day</span>${fmt(p.snoozes)}</div><div><span>Mastered everything here</span>${fmt(p.all_mastered)}</div>
           <div><span>Calls that failed</span>${fmt(p.call_failed)}</div><div><span>Photos hidden</span>${fmt(d.hidden_photos)}</div>
         </div>
+        ${(() => { const st = stickersByPlayer.get(p.id) || []; return `<h2>Stickers (${st.length})</h2>` + (st.length
+          ? `<div class="stk-strip">${st.map((x) => `<figure><img src="stickers/${x.id}.webp" alt="" loading="lazy">${esc(bird(x.id).name)}<br>${dayLabel(x.day)}</figure>`).join("")}</div>`
+          : '<p class="empty">None yet.</p>'); })()}
         <h2>Finding hardest (${learning.length} learning)</h2>
         <div class="chips">${learning.slice(0, 40).map((x) => chip(x)).join("") || '<span class="empty">None</span>'}</div>
         <h2>Mastered (${mastered.length})</h2>
@@ -370,6 +588,8 @@
     async function loadNames() {
       const list = (await rpc("admin_name_reports", { p_key: key() }).catch(() => null)) || [];
       const open = list.filter((x) => x.status === "pending");
+      namesWaiting = open.length;
+      reviewBadge();
       $("nameCount").textContent = open.length ? `(${open.length})` : "";
       $("names").innerHTML = list.map((x) => `
         <div class="namerep${x.status === "pending" ? "" : " done"}" data-id="${x.id}">
@@ -387,14 +607,19 @@
       if (!key()) { $("keyForm").hidden = false; $("report").hidden = true; return; }
       $("msg").textContent = "Loading…";
       try {
-        const [r, pl] = await Promise.all([rpc("admin_report", { p_key: key(), p_env: env, p_days: days }),
-          rpc("admin_players", { p_key: key(), p_env: env })]);
+        const [r, pl, st] = await Promise.all([rpc("admin_report", { p_key: key(), p_env: env, p_days: days }),
+          rpc("admin_players", { p_key: key(), p_env: env }),
+          rpc("admin_stickers", { p_key: key() }).catch(() => null)]);
         $("msg").textContent = "";
         $("keyForm").hidden = true;
         $("report").hidden = false;
         render(r);
         players = pl;
+        stickers = st;
+        indexStickers();
+        shownPlayers = PAGE; shownFeed = 20;
         renderPlayers();
+        renderStickers();
         loadHistory();
         loadNames();
       } catch (e) {
@@ -420,12 +645,26 @@
       $("dayBtns").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
       load();
     });
-    $("sortBtns").addEventListener("click", (e) => {
-      const b = e.target.closest("button"); if (!b) return;
-      sortBy = b.dataset.sort;
-      $("sortBtns").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-      renderPlayers();
+    $("tabs").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-tab]"); if (!b) return;
+      showTab(b.dataset.tab);
+      window.scrollTo({ top: 0 });
     });
+    const resetPlayers = () => { shownPlayers = PAGE; renderPlayers(); };
+    $("playerSearch").addEventListener("input", resetPlayers);
+    $("playerFilter").addEventListener("change", () => { remember("filter", $("playerFilter").value); resetPlayers(); });
+    $("playerSort").addEventListener("change", () => { remember("sort", $("playerSort").value); resetPlayers(); });
+    $("playersMore").addEventListener("click", () => { shownPlayers += PAGE; renderPlayers(); });
+    $("stickerBody").addEventListener("click", (e) => {
+      if (e.target.closest("#feedMore")) { shownFeed += 20; renderFeed(); return; }
+      const row = e.target.closest("[data-player]");
+      if (row && players.some((x) => x.id === row.dataset.player)) openPlayer(row.dataset.player);
+    });
+    for (const [id, k] of [["playerFilter", "filter"], ["playerSort", "sort"]]) {
+      const v = recall(k);
+      if (v && [...$(id).options].some((o) => o.value === v)) $(id).value = v;
+    }
+    showTab(recall("tab") || "overview");
     $("players").addEventListener("click", (e) => {
       const b = e.target.closest(".player"); if (b) openPlayer(b.dataset.id);
     });
@@ -462,6 +701,7 @@
         }
       }),
       fetch("data/areas.json").then((r) => r.json()).then((a) => { areaNames = new Map(a.areas.map((x) => [x.id, x.name])); }),
+      fetch("data/stickers.json").then((r) => r.json()).then((list) => { stickerTiers = new Map(list.map((x) => [x.id, x.tier])); }).catch(() => {}),
     ]).catch(() => {}).finally(load);
   </script>
 </body>
