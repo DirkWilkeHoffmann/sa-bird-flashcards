@@ -37,6 +37,10 @@
     .tile span { color: var(--label-2); font-size: .8rem; }
     .tile small { display: block; color: var(--good); font-size: .75rem; font-weight: 600; }
     .card { padding: 14px; border-radius: 14px; background: var(--bg-elev); }
+    .card .controls { margin: 0 0 10px; }
+    td.rate { font-variant-numeric: tabular-nums; }
+    td.rate small { display: block; color: var(--label-2); font-size: .72rem; }
+    td.rate.hit b { color: var(--good); } td.rate.low b { color: var(--bad); }
     .card .note { margin: 10px 0 0; color: var(--label-2); font-size: .8rem; line-height: 1.4; }
     .card .note code { font-size: .78rem; word-break: break-all; }
     tr.total td { font-weight: 600; border-top: 1px solid var(--fill-2); }
@@ -188,6 +192,15 @@
         <div class="tiles" id="tiles"></div>
         <h2>Over time</h2>
         <div class="grid2" id="charts"></div>
+        <h2>Do new players come back?</h2>
+        <div class="tiles" id="retTiles"></div>
+        <div class="card">
+          <div class="controls" id="retBtns">
+            <button type="button" data-by="weeks" aria-pressed="true">By week</button>
+            <button type="button" data-by="days">By day (last 14)</button>
+          </div>
+          <table id="retention"></table>
+          <p class="note">Players are grouped by when they first played. Each rate only counts players who've had the time: "A week later" leaves out anyone who started less than 7 days ago. Targets: 40% / 25% / 12%.</p></div>
         <h2>Where new players come from</h2>
         <div class="card"><table id="sources"></table>
           <p class="note">Give each place you share the app its own link, e.g. <code>sabirds.co.za/?from=groot-brak-club</code>. Players who came recently haven't had a week yet, so the last two columns fill in over time.</p></div>
@@ -373,6 +386,34 @@
       t.innerHTML = `<tr><th>From</th><th class="num">New players</th><th class="num">Came back</th><th class="num">A week later</th><th class="num">Visits</th></tr>`
         + list.map((x) => row(sourceName(x.src), x)).join("")
         + (list.length > 1 ? row("All", { ...all, visitors: null }, "total") : "");
+    }
+
+    // Do new players come back (admin_retention)? Groups by week or day of first play.
+    let retention = null, retBy = "weeks";
+    const RET = [["back", "Came back", "on a later day", 0.40], ["week", "A week later", "still playing 7+ days on", 0.25],
+      ["month", "A month later", "still playing 30+ days on", 0.12]];
+    function renderRetention() {
+      const t = $("retention");
+      if (!retention) { $("retTiles").innerHTML = ""; t.innerHTML = `<tr><td class="empty">Not available yet.</td></tr>`; return; }
+      const sum = (k) => retention.weeks.reduce((a, g) => a + (g[k] || 0), 0);
+      const rate = (n, of) => (of ? n / of : null);
+      $("retTiles").innerHTML = RET.map(([k, label, sub, target]) => {
+        const r = rate(sum(`${k}_n`), sum(`${k}_of`));
+        return `<div class="tile"><b>${r == null ? "—" : `${Math.round(r * 100)}%`}</b><span>${label}</span>
+          <small style="color:${r == null ? "var(--label-2)" : r >= target ? "var(--good)" : "var(--bad)"}">${r == null ? "not enough time yet" : `${sub} · target ${target * 100}%`}</small></div>`;
+      }).join("");
+      const rows = [...(retention[retBy] || [])].reverse();
+      const cell = (g, k, target) => {
+        const of = g[`${k}_of`], n = g[`${k}_n`];
+        if (!of) return `<td class="num rate">—</td>`;
+        const r = n / of;
+        return `<td class="num rate ${r >= target ? "hit" : "low"}"><b>${Math.round(r * 100)}%</b><small>of ${fmt(of)}</small></td>`;
+      };
+      const when = (d) => new Date(`${d}T12:00:00`).toLocaleDateString("en-ZA", { day: "numeric", month: "short", ...(retBy === "days" ? { weekday: "short" } : {}) });
+      t.innerHTML = rows.length
+        ? `<tr><th>${retBy === "weeks" ? "Week of" : "Day"}</th><th class="num">New</th>${RET.map(([, l]) => `<th class="num">${l}</th>`).join("")}<th class="num">Days played</th></tr>`
+          + rows.map((g) => `<tr><td>${when(g.start)}</td><td class="num">${fmt(g.n)}</td>${RET.map(([k, , , tg]) => cell(g, k, tg)).join("")}<td class="num">${g.avg_days}</td></tr>`).join("")
+        : `<tr><td class="empty">No new players in this period.</td></tr>`;
     }
 
     let flagsWaiting = 0, namesWaiting = 0;
@@ -639,11 +680,13 @@
           rpc("admin_players", { p_key: key(), p_env: env }),
           rpc("admin_stickers", { p_key: key() }).catch(() => null),
           rpc("admin_sources", { p_key: key(), p_env: env, p_days: days }).catch(() => null)]);
+        retention = await rpc("admin_retention", { p_key: key(), p_env: env, p_days: days }).catch(() => null);
         $("msg").textContent = "";
         $("keyForm").hidden = true;
         $("report").hidden = false;
         render(r);
         renderSources(so);
+        renderRetention();
         players = pl;
         stickers = st;
         indexStickers();
@@ -668,6 +711,12 @@
       env = b.dataset.env;
       $("envBtns").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
       load();
+    });
+    $("retBtns").addEventListener("click", (e) => {
+      const b = e.target.closest("button"); if (!b) return;
+      retBy = b.dataset.by;
+      $("retBtns").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      renderRetention();
     });
     $("dayBtns").addEventListener("click", (e) => {
       const b = e.target.closest("button"); if (!b) return;
