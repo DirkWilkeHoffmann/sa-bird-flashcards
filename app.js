@@ -22,8 +22,8 @@ const storeKey = (key) => (IS_DEV ? key.replace(/^sabirds\./, "sabirds-dev.") : 
    under the player's private sync code, so the old address sends that code across (in the part of
    the address after #, which never leaves the phone) with a few small on-phone-only settings, and
    the new address picks it up before anything else loads. The next sync then brings the progress in. */
-const OLD_HOST = "localhost";
-const NEW_HOME = "http://127.0.0.1:8766";
+const OLD_HOST = "dirkwilkehoffmann.github.io";
+const NEW_HOME = "https://sabirds.co.za";
 // Kept only on the phone (not synced), so they travel with the move. Synced data doesn't need to.
 const MOVE_KEYS = ["sabirds.onboard.v1", "sabirds.onboardSkipped.v1", "sabirds.coach.v1", "sabirds.coachDone.v1",
   "sabirds.seenBirds.v1", "sabirds.masteredShown.v1", "sabirds.signInNudged.v1"];
@@ -35,11 +35,18 @@ const MOVE_KEYS = ["sabirds.onboard.v1", "sabirds.onboardSkipped.v1", "sabirds.c
   try {
     const code = decodeURIComponent(m[1]);
     if (!/^[A-Za-z0-9-]{20,80}$/.test(code)) return;
+    // Only the old address may hand a player over, so a link someone made up can't swap a player's progress.
+    if (!document.referrer.startsWith(`https://${OLD_HOST}/`) && !document.referrer.startsWith(`http://${OLD_HOST}:`)) return;
     const get = (k) => localStorage.getItem(storeKey(k));
     const set = (k, v) => localStorage.setItem(storeKey(k), v);
     if (get("sabirds.syncCode.v1") === JSON.stringify(code)) return;  // moved before
-    // Played here already (e.g. from a shared link): what this phone learned here is added to the moved progress.
+    // Played here already (e.g. from a shared link): what this phone learned here is added to the moved
+    // progress, but only if the player says so.
     const played = Object.keys(JSON.parse(get("sabirds.stats.v1") || "{}")).length > 0;
+    if (played && get("sabirds.syncCode.v1") != null
+        && !confirm("Bring your SA Birds progress over from the old address? It's combined with what you've learned here.")) return;
+    const before = get("sabirds.syncCode.v1");
+    if (before != null) set("sabirds.syncCodeBeforeMove.v1", before);  // so it can be found again if needed
     set("sabirds.syncCode.v1", JSON.stringify(code));
     set("sabirds.syncedOnce.v1", "false");
     if (played) set("sabirds.joining.v1", "true");
