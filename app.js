@@ -57,8 +57,10 @@ const MOVE_KEYS = ["sabirds.onboard.v1", "sabirds.onboardSkipped.v1", "sabirds.c
 
 // On the old address: once everything on this phone has reached the server, go to the new one.
 // An app added to the Home Screen can't change its address, so it shows a note with a button instead.
+// Main moves too once the move has been tested on Dev with the real sabirds.co.za (set to true then).
+const MOVE_MAIN = false;
 async function moveHome(firstSync) {
-  if (location.hostname !== OLD_HOST || !navigator.onLine) return;
+  if (location.hostname !== OLD_HOST || !navigator.onLine || (!IS_DEV && !MOVE_MAIN)) return;
   const folder = (location.pathname.replace(/^\/sa-bird-flashcards/, "") || "/").replace(/[^/]*$/, "");
   try {  // the new address is set up and serving SA Birds (until then nothing moves)
     const r = await fetch(`${NEW_HOME}${folder}manifest.webmanifest`, { cache: "no-store" });
