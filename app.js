@@ -16,6 +16,27 @@ const icon = (name, cls = "") => `<svg class="i ${cls}" aria-hidden="true"><use 
 const IS_DEV = location.pathname.includes("/dev/");
 const storeKey = (key) => (IS_DEV ? key.replace(/^sabirds\./, "sabirds-dev.") : key);
 
+// Where this visit came from, sent with the "open" event so the dashboard can show which links
+// bring players who stay. A shared link can name its place: …/?from=groot-brak-club. Otherwise the
+// site the player tapped the link on, if the browser says (WhatsApp usually doesn't).
+// The ?from= is then taken off the address, so a player who shares the page doesn't pass it on.
+const VISIT_SOURCE = (() => {
+  const out = {};
+  try {
+    const url = new URL(location.href);
+    const from = url.searchParams.get("from") || url.searchParams.get("utm_source");
+    if (from) {
+      const tidy = from.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+      if (tidy) out.from = tidy;
+      for (const p of ["from", "utm_source", "utm_medium", "utm_campaign", "fbclid"]) url.searchParams.delete(p);
+      history.replaceState(history.state, "", url.pathname + url.search + url.hash);
+    }
+    const ref = document.referrer && new URL(document.referrer).hostname.replace(/^(www|m|l|lm)\./, "");
+    if (ref && ref !== location.hostname) out.ref = ref.slice(0, 60);
+  } catch { /* odd address: no source */ }
+  return out;
+})();
+
 let species = [];
 let stats = load(STATS_KEY, {});   // { [speciesId]: { right, wrong, hint, streak, seen, updated } }
 // The study set is one area (see "The area" below). First-time default: South Africa.
@@ -1967,7 +1988,7 @@ Promise.all([
       if (!$("info").hidden) $("hearCall").hidden = card.calls.length === 0;
     });
     devLine();
-    logEvent("open", null, { area: settings.area, offline: !navigator.onLine });
+    logEvent("open", null, { area: settings.area, offline: !navigator.onLine, ...VISIT_SOURCE });
     startSync();
     if (typeof startWalkthrough === "function") startWalkthrough();
   })

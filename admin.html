@@ -37,6 +37,9 @@
     .tile span { color: var(--label-2); font-size: .8rem; }
     .tile small { display: block; color: var(--good); font-size: .75rem; font-weight: 600; }
     .card { padding: 14px; border-radius: 14px; background: var(--bg-elev); }
+    .card .note { margin: 10px 0 0; color: var(--label-2); font-size: .8rem; line-height: 1.4; }
+    .card .note code { font-size: .78rem; word-break: break-all; }
+    tr.total td { font-weight: 600; border-top: 1px solid var(--fill-2); }
     .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
     .chart h3 { margin: 0 0 8px; font-size: .9rem; font-weight: 600; }
     .bars { display: flex; align-items: flex-end; gap: 2px; height: 110px; border-bottom: 1px solid var(--fill-2); }
@@ -185,6 +188,9 @@
         <div class="tiles" id="tiles"></div>
         <h2>Over time</h2>
         <div class="grid2" id="charts"></div>
+        <h2>Where new players come from</h2>
+        <div class="card"><table id="sources"></table>
+          <p class="note">Give each place you share the app its own link, e.g. <code>…/sa-bird-flashcards/?from=groot-brak-club</code>. Players who came recently haven't had a week yet, so the last two columns fill in over time.</p></div>
         <h2>What players do</h2>
         <div class="card"><table id="events"></table></div>
       </section>
@@ -345,6 +351,28 @@
             <div class="actions"><button class="keep" data-d="keep" type="button">Keep</button><button class="remove" data-d="remove" type="button">Remove</button></div>
           </div></div>`).join("")
         : `<p class="empty">Nothing to review. 🎉</p>`;
+    }
+
+    // Where new players came from (admin_sources): the ?from= name of the link, else the site it was tapped on.
+    const SITE_NAMES = { "facebook.com": "Facebook", "instagram.com": "Instagram", "t.co": "X", "x.com": "X",
+      "linkedin.com": "LinkedIn", "reddit.com": "Reddit", "youtube.com": "YouTube", "bing.com": "Bing", "duckduckgo.com": "DuckDuckGo" };
+    function sourceName(src) {
+      if (!src) return "No link, or before 6 Nov";
+      if (!src.startsWith("site:")) return src;
+      const host = src.slice(5);
+      if (/(^|\.)google\./.test(host)) return "Google";
+      return SITE_NAMES[host] || host;
+    }
+    function renderSources(list) {
+      const t = $("sources");
+      if (!list) { t.innerHTML = `<tr><td class="empty">Not available yet.</td></tr>`; return; }
+      const pct = (n, of) => (of ? `${Math.round((n / of) * 100)}%` : "—");
+      const all = list.reduce((a, x) => ({ new: a.new + x.new, back: a.back + x.back, week: a.week + x.week }), { new: 0, back: 0, week: 0 });
+      const row = (name, x, cls = "") => `<tr class="${cls}"><td>${esc(name)}</td><td class="num">${fmt(x.new)}</td>
+        <td class="num">${pct(x.back, x.new)}</td><td class="num">${pct(x.week, x.new)}</td><td class="num">${x.visitors == null ? "" : fmt(x.visitors)}</td></tr>`;
+      t.innerHTML = `<tr><th>From</th><th class="num">New players</th><th class="num">Came back</th><th class="num">A week later</th><th class="num">Visits</th></tr>`
+        + list.map((x) => row(sourceName(x.src), x)).join("")
+        + (list.length > 1 ? row("All", { ...all, visitors: null }, "total") : "");
     }
 
     let flagsWaiting = 0, namesWaiting = 0;
@@ -607,13 +635,15 @@
       if (!key()) { $("keyForm").hidden = false; $("report").hidden = true; return; }
       $("msg").textContent = "Loading…";
       try {
-        const [r, pl, st] = await Promise.all([rpc("admin_report", { p_key: key(), p_env: env, p_days: days }),
+        const [r, pl, st, so] = await Promise.all([rpc("admin_report", { p_key: key(), p_env: env, p_days: days }),
           rpc("admin_players", { p_key: key(), p_env: env }),
-          rpc("admin_stickers", { p_key: key() }).catch(() => null)]);
+          rpc("admin_stickers", { p_key: key() }).catch(() => null),
+          rpc("admin_sources", { p_key: key(), p_env: env, p_days: days }).catch(() => null)]);
         $("msg").textContent = "";
         $("keyForm").hidden = true;
         $("report").hidden = false;
         render(r);
+        renderSources(so);
         players = pl;
         stickers = st;
         indexStickers();
