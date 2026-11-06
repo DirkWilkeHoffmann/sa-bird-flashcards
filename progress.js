@@ -293,12 +293,13 @@ const unsynced = () => dirty.size || hiddenDirty.size || (typeof learnDirty !== 
   || (typeof daysDirty !== "undefined" && daysDirty) || (typeof events !== "undefined" && events.length);
 
 function startSync() {
-  syncNow();
+  const first = syncNow();
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "hidden" && unsynced()) syncNow();
     if (document.visibilityState === "visible" && (!lastSync || Date.now() - lastSync > RESUME_SYNC_MS)) syncNow();
   });
   window.addEventListener("online", syncNow);
+  return first;  // the move to sabirds.co.za waits for it (see app.js)
 }
 
 async function useOtherCode() {

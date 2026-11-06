@@ -16,6 +16,63 @@ const icon = (name, cls = "") => `<svg class="i ${cls}" aria-hidden="true"><use 
 const IS_DEV = location.pathname.includes("/dev/");
 const storeKey = (key) => (IS_DEV ? key.replace(/^sabirds\./, "sabirds-dev.") : key);
 
+/* ---------- The move to sabirds.co.za (Nov 2026) ----------
+   The app used to live at dirkwilkehoffmann.github.io/sa-bird-flashcards/. A browser keeps saved data
+   per address, so the new address starts empty. Everything that matters is already on the server
+   under the player's private sync code, so the old address sends that code across (in the part of
+   the address after #, which never leaves the phone) with a few small on-phone-only settings, and
+   the new address picks it up before anything else loads. The next sync then brings the progress in. */
+const OLD_HOST = "localhost";
+const NEW_HOME = "http://127.0.0.1:8766";
+// Kept only on the phone (not synced), so they travel with the move. Synced data doesn't need to.
+const MOVE_KEYS = ["sabirds.onboard.v1", "sabirds.onboardSkipped.v1", "sabirds.coach.v1", "sabirds.coachDone.v1",
+  "sabirds.seenBirds.v1", "sabirds.masteredShown.v1", "sabirds.signInNudged.v1"];
+
+(function arriveFromOldHome() {
+  const m = location.hash.match(/^#move=([^&]+)(?:&keep=([^&]*))?$/);
+  if (!m) return;
+  history.replaceState(history.state, "", location.pathname + location.search);  // the code isn't kept in the address
+  try {
+    const code = decodeURIComponent(m[1]);
+    if (!/^[A-Za-z0-9-]{20,80}$/.test(code)) return;
+    const get = (k) => localStorage.getItem(storeKey(k));
+    const set = (k, v) => localStorage.setItem(storeKey(k), v);
+    if (get("sabirds.syncCode.v1") === JSON.stringify(code)) return;  // moved before
+    // Played here already (e.g. from a shared link): what this phone learned here is added to the moved progress.
+    const played = Object.keys(JSON.parse(get("sabirds.stats.v1") || "{}")).length > 0;
+    set("sabirds.syncCode.v1", JSON.stringify(code));
+    set("sabirds.syncedOnce.v1", "false");
+    if (played) set("sabirds.joining.v1", "true");
+    const keep = m[2] ? JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(m[2]))))) : {};
+    for (const k of MOVE_KEYS) if (typeof keep[k] === "string" && get(k) == null) set(k, keep[k]);
+  } catch { /* odd address or private mode: start as usual */ }
+})();
+
+// On the old address: once everything on this phone has reached the server, go to the new one.
+// An app added to the Home Screen can't change its address, so it shows a note with a button instead.
+async function moveHome(firstSync) {
+  if (location.hostname !== OLD_HOST || !navigator.onLine) return;
+  const folder = (location.pathname.replace(/^\/sa-bird-flashcards/, "") || "/").replace(/[^/]*$/, "");
+  try {  // the new address is set up and serving SA Birds (until then nothing moves)
+    const r = await fetch(`${NEW_HOME}${folder}manifest.webmanifest`, { cache: "no-store" });
+    if (!r.ok || !/Birds/.test((await r.json()).short_name || "")) return;
+  } catch { return; }
+  await firstSync;
+  if (unsynced()) return;  // something hasn't reached the server yet: move next time
+  const keep = {};
+  for (const k of MOVE_KEYS) { const v = localStorage.getItem(storeKey(k)); if (v != null) keep[k] = v; }
+  const packed = btoa(unescape(encodeURIComponent(JSON.stringify(keep))));
+  const url = `${NEW_HOME}${folder}#move=${encodeURIComponent(syncCode())}&keep=${encodeURIComponent(packed)}`;
+  const installed = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  if (installed) {
+    showToast("SA Birds has moved to sabirds.co.za. Your progress comes with you. Open it, add it to your Home Screen, then remove this one.",
+      { action: { label: "Open", run: () => window.open(url, "_blank") }, ms: 30000 });
+    return;
+  }
+  showToast("SA Birds has moved to sabirds.co.za. Taking you there with your progress…", { ms: 4000 });
+  setTimeout(() => location.replace(url), 1800);
+}
+
 // Where this visit came from, sent with the "open" event so the dashboard can show which links
 // bring players who stay. A shared link can name its place: …/?from=groot-brak-club. Otherwise the
 // site the player tapped the link on, if the browser says (WhatsApp usually doesn't).
@@ -807,6 +864,7 @@ function showToast(text, actions = {}) {
   $("toastAction").hidden = !actions.action;
   if (actions.action) $("toastAction").textContent = actions.action.label;
   const t = $("toast");
+  t.classList.toggle("long", text.length > 60);  // a longer note wraps instead of running off the screen
   t.hidden = false;
   animate("toast", { y: 24, o: 0 }, { y: 0, o: 1 }, {
     response: 0.35,
@@ -1989,7 +2047,7 @@ Promise.all([
     });
     devLine();
     logEvent("open", null, { area: settings.area, offline: !navigator.onLine, ...VISIT_SOURCE });
-    startSync();
+    moveHome(startSync());
     if (typeof startWalkthrough === "function") startWalkthrough();
   })
   .catch(() => {
