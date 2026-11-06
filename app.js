@@ -103,6 +103,18 @@ const VISIT_SOURCE = (() => {
   return out;
 })();
 
+// Nothing else downloads until the first photo is on screen: the next birds' previews and
+// info, and the offline copy of the app, all wait, so the very first photo gets the connection.
+let firstPhotoShown = false;
+const afterFirstPhoto = [];
+function whenFirstPhotoShown(fn) { if (firstPhotoShown) fn(); else afterFirstPhoto.push(fn); }
+function firstPhotoDone() {
+  if (firstPhotoShown) return;
+  firstPhotoShown = true;
+  for (const fn of afterFirstPhoto.splice(0)) fn();
+}
+setTimeout(firstPhotoDone, 6000);  // a slow or failing first photo doesn't hold everything up
+
 let species = [];
 let stats = load(STATS_KEY, {});   // { [speciesId]: { right, wrong, hint, streak, seen, updated } }
 // The study set is one area (see "The area" below). First-time default: South Africa.
@@ -335,10 +347,8 @@ function makeCard(exclude, ahead) {
   const start = Math.floor(Math.random() * allPhotos.length);
   const photos = [...allPhotos.slice(start), ...allPhotos.slice(0, start)];
   const c = { s, why, kind: "photo", photos, calls, callIndex: Math.floor(Math.random() * Math.max(1, calls.length)) };
-  // Warm the cache: first photo and info of each upcoming card.
-  warmPhotos(photos.slice(0, 1), "small");
-  loadInfo(s);
-  loadWiki(s);
+  // Warm the cache: first photo and info of each upcoming card (once the first photo shows).
+  whenFirstPhotoShown(() => { warmPhotos(photos.slice(0, 1), "small"); loadInfo(s); loadWiki(s); });
   return c;
 }
 
@@ -456,7 +466,7 @@ function buildCarousel(photos) {
       slide.classList.add("loaded");
       notePhotoKept(p);
       if (Number(img.dataset.i) === slideIndex) upgrade(img, p);
-      if (i === 0) loadRest();
+      if (i === 0) { firstPhotoDone(); loadRest(); }
     });
     slide.append(preview, img);
     carousel.append(slide);
@@ -2011,7 +2021,7 @@ document.addEventListener("touchmove", (e) => {
 }, { passive: false });
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(() => {});
+  whenFirstPhotoShown(() => navigator.serviceWorker.register("sw.js").catch(() => {}));
 }
 
 $("filterSummary").textContent = summary();
