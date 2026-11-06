@@ -1,177 +1,257 @@
 # SA Birds growth plan
 
-Written 6 Nov 2026. Starting point: 1,446 players, 311 Google accounts, 1,399 active this week, 45,880 answers. Most of these players arrived in the last week.
+*Written 6 Nov 2026. Review it on the first of every month against the dashboard.*
 
-The order matters: **keep players → each player brings the next → go where birders gather → app stores → paid ads → money.**
+> **The order:** keep players → each player brings the next → go where birders gather → app stores → paid ads → money.
 
 ---
 
-## 1. Goals
+## Where we are today
 
-### Players (total who have played at least once)
+| | 6 Nov 2026 |
+|---|---|
+| Players | **1,446** |
+| Google accounts | 311 (+295 this week) |
+| Active this week | 1,399 |
+| Busiest day | 909 active players |
+| Answers given | 45,880 |
+| Birds mastered | 5,786 |
+| New players who came back on a later day | **14%** (target 40%) |
 
-| By | Players | Weekly active | What gets us there |
-|---|---|---|---|
-| 30 Nov 2026 | 3,000 | 1,200 | Link previews, `?from=` links, clubs and Facebook groups |
-| 31 Dec 2026 | 6,000 | 2,000 | Birding Big Day challenge, summer holidays, challenge-a-friend |
-| 28 Feb 2027 | 12,000 | 3,500 | Google Play, club groups, field guide colleges |
-| 31 May 2027 | 25,000 | 6,000 | App Store, first Meta ads test |
+Most players arrived in the last week, so the return rate will rise as they get time to come back. Even so, **getting players to come back is job number one.**
+
+---
+
+## Player targets
+
+```mermaid
+xychart-beta
+    title "Players (total) and weekly active: targets"
+    x-axis ["Nov 26", "Dec 26", "Feb 27", "May 27", "Aug 27", "Dec 27"]
+    y-axis "Players" 0 --> 100000
+    bar [3000, 6000, 12000, 25000, 45000, 100000]
+    line [1200, 2000, 3500, 6000, 10000, 20000]
+```
+
+*Bars: total players. Line: active in the week.*
+
+| By | Players | Weekly active | Main driver |
+|---|---:|---:|---|
+| 30 Nov 2026 | 3,000 | 1,200 | Link previews, tagged links, clubs and Facebook groups |
+| 31 Dec 2026 | 6,000 | 2,000 | Birding Big Day, summer holidays, challenge-a-friend |
+| 28 Feb 2027 | 12,000 | 3,500 | **Google Play**, club groups, field guide colleges |
+| 31 May 2027 | 25,000 | 6,000 | **App Store**, first Meta ads |
 | 31 Aug 2027 | 45,000 | 10,000 | Meta ads scaled, neighbouring countries |
-| 31 Dec 2027 | 100,000 | 20,000 | Bird pages on Google, Birding Big Day 2027, press |
+| 31 Dec 2027 | 100,000 | 20,000 | Bird pages on Google, Bird Fair, press |
 
-These are targets, not forecasts. Review them every month against the dashboard and reset them if the real numbers run well ahead or behind.
-
-### Engagement (the health check — more important than the player count)
-
-| Measure | Target | Why |
-|---|---|---|
-| Day-1 return | 40% | Did the first session hook them? |
-| Day-7 return | 25% | The main health check. Below 15% means fix the app before spending effort on growth |
-| Day-30 return | 12% | Habit formed |
-| Weekly active ÷ total players | 30%+ | Not just collecting sign-ups |
-| Daily goal reached (25 Right answers) | 35% of daily players | The sticker loop works |
-| Players who share at least once | 10% | Word of mouth is happening |
-| New players who came from a share or invite | 30%+ | The app spreads on its own |
-| Sign-in rate | 30% of players | Signed-in players keep their progress and come back more |
+These are targets, not forecasts. If the real numbers run well ahead or behind, reset them.
 
 ---
 
-## 2. Where South African birders gather
+## Engagement targets
 
-Member counts are what could be confirmed; groups marked "?" need checking on Facebook.
+This is the real health check. Growth on top of a leaky app is wasted.
+
+```mermaid
+xychart-beta
+    title "Share of new players still playing: target"
+    x-axis ["Day 1", "Day 7", "Day 30"]
+    y-axis "Percent" 0 --> 50
+    bar [40, 25, 12]
+```
+
+| Measure | Now | Target | Why it matters |
+|---|---:|---:|---|
+| Came back on a later day | 14% | **40%** | Did the first session hook them? |
+| Still playing after a week | — | **25%** | The main health check. Below 15%: fix the app before pushing growth |
+| Still playing after a month | — | **12%** | A habit has formed |
+| Weekly active ÷ all players | — | 30%+ | Not just collecting sign-ups |
+| Daily players reaching 25 Right (a sticker) | — | 35% | The sticker loop works |
+| Players who share at least once | — | 10% | Word of mouth is happening |
+| New players arriving from a share or invite | — | 30%+ | The app spreads on its own |
+| Players signed in with Google | 22% | 30% | Signed-in players keep progress and come back more |
+
+The dashboard's **Where new players come from** table shows the first three for each link.
+
+---
+
+## Milestones
+
+```mermaid
+gantt
+    title SA Birds roadmap, Nov 2026 to Dec 2027
+    dateFormat YYYY-MM-DD
+    axisFormat %b %y
+
+    section Foundations
+    Link previews and tagged links (done)  :done, 2026-11-06, 1d
+    Retention chart and own domain         :2026-11-07, 2026-11-30
+    Hear the call first and flag calls     :2026-11-10, 2026-12-05
+
+    section Word of mouth
+    Challenge a friend                     :2026-11-20, 2026-12-10
+    Club codes and leaderboards            :2026-11-25, 2026-12-20
+    Streak and mastered share cards        :2026-12-10, 2027-01-10
+    Streak reminders                       :2027-01-15, 2027-02-15
+
+    section Stores
+    Google Play (wrap the web app)         :crit, 2027-01-05, 2027-01-31
+    App Store (Capacitor and phone extras) :crit, 2027-03-01, 2027-05-15
+
+    section Collaborations
+    Facebook groups and bird clubs         :2026-11-10, 2027-12-31
+    Birding Big Day challenge              :milestone, 2026-12-05, 0d
+    Field guide colleges                   :2027-01-10, 2027-03-31
+    Birding Life Podcast                   :2027-02-01, 2027-02-28
+    Lodges SANParks and tour operators     :2027-06-01, 2027-08-31
+    SA Bird Fair                           :milestone, 2027-09-12, 0d
+    Birding Big Day 2027                   :milestone, 2027-12-04, 0d
+
+    section Paid marketing
+    Meta ads test (R3k to R5k)             :2027-03-01, 2027-03-21
+    Meta ads scaled (R10k to R20k a month) :2027-06-01, 2027-12-31
+
+    section Reach
+    Afrikaans throughout                   :2027-06-01, 2027-07-31
+    Neighbouring countries                 :2027-07-01, 2027-09-30
+    Bird pages on Google                   :2027-09-01, 2027-11-30
+    Start making money                     :milestone, 2027-11-01, 0d
+```
+
+Event dates are estimates: Birding Big Day is usually the first Saturday of December, and the Bird Fair is in September. Check birdlife.org.za each year.
+
+### The big moves and what must be true first
+
+| Move | When | Go only if | Cost |
+|---|---|---|---|
+| 🤖 **Google Play** | Jan 2027 | Own domain live; players coming back on a later day ≥ 30% | US$25 once |
+| 🍎 **App Store** | Apr–May 2027 | Google Play reviews are good; notifications, offline packs and a widget built (Apple turns down plain website wrappers) | US$99 a year |
+| 📣 **First Meta ads** | Mar 2027 | Still playing after a week ≥ 20% | R3,000–R5,000 test |
+| 📈 **Scale Meta ads** | Jun 2027 | Under R15 per new player still playing a week later | R10,000–R20,000 a month |
+| 🤝 **Big partners** (BirdLife SA, SANParks, Roberts/Sasol) | From Feb 2027 | 10,000+ players to show them | Free |
+| 💰 **Start making money** | Late 2027 | 50,000+ players; still playing after a month steady at ~12% | — |
+
+**Why Google Play first:** about 76% of SA phones are Android. The web app can go on Google Play almost as it is, while the App Store needs real phone features first. Birders may lean to iPhones more than average, so check the iPhone share in your own data before planning the App Store spend.
+
+---
+
+## Phase by phase
+
+### 1. November 2026 – Foundations · target 3,000 players
+
+- [x] Link previews for WhatsApp and Facebook
+- [x] Tagged links (`?from=`) and the **Where new players come from** table
+- [ ] Find out what caused the early November spike, and do more of it
+- [ ] Retention chart on the dashboard (day 1, 7, 30)
+- [ ] Own domain, e.g. `sabirds.co.za` (needed for Google Play)
+- [ ] Top tester requests: hear the call before the reveal, flag wrong calls
+- [ ] Message the admins of the BirdLife SA Facebook group and 3–5 other groups
+- [ ] Email 10 bird clubs
+
+### 2. December 2026 – Birding Big Day and holidays · target 6,000
+
+- [ ] Challenge-a-friend links (the same 10 birds, both scores shown)
+- [ ] Club and group codes with weekly leaderboards
+- [ ] Birding Big Day challenge in the app (likely Sat 5 Dec), offered to clubs to share
+- [ ] Share cards for streaks and mastered birds
+- [ ] "Learn the birds before your holiday" posts. Summer is peak birding, and the migrants are back
+
+### 3. January–February 2027 – Google Play · target 12,000
+
+- [ ] Launch on Google Play (a Trusted Web Activity via Bubblewrap or PWABuilder: the same app)
+- [ ] Ask the most active players for reviews in the first week
+- [ ] Streak reminder notifications on Android
+- [ ] Pitch field guide colleges before their new intakes
+- [ ] Pitch The Birding Life Podcast
+
+### 4. March–May 2027 – App Store and the first ads · target 25,000
+
+- [ ] Meta ads test: short videos of the game (hear a call, guess the bird), aimed at people aged 30–65 in SA interested in birding, Kruger, SANParks, wildlife and photography
+- [ ] App Store app built with Capacitor, with notifications, offline packs, a widget and stickers in Messages
+- [ ] Launch on the App Store
+
+### 5. June–August 2027 – Scale what works · target 45,000
+
+- [ ] Raise ad spend only on ads that brought players who stayed
+- [ ] Afrikaans throughout the app, and Afrikaans ads
+- [ ] Namibia, Botswana, Zimbabwe, Mozambique through their bird groups
+- [ ] SANParks, lodges and tour operators: "learn the birds before your trip"
+
+### 6. September–December 2027 – Mainstream · target 100,000
+
+- [ ] Stand or talk at the SA Bird Fair
+- [ ] A Google-findable page for each of the 852 birds
+- [ ] Birding Big Day 2027 as a national in-app event
+- [ ] Press: local radio, News24 lifestyle, *Getaway*, *African Birdlife*
+- [ ] Start making money: sponsors (optics, lodges, guides), a Pro version, and ads only for free players and never during a quiz
+
+---
+
+## Who to work with
 
 ### Facebook groups
 
-| Group | Size | Fit |
-|---|---|---|
-| **BirdLife South Africa** (Facebook group) | ~100,000 (2024) | The biggest. Ask the admins before posting; offer it as a free learning tool for beginners |
-| **African Bird Club Community** | 28,000+ | Pan-African; good for the neighbouring countries later |
-| **LBJ's, BBJ's and UFO's of South Africa** | ? | Bird-ID help group. Perfect for "Can you name these 5 LBJs?" challenge posts |
-| **SA Birders Club** | ? | Birding spots and knowledge sharing |
-| **SA Rare Birds** | ? | Keen twitchers; smaller but influential |
+| Group | Members | How to use it |
+|---|---:|---|
+| **BirdLife South Africa** | ~100,000 | The biggest. Ask the admins first; offer it as a free tool for beginners |
+| **African Bird Club Community** | 28,000+ | All of Africa; good for the neighbouring countries later |
+| **LBJ's, BBJ's and UFO's of South Africa** | ? | Bird ID help. Perfect for "Can you name these 5 LBJs?" posts |
+| **SA Birders Club** | ? | Birding spots and know-how |
+| **SA Rare Birds** | ? | Keen twitchers: small but influential |
 | **Let's Go Birding South Africa** | ? | Beginner-friendly |
 | **Southern Africa Birding** | ? | Stories and sightings |
 
+*"?" = size not confirmed. Check on Facebook and fill in.*
+
 **How to post without being treated as spam:**
-- Message the admins first: "I built a free app to help beginners learn SA birds. May I share it?" Admins often pin or share it themselves.
-- Post something useful, not an advert: a 5-bird quiz with the challenge link, "the 10 most confused birds in SA", a call quiz.
-- Post once per group, then come back only with something new, like a feature or a Birding Big Day challenge.
-- Use a different `?from=` link per group so the dashboard shows which groups bring players who stay.
+- Message the admins first. Admins often share a useful free tool themselves.
+- Post something useful (a 5-bird quiz, "the 10 most confused SA birds"), not an advert.
+- Once per group, then only come back with something new.
+- Give each group its own tagged link.
 
-### Bird clubs
+### Collaborations
 
-- BirdLife South Africa has **41 affiliated bird clubs**, including Cape Bird Club, BirdLife Sandton, BirdLife Northern Gauteng, BirdLife eThekwini KZN, BirdLife Wesvaal, BirdLife KZN Midlands, Hermanus, Lakes (Sedgefield) and Stanford. The list is on birdlife.org.za under "Join a bird club".
-- Each club has a newsletter, a WhatsApp group and monthly talks. Offer each club its own group code and leaderboard, free.
-- Use Groot Brak as the case study: "Our club uses it to train beginners."
-- BirdLife SA itself has about 5,000 paying members and a monthly newsletter. Getting a mention there reaches the most committed birders.
+| Partner | What they get | What we get | When |
+|---|---|---|---|
+| **41 BirdLife-affiliated clubs** (Cape Bird Club, Sandton, Northern Gauteng, eThekwini KZN, Wesvaal, KZN Midlands, Hermanus, Lakes, Stanford…) | A free club group and leaderboard for training beginners | Newsletters and WhatsApp groups. Use Groot Brak as the example | From Nov 2026 |
+| **BirdLife South Africa** (about 5,000 paying members, a newsletter, *African Birdlife*) | A tool that brings beginners into birding; a Birding Big Day challenge | The most committed birders and credibility | Dec 2026; bigger once at 10,000+ players |
+| **Field guide training** (FGASA, Bushwise, Limpopo Field Guiding Academy, WildlifeCampus) | A course group with a leaderboard and call ID practice | A whole class every intake | Jan–Mar 2027 |
+| **The Birding Life Podcast** and young birders (e.g. Liam Botha, John Kinghorn) | A story: "the app that taught 1,000s of people SA birds" | Listeners and short "Can a birder beat the app?" videos | Feb 2027 |
+| **SANParks, lodges, tour operators** | "Learn the birds before your trip" links for guests | Travellers before they go | Jun–Aug 2027 |
+| **Roberts / Sasol eBirds** | Players who then want a full field guide | Possible partner or sponsor later | Late 2027 |
 
-### Events
-
-- **Birding Big Day:** BirdLife SA's yearly event, held on the first Saturday of December. The 2025 event was 6 Dec, so the 2026 one is likely **Sat 5 Dec 2026**. Check birdlife.org.za. This is the first big push.
-- **South African Bird Fair:** held in September at SANBI. A stand or a talk at the 2027 fair.
-- **Global Big Day:** eBird/Cornell, in May.
-
-### Podcasts and people
-
-- **The Birding Life Podcast** is the main SA birding podcast and often has young birders on. Pitch a guest spot: "the app that taught 1,000+ people SA birds in a month."
-- Young SA birders with Instagram and YouTube followings have appeared on it, for example Liam Botha (@liambotha_wildlife) and John Kinghorn (Expedition Birding). Short videos such as "Can a birder beat the app?" spread well.
-- *African Birdlife* magazine (BirdLife SA) runs app and gear write-ups.
-
-### Field guide training
-
-- FGASA field guide and bird guide qualifications require learning hundreds of birds and calls.
-- Colleges: Bushwise, Limpopo Field Guiding Academy, WildlifeCampus (online) and the BirdLife SA recommended course providers.
-- One trainer recommending the app reaches a whole class every intake. Offer a "course group" with a leaderboard and a call-ID mode.
-
-### Where the app fits against the others
-
-- **Roberts** and **Sasol eBirds** are field guides, and paid. **BirdLasser** logs sightings and has no challenges or games.
-- None of them is a free game that teaches you the birds. That's the pitch: *"Roberts tells you about the bird. SA Birds helps you remember it."*
-- Don't knock the guides. Their users are the audience, and Roberts or Sasol could later be partners.
+**The pitch:** *Roberts tells you about the bird. SA Birds helps you remember it.* It's free, it's a game, and nobody else in SA does this. Don't knock the guides: their users are our audience.
 
 ---
 
-## 3. Roadmap
+## Budget
 
-### November 2026: foundations (target 3,000 players)
+```mermaid
+pie showData
+    title "Year-one spend estimate (Rand)"
+    "Meta ads (test and scaling)" : 95000
+    "Supabase Pro (about 10 months)" : 4600
+    "Apple developer" : 1850
+    "Google Play" : 460
+    "Domain" : 250
+```
 
-- Find out what caused this week's spike (ask testers, the Groot Brak club and new players) and do more of it.
-- Add link previews (title, description, preview image) so links look good on WhatsApp and Facebook.
-- Add `?from=` source tracking and a retention chart (day 1, 7, 30) to the dashboard.
-- Register a domain, e.g. `sabirds.co.za`. It's also needed for Google Play.
-- Do the top tester requests: hearing the call before the answer, and flagging wrong calls.
-- Message admins of the BirdLife SA Facebook group and 3 to 5 other groups.
-- Email 10 bird clubs.
-
-### December 2026: Birding Big Day and holidays (target 6,000)
-
-- Challenge-a-friend links (the same 10 birds, both scores shown).
-- Club and group codes with weekly leaderboards.
-- A Birding Big Day challenge in the app for that weekend, offered to clubs to share.
-- Share cards for streaks and mastered birds.
-- The summer holidays are peak birding season: families at reserves, and the migrants are back. Post "learn the birds before your holiday" content.
-
-### January–February 2027: Google Play (target 12,000)
-
-- **Launch on Google Play in January.** About 76% of SA phones are Android.
-  - Wrap the web app as a Trusted Web Activity with Bubblewrap or PWABuilder. It's the same app, so there's nothing new to maintain.
-  - It costs US$25 once.
-  - It needs the custom domain set up first.
-  - Ask the most active players to leave reviews in the first week. Early reviews decide store ranking.
-- Streak reminder notifications on Android.
-- Pitch field guide colleges before their new intakes.
-- Pitch The Birding Life Podcast.
-
-### March–May 2027: App Store and first paid test (target 25,000)
-
-- **Launch on the App Store in April or May.**
-  - Apple turns down apps that are only a website in a wrapper. Build it with Capacitor and add real phone features: notifications, offline packs, a home-screen widget, sharing stickers to Messages.
-  - It costs US$99 a year.
-  - About 24% of SA phones are iPhones overall. Birders likely skew higher, so check the iPhone share in your own data before deciding how much to spend on it.
-- **First Meta ads test in March, small:** R3,000–R5,000 over 2–3 weeks.
-  - Run it only once day-7 return is at least 20%. Otherwise the ad money brings in players who leave.
-  - Use short video ads of the game: hear a call, guess the bird.
-  - Target people aged 30–65 in SA interested in birdwatching, Kruger, SANParks, wildlife and photography.
-  - Benchmark: Meta installs in SA cost about US$1–3 (R20–R55). Aim for under R15 per new player who comes back after a week.
-
-### June–August 2027: scale what works (target 45,000)
-
-- Increase Meta spend only on ads that brought players who stayed, for example R10,000–R20,000 a month.
-- Add Afrikaans throughout the app and run Afrikaans ads (Afrikaans names are already in).
-- Neighbouring countries: Namibia, Botswana, Zimbabwe, Mozambique, through their bird groups and the African Bird Club group.
-- Approach SANParks, lodges and tour operators for "learn the birds before your trip" links.
-
-### September–December 2027: mainstream (target 100,000)
-
-- A stand or talk at the SA Bird Fair (September).
-- Public bird pages Google can find (852 birds), so people searching for a bird or its call land on the app.
-- Birding Big Day 2027 as a national in-app event.
-- Press: "SA app that turned 100,000 people into birders." Approach local radio, News24 lifestyle and Getaway magazine.
-- **Start making money:** sponsors (optics, lodges, guides), a Pro version, and ads only for free players and never during a quiz. Do this once day-30 return is steady.
-
----
-
-## 4. When to make the big moves
-
-| Move | When | Only if |
+| Item | Cost | When |
 |---|---|---|
-| Google Play | Jan 2027 | Custom domain live |
-| App Store | Apr–May 2027 | Google Play reviews are good; phone features built |
-| First Meta ads | Mar 2027 | Day-7 return ≥ 20% |
-| Scale Meta ads | Jun 2027 | Cost per retained player < R15 |
-| Money | Late 2027 | 50,000+ players and day-30 return steady |
+| Domain | about R150–R300 a year | Nov 2026 |
+| Google Play | US$25 once | Jan 2027 |
+| Supabase Pro | US$25 a month | Once about 3,000–5,000 players a day (the free plan allows 5 GB of downloads a month) |
+| Apple developer account | US$99 a year | Mar 2027 |
+| Meta ads | R3,000–R5,000 test, then R10,000–R20,000 a month | Mar 2027, then from Jun 2027 |
 
-## 5. Costs to plan for
+*Ads are the only large cost, and they only start once players stay. Without ads, year one costs under R8,000.*
 
-- Domain: about R150–R300 a year.
-- Google Play: US$25 once.
-- Apple developer account: US$99 a year.
-- Supabase Pro: US$25 a month, likely needed by about 3,000–5,000 daily players, because the free plan allows 5 GB of downloads a month.
-- Meta ads: R3,000–R5,000 for the first test, then R10,000–R20,000 a month once it works.
+---
 
-## 6. Every month
+## Every month
 
-- Check the dashboard: players, weekly active, day-7 return, which `?from=` links worked.
-- Keep the best channel and drop the worst.
-- Fix the top player complaint.
-- Post one new thing in the groups that worked.
+1. Dashboard: players, weekly active, return rates, and which tagged links worked.
+2. Keep the best channel, drop the worst.
+3. Fix the top player complaint.
+4. Post one new thing in the groups that worked.
+5. Update the "Now" column and the checkboxes in this plan.
