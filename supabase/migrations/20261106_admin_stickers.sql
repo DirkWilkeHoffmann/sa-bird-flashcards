@@ -21,13 +21,15 @@ begin
     select jsonb_agg(jsonb_build_object(
       'player', left(l.key_hash, 10),
       'day', d.key,
-      'id', (d.value->>'k')::int,
+      -- the filter below has already checked k is a short number; the case keeps the cast safe whatever order Postgres runs things in
+      'id', case when d.value->>'k' ~ '^\d{1,7}$' then (d.value->>'k')::int end,
       'app', acc.app)
       order by d.key desc, l.key_hash)
     from public.learner_profiles l
     cross join lateral jsonb_each(case when jsonb_typeof(l.data->'days') = 'object' then l.data->'days' else '{}'::jsonb end) d
     left join lateral (select * from acc where acc.key_hash = l.key_hash order by app limit 1) acc on true
-    where jsonb_typeof(d.value) = 'object' and d.value->>'k' ~ '^\d+$'
+    -- Synced data comes from players' phones, so only well-formed days and sticker ids are read.
+    where d.key ~ '^\d{4}-\d{2}-\d{2}$' and jsonb_typeof(d.value) = 'object' and d.value->>'k' ~ '^\d{1,7}$'
   ), '[]'::jsonb);
 end;
 $$;
