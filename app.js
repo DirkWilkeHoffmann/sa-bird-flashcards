@@ -472,6 +472,9 @@ function buildCarousel(photos) {
     carousel.append(slide);
     $("dots").append(document.createElement("span"));
   });
+  clearTimeout(slideTargetTimer);  // a new bird: stop any glide through the last one's photos
+  slideTarget = null;
+  carousel.style.scrollSnapType = "";
   carousel.scrollLeft = 0;
   slideIndex = 0;
   $("dots").hidden = photos.length < 2;
@@ -535,7 +538,54 @@ function onSlide(i) {
   }
   const img = carousel.children[i]?.querySelector("img");
   if (img?.complete && img.naturalWidth) upgrade(img, card.photos[i]);
+  showPhotoArrows(slideTarget ?? i);
 }
+
+// On a computer: arrows beside the photo and the ← → keys move between photos.
+let slideTarget = null, slideTargetTimer = 0;
+function goToSlide(i) {
+  const n = carousel.children.length;
+  if (n < 2 || i < 0 || i >= n) return;
+  resetZoom();
+  slideTarget = i;
+  // Snapping would stop a quick run of presses part-way, so it's off while the photos glide.
+  carousel.style.scrollSnapType = "none";
+  clearTimeout(slideTargetTimer);
+  slideTargetTimer = setTimeout(endSlideGlide, 900);
+  const smooth = !matchMedia("(prefers-reduced-motion: reduce)").matches;
+  carousel.scrollTo({ left: i * carousel.clientWidth, behavior: smooth ? "smooth" : "auto" });
+  showPhotoArrows(i);
+}
+function endSlideGlide() {
+  if (slideTarget === null) return;
+  clearTimeout(slideTargetTimer);
+  const at = slideTarget;
+  carousel.scrollLeft = at * carousel.clientWidth;
+  carousel.style.scrollSnapType = "";
+  slideTarget = null;
+  if (at !== slideIndex) onSlide(at);
+}
+const shownSlide = () => slideTarget ?? Math.round(carousel.scrollLeft / (carousel.clientWidth || 1));
+const stepSlide = (d) => goToSlide(shownSlide() + d);
+function showPhotoArrows(at = shownSlide()) {
+  const n = carousel.children.length;
+  $("photoPrev").hidden = n < 2 || at <= 0;
+  $("photoNext").hidden = n < 2 || at >= n - 1;
+}
+carousel.addEventListener("scrollend", () => {
+  if (slideTarget !== null && Math.abs(carousel.scrollLeft - slideTarget * carousel.clientWidth) < 2) endSlideGlide();
+});
+$("photoPrev").addEventListener("click", (e) => { e.stopPropagation(); stepSlide(-1); });
+$("photoNext").addEventListener("click", (e) => { e.stopPropagation(); stepSlide(1); });
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+  if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.defaultPrevented) return;
+  if (e.target.closest?.("input, textarea, select, [contenteditable]")) return;
+  if (document.querySelector("dialog[open]") || !$("onboard").hidden) return;
+  if (!carousel.offsetParent || carousel.children.length < 2) return;
+  e.preventDefault();
+  stepSlide(e.key === "ArrowRight" ? 1 : -1);
+});
 
 carousel.addEventListener("scroll", () => {
   const i = Math.round(carousel.scrollLeft / carousel.clientWidth);

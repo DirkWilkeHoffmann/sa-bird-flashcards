@@ -318,6 +318,35 @@ button:disabled:active { transform: none; }
 }
 #media .photo-call[hidden], .card.revealed #media .photo-call { display: none; }
 #media .photo-call:is([data-state="playing"], [data-state="loading"]) { color: #fff; background: rgba(35, 153, 74, .75); }
+/* Previous / next photo arrows, on computers with a mouse (phones swipe). */
+.photo-arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: none;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  margin-top: calc(var(--tap) / -2);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: rgba(20, 24, 22, .45);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  cursor: pointer;
+  transition: background .15s;
+}
+.photo-arrow.prev { left: 8px; }
+.photo-arrow.prev svg { transform: scaleX(-1); }
+.photo-arrow.next { right: 8px; }
+.photo-arrow:hover { background: rgba(20, 24, 22, .7); }
+.photo-arrow:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .photo-arrow:not([hidden]) { display: grid; }
+}
+.carousel.zoomed ~ .photo-arrow { display: none; }
 .flag {
   position: absolute;
   top: 8px;
