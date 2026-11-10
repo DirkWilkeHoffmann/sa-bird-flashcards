@@ -291,6 +291,9 @@
     const rpc = (name, body) => fetch(`${RPC}/${name}`, {
       method: "POST", headers: { apikey: API_KEY, "Content-Type": "application/json" }, body: JSON.stringify(body),
     }).then(async (r) => { if (!r.ok) throw new Error((await r.json().catch(() => ({}))).message || r.status); return r.json(); });
+    // A slow or dropped request is tried once more before the dashboard gives up (a wrong key isn't).
+    const rpcRetry = (name, body) => rpc(name, body).catch((e) => String(e.message).includes("not allowed")
+      ? Promise.reject(e) : new Promise((ok) => setTimeout(ok, 800)).then(() => rpc(name, body)));
 
     // A private link (?key=…) stores the key on this device and is removed from the address bar.
     const url = new URL(location.href);
@@ -676,11 +679,12 @@
       if (!key()) { $("keyForm").hidden = false; $("report").hidden = true; return; }
       $("msg").textContent = "Loading…";
       try {
-        const [r, pl, st, so] = await Promise.all([rpc("admin_report", { p_key: key(), p_env: env, p_days: days }),
-          rpc("admin_players", { p_key: key(), p_env: env }),
-          rpc("admin_stickers", { p_key: key() }).catch(() => null),
-          rpc("admin_sources", { p_key: key(), p_env: env, p_days: days }).catch(() => null)]);
-        retention = await rpc("admin_retention", { p_key: key(), p_env: env, p_days: days }).catch(() => null);
+        const [r, pl, st, so, ret] = await Promise.all([rpcRetry("admin_report", { p_key: key(), p_env: env, p_days: days }),
+          rpcRetry("admin_players", { p_key: key(), p_env: env }),
+          rpcRetry("admin_stickers", { p_key: key() }).catch(() => null),
+          rpcRetry("admin_sources", { p_key: key(), p_env: env, p_days: days }).catch(() => null),
+          rpcRetry("admin_retention", { p_key: key(), p_env: env, p_days: days }).catch(() => null)]);
+        retention = ret;
         $("msg").textContent = "";
         $("keyForm").hidden = true;
         $("report").hidden = false;
