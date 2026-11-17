@@ -1,10 +1,10 @@
 // Service worker: keeps the app and every bird photo you've seen on the phone.
-// App files: network first (so updates arrive), falling back to the cache offline.
+// App files: from the phone first (so the app opens at once); a new release downloads in the background.
 // Photos: cache first, and kept for good, so a photo is only ever downloaded once.
 // Offline downloads (offline.js) live in their own cache, which is never trimmed.
 // The Dev build (…/dev/) shares this site with the main app, so its caches get their own names.
 const PREFIX = self.registration.scope.includes("/dev/") ? "sabirds-dev-" : "sabirds-";
-const APP_CACHE = `${PREFIX}app-v79`;
+const APP_CACHE = `${PREFIX}app-v80`;
 const PHOTO_CACHE = `${PREFIX}photos-v1`;
 const WIKI_CACHE = `${PREFIX}wiki-v1`;
 const INFO_CACHE = `${PREFIX}info-v1`;  // each bird's range/months file, kept across app updates
@@ -52,11 +52,15 @@ async function cacheFirst(name, request) {
   return response;
 }
 
+// App files: straight from the phone, so the app opens without waiting for the server (on a weak
+// signal that wait was several seconds, every time). Updates still arrive: each release changes
+// APP_CACHE above, so the browser finds a new sw.js when the app opens, downloads the new files
+// in the background (install, below) and the next open uses them.
 async function appFile(request) {
   const cache = await caches.open(APP_CACHE);
+  const saved = await cache.match(request, { ignoreSearch: true });
+  if (saved) return saved;
   try {
-    // Always ask the server whether the file changed (GitHub Pages otherwise lets the phone
-    // reuse it for 10 minutes), so a new version shows up the next time the app opens.
     const response = await fetch(request, { cache: "no-cache" });
     if (response.ok) cache.put(request, response.clone());
     return response;

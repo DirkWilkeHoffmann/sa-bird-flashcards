@@ -28,6 +28,12 @@
   <!-- Bird photos come from iNaturalist: connect while the app is still loading, so the first photo starts sooner -->
   <link rel="preconnect" href="https://inaturalist-open-data.s3.amazonaws.com">
   <link rel="preconnect" href="https://inaturalist-open-data.s3.amazonaws.com" crossorigin>
+  <!-- The bird list the first card needs: start it now, alongside the scripts, instead of once app.js runs.
+       (The calls list isn't here: it isn't needed for the first card and would compete with the first photo.) -->
+  <link rel="preload" href="data/species.json" as="fetch" crossorigin>
+  <link rel="preload" href="data/similar.json" as="fetch" crossorigin>
+  <link rel="preload" href="data/areas.json" as="fetch" crossorigin>
+  <link rel="preload" href="data/spread.json" as="fetch" crossorigin>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
