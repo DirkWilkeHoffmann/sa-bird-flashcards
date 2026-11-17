@@ -4,7 +4,7 @@
 // Offline downloads (offline.js) live in their own cache, which is never trimmed.
 // The Dev build (…/dev/) shares this site with the main app, so its caches get their own names.
 const PREFIX = self.registration.scope.includes("/dev/") ? "sabirds-dev-" : "sabirds-";
-const APP_CACHE = `${PREFIX}app-v80`;
+const APP_CACHE = `${PREFIX}app-v81`;
 const PHOTO_CACHE = `${PREFIX}photos-v1`;
 const WIKI_CACHE = `${PREFIX}wiki-v1`;
 const INFO_CACHE = `${PREFIX}info-v1`;  // each bird's range/months file, kept across app updates
@@ -60,25 +60,22 @@ async function appFile(request) {
   const cache = await caches.open(APP_CACHE);
   const saved = await cache.match(request, { ignoreSearch: true });
   if (saved) return saved;
-  try {
-    const response = await fetch(request, { cache: "no-cache" });
-    if (response.ok) cache.put(request, response.clone());
-    return response;
-  } catch {
-    return (await caches.match(request, { ignoreSearch: true })) || Response.error();
-  }
+  return fromServer(cache, request, { cache: "no-cache" });
+}
+
+// Ask the server, keep a good answer, and if the server fails (no signal, or an error such as
+// GitHub's occasional 503 while the site is publishing) use any copy already on the phone instead.
+async function fromServer(cache, request, options) {
+  let response;
+  try { response = await fetch(request, options); }
+  catch { return (await caches.match(request, { ignoreSearch: true })) || Response.error(); }
+  if (response.ok) { cache.put(request, response.clone()); return response; }
+  return (await caches.match(request, { ignoreSearch: true })) || response;
 }
 
 // Bird info files: fresh when online, kept (unlike app files) when the app updates.
 async function infoFile(request) {
-  const cache = await caches.open(INFO_CACHE);
-  try {
-    const response = await fetch(request);
-    if (response.ok) cache.put(request, response.clone());
-    return response;
-  } catch {
-    return (await caches.match(request, { ignoreSearch: true })) || Response.error();
-  }
+  return fromServer(await caches.open(INFO_CACHE), request);
 }
 
 // Downloaded calls: iPhones ask for audio in byte ranges, so answer with the requested slice.

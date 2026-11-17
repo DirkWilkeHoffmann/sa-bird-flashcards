@@ -2078,8 +2078,21 @@ $("filterSummary").textContent = summary();
 // The call list isn't needed for the first card: the first bird shows without waiting for it,
 // and the recordings are added when they arrive.
 const callsLoaded = fetch("data/calls.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({}));
+// The bird list is the one file the app can't start without, so a failed try (a moment without
+// signal, or the server briefly answering with an error) is tried twice more before giving up.
+// The first try is a plain fetch, so it picks up the download index.html already started.
+async function loadSpecies() {
+  for (const wait of [0, 1000, 3000]) {
+    if (wait) await new Promise((done) => setTimeout(done, wait));
+    try {
+      const r = await fetch("data/species.json", wait ? { cache: "no-cache" } : undefined);
+      if (r.ok) return await r.json();
+    } catch { /* try again */ }
+  }
+  throw new Error("bird list unavailable");
+}
 Promise.all([
-  fetch("data/species.json").then((r) => r.json()),
+  loadSpecies(),
   {},  // recordings: added once they arrive, so the first bird never waits for them
   fetch("data/similar.json").then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
   fetch("data/areas.json").then((r) => (r.ok ? r.json() : null)).catch(() => null),
@@ -2125,5 +2138,12 @@ Promise.all([
     if (typeof startWalkthrough === "function") startWalkthrough();
   })
   .catch(() => {
-    $("carousel").textContent = "Could not load bird data. Check your connection.";
+    const box = document.createElement("div");
+    box.className = "load-error";
+    const retry = document.createElement("button");
+    retry.className = "btn primary";
+    retry.textContent = "Try again";
+    retry.addEventListener("click", () => location.reload());
+    box.append("Could not load bird data. Check your connection.", retry);
+    $("carousel").replaceChildren(box);
   });

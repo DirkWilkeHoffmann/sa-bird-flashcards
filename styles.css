@@ -234,6 +234,19 @@ button:disabled:active { transform: none; }
 }
 .carousel::-webkit-scrollbar { display: none; }
 .carousel.zoomed { overflow: hidden; touch-action: none; }
+/* Shown in the photo frame when the bird list can't be loaded, with a Try again button */
+.load-error {
+  flex: 0 0 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  text-align: center;
+  color: #fff;
+}
+.load-error .btn { flex: 0 0 auto; padding: 0 24px; }
 .slide {
   position: relative;
   flex: 0 0 100%;
