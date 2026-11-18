@@ -4,7 +4,8 @@
 // signal, only downloaded birds and photos are shown.
 
 const OFFLINE_CACHE = IS_DEV ? "sabirds-dev-offline-v1" : "sabirds-offline-v1";
-const PHOTO_CACHE = IS_DEV ? "sabirds-dev-photos-v1" : "sabirds-photos-v1";  // every photo seen while studying (sw.js)
+const PHOTO_PREFIX = IS_DEV ? "sabirds-dev-photos-g" : "sabirds-photos-g";  // photos seen while studying (sw.js keeps the most recent)
+const photoStores = () => caches.keys().then((keys) => keys.filter((k) => k.startsWith(PHOTO_PREFIX)));
 const OFFLINE_KEY = "sabirds.offline.v1";
 const PHOTO_KB = 100, THUMB_KB = 5, CALL_KB = 550, TEXT_KB = 6; // measured averages
 const PARALLEL = 4;
@@ -21,15 +22,19 @@ const isOffline = () => !navigator.onLine;
 const localCallUrl = (url) => new URL(`offline/call-${url.split("/").filter(Boolean).at(-2)}.mp3`, location.href).href;
 const fmtMB = (kb) => (kb >= 1024 ? `${(kb / 1024).toFixed(kb >= 10240 ? 0 : 1)} MB` : `${Math.round(kb)} KB`);
 
-// Photos already kept on the phone from studying (sw.js stores every photo you see).
+// Photos already kept on the phone from studying (sw.js keeps the most recent few thousand).
 // A bird with at least one kept photo can be studied offline too, as a photo card.
+// Listing them is slow on iPhones, so it's only done when it's needed: when the phone is offline,
+// and on the download screen. Never at startup with a signal, where it held up the first photo.
 const keptPhotos = new Set();
 const photoIdOf = (url) => Number(/\/photos\/(\d+)\/medium\./.exec(url)?.[1]) || 0;
 
 async function loadKeptPhotos() {
   try {
-    const keys = await caches.open(PHOTO_CACHE).then((c) => c.keys());
-    keys.forEach((k) => { const id = photoIdOf(k.url); if (id) keptPhotos.add(id); });
+    for (const name of await photoStores()) {
+      const keys = await caches.open(name).then((c) => c.keys());
+      keys.forEach((k) => { const id = photoIdOf(k.url); if (id) keptPhotos.add(id); });
+    }
   } catch { /* no cache storage */ }
 }
 
@@ -83,7 +88,8 @@ async function showStorage() {
   } catch { /* not supported */ }
   $("offlineStored").textContent = n ? `${n} birds are downloaded on this phone.${used}` : `Nothing downloaded yet.${used}`;
   $("offlineDelete").hidden = !n;
-  const saved = await caches.open(PHOTO_CACHE).then((c) => c.keys()).then((k) => k.length).catch(() => 0);
+  let saved = 0;
+  try { for (const name of await photoStores()) saved += (await caches.open(name).then((c) => c.keys())).length; } catch { /* no cache storage */ }
   await loadKeptPhotos();
   const keptBirds = species.filter((s) => !offlineMeta[s.id] && s.photos.some((p) => keptPhotos.has(p.id))).length;
   $("photoStore").textContent = saved
@@ -95,7 +101,7 @@ async function showStorage() {
 
 async function clearPhotos() {
   if (!confirmTap($("photoClear"), "Tap again to clear them")) return;
-  await caches.delete(PHOTO_CACHE);
+  await Promise.all((await photoStores()).map((name) => caches.delete(name)));
   keptPhotos.clear();
   showStorage();
 }
@@ -220,8 +226,8 @@ $("offlineStart").addEventListener("click", startDownload);
 $("offlineCancel").addEventListener("click", () => { cancelled = true; });
 $("offlineDelete").addEventListener("click", deleteOffline);
 $("photoClear").addEventListener("click", clearPhotos);
-loadKeptPhotos();
+if (isOffline()) loadKeptPhotos();
 // Ask the phone not to clear our saved photos and downloads when space runs low.
 navigator.storage?.persist?.().catch(() => {});
 window.addEventListener("online", () => { queue = []; });
-window.addEventListener("offline", () => { queue = []; });
+window.addEventListener("offline", () => { queue = []; loadKeptPhotos().then(() => { queue = []; }); });
