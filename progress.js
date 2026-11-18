@@ -56,10 +56,10 @@ function logEvent(t, id = null, d = null) {
   syncSoon();
 }
 
-async function sendEvents() {
+async function sendEvents(key = syncCode()) {
   while (events.length) {
     const batch = events.slice(0, 500);
-    await rpc("log_events", { p_key: syncCode(), p_env: IS_DEV ? "dev" : "main", p_events: batch });
+    await rpc("log_events", { p_key: key, p_env: IS_DEV ? "dev" : "main", p_events: batch });
     events = events.slice(batch.length);
     save(EVENTS_KEY, events);
   }
@@ -128,7 +128,9 @@ function mergeRemote(remote) {
   return changed;
 }
 
-async function pushDirty() {
+async function pushDirty(key) {
+  // Only what is sent now counts as sent: a bird marked while this is on its way waits for the next push.
+  const sent = [...dirty], sentHidden = [...hiddenDirty];
   const progress = [...dirty].filter((id) => stats[id]).map((id) => {
     const st = stats[id];
     return { id: Number(id), right: st.right || 0, wrong: st.wrong || 0, streak: st.streak || 0,
@@ -143,24 +145,29 @@ async function pushDirty() {
     return { photo, id };
   });
   if (!progress.length && !mix.length && !hidden.length) return;
-  await rpc("sync_push", { p_key: syncCode(), p_progress: progress, p_mixups: mix, p_hidden: hidden });
-  dirty.clear();
-  hiddenDirty.clear();
-  save("sabirds.dirty.v1", []);
-  save("sabirds.hiddenDirty.v1", []);
+  await rpc("sync_push", { p_key: key, p_progress: progress, p_mixups: mix, p_hidden: hidden });
+  for (const id of sent) dirty.delete(id);
+  for (const x of sentHidden) hiddenDirty.delete(x);
+  save("sabirds.dirty.v1", [...dirty]);
+  save("sabirds.hiddenDirty.v1", [...hiddenDirty]);
 }
 
 /* ---------- Weights, pool and area (Dirk Progression) ---------- */
 // One document per sync code (profile_pull / profile_push, see
-// supabase/migrations/20261029_learner_profiles.sql). Newest change wins, per bird and for the area.
+// supabase/migrations/20261029_learner_profiles.sql). Newest change wins, per bird and for the area;
+// days (streak and stickers) are combined. It is read and saved under the same code: if signing in
+// switches this phone to the account's code in between, this round stops and the next one, under the
+// account's code, does the work. (Otherwise this phone's own empty profile was saved over the
+// account's, and the streak and stickers were lost: 18 Nov 2026, scripts/test-sync.mjs.)
 // Until that migration is applied the calls fail and everything stays on this phone.
 let profileMissing = false;
 
-async function syncProfile() {
+async function syncProfile(key = syncCode()) {
   if (profileMissing || !learn) return;
   let remote;
-  try { remote = await rpc("profile_pull", { p_key: syncCode() }); }
+  try { remote = await rpc("profile_pull", { p_key: key }); }
   catch (e) { if (/ 404$/.test(e.message)) profileMissing = true; throw e; }
+  if (key !== syncCode()) return;
   let changed = false;
   const joining = load("sabirds.joining.v1", false);
   if (remote || joining) {
@@ -203,7 +210,7 @@ async function syncProfile() {
   if (!learnDirty && !daysBehind && !remoteBehind && !(remote && Object.keys(learn.birds).length > Object.keys(remote.birds || {}).length)) return;
   const birds = Object.fromEntries(Object.entries(learn.birds).map(([id, b]) => [id, { w: b.w, seen: b.seen, added: b.added, run: b.run, u: b.u }]));
   const live = Object.fromEntries(Object.entries(snoozed).filter(([, until]) => until > Date.now()));
-  await rpc("profile_push", { p_key: syncCode(), p_data: { v: 1, birds, resetAt: learn.resetAt || null,
+  await rpc("profile_push", { p_key: key, p_data: { v: 1, birds, resetAt: learn.resetAt || null,
     settings: { area: settings.area, near: settings.near, family: settings.family || "", u: settings.u },
     names: { first: afFirst ? "af" : "en", u: load(NAMES_U_KEY, null) }, snoozed: live,
     days: typeof days !== "undefined" ? days : undefined } });
@@ -261,17 +268,28 @@ async function applyDecisions() {
   }
 }
 
-async function syncNow() {
+// One sync at a time: asking while one runs waits for it, then syncs once more.
+let syncRunning = null, syncQueued = null;
+function syncNow() {
   clearTimeout(syncTimer);
   syncTimer = null;
+  if (!syncRunning) return (syncRunning = syncOnce().finally(() => { syncRunning = null; }));
+  return (syncQueued ??= syncRunning.then(() => { syncQueued = null; return syncNow(); }));
+}
+
+async function syncOnce() {
+  const key = syncCode();  // the whole round uses this code (see syncProfile)
   try {
     setSyncStatus("Syncing…");
     // First sync on this phone: send everything learned before syncing existed.
     if (!load("sabirds.syncedOnce.v1", false)) Object.keys(stats).forEach((id) => dirty.add(id));
-    await pushDirty();
-    await sendEvents().catch(() => {});  // usage counts are optional; progress matters more
-    mergeRemote(await rpc("sync_pull", { p_key: syncCode() }));
-    await syncProfile().catch(() => {});  // weights, pool and area (Dirk Progression)
+    await pushDirty(key);
+    await sendEvents(key).catch(() => {});  // usage counts are optional; progress matters more
+    const pulled = await rpc("sync_pull", { p_key: key });
+    if (key !== syncCode()) return;  // switched to another code meanwhile: the next round is under it
+    mergeRemote(pulled);
+    await syncProfile(key).catch(() => {});  // weights, pool, area, streak days and stickers
+    if (key !== syncCode()) return;
     await applyDecisions().catch(() => {});
     sendReports();
     save("sabirds.syncedOnce.v1", true);
@@ -330,6 +348,8 @@ function startFresh() {
   save(LEARN_KEY, learn);
   learnDirty = false;
   save("sabirds.learnDirty.v1", false);
+  // The streak and stickers stay with the account too, so the next account here starts without them.
+  if (typeof days !== "undefined") { days = {}; save(DAYS_KEY, days); daysDirty = false; save("sabirds.daysDirty.v1", false); }
   topUp();
   session = { right: 0, seen: 0 };
   $("score").textContent = "0 / 0";

@@ -65,7 +65,7 @@ async function signOut() {
   // Make sure the account has everything before this phone starts over.
   $("accountStatus").textContent = "Saving your progress to your account…";
   await syncNow();
-  if (dirty.size) {
+  if (dirty.size || learnDirty || (typeof daysDirty !== "undefined" && daysDirty)) {
     $("accountStatus").textContent = "Couldn't save your latest progress to your account. Connect to the internet and try again.";
     return;
   }
