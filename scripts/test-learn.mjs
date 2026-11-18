@@ -112,6 +112,36 @@ check("a new phone's starter birds don't overwrite the account's weights", () =>
   for (const id of groups[0].slice(0, 5)) assert.equal(Learn.bird(phone, id).w, Learn.bird(remote, id).w);
 });
 
+check("signing in again: the phone's fresh starter birds don't join the account", () => {
+  // The account learned birds 100–129; the phone (just signed out, or new) starts over with the
+  // 20 commonest Beginner birds, shows one, answers another, then signs in.
+  const account = Learn.blank();
+  for (const id of ids.slice(99, 129)) account.birds[id] = { w: 1, seen: true, added: true, run: 0, t: 0, u: "2026-11-10T08:00:00.000Z" };
+  account.birds[1] = { w: -3, seen: true, added: true, run: 0, t: 0, u: "2026-11-10T08:00:00.000Z" };
+  const phone = Learn.blank();
+  Learn.touch(phone, now0);
+  const starter = Learn.maybeAdd(phone, ids, groups, now0);
+  Learn.shown(phone, starter[2], now0);                     // on screen, not answered
+  Learn.shown(phone, starter[3], now0);
+  Learn.answer(phone, starter[3], "right", now0);           // answered before signing in: real progress
+  Learn.merge(phone, account, { joining: true });
+  const kept = starter.filter((id) => phone.birds[id] && !account.birds[id]);
+  assert.deepEqual(kept, [starter[3]], `starter birds left in the pool: ${kept}`);
+  assert.equal(Object.keys(phone.birds).length, 32, "the account's 31 birds plus the one answered here");
+  assert.equal(Learn.bird(phone, 1).w, -3, "an unanswered starter bird doesn't overwrite the account's weight");
+});
+
+check("signing in to a new account: the phone's starter birds stay", () => {
+  const phone = Learn.blank();
+  Learn.touch(phone, now0);
+  const starter = Learn.maybeAdd(phone, ids, groups, now0);
+  Learn.merge(phone, null, { joining: true });
+  assert.equal(Object.keys(phone.birds).length, starter.length);
+  const empty = Learn.blank();
+  Learn.merge(phone, empty, { joining: true });
+  assert.equal(Object.keys(phone.birds).length, starter.length);
+});
+
 check("new birds come 2–5 at a time, more with higher momentum", () => {
   const sizes = {};
   for (const [name, answers] of [["low", [-2, -2, -2]], ["well", [2, 2, 2, 2, 2, -2, 2, -2, 2, 2]],

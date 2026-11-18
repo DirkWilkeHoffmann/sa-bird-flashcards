@@ -340,11 +340,17 @@ const Learn = (() => {
   // started over more recently replaces this phone's. Returns true when anything here changed.
   // Joining an account (signing in, or using another phone's sync code) is different: the birds of
   // both are kept, newest per bird, and this phone's walkthrough start never wipes the account.
+  // Joining an account that already has birds: this phone's birds that were never answered (no `u`:
+  // the starter pool after signing out or on a new phone, maybe shown but not answered) are dropped,
+  // so the account doesn't gain a batch of Beginner birds as NEW every time someone signs in again.
   function merge(state, remote, { joining = false } = {}) {
     let changed = false;
     const mine = state.resetAt || "", theirs = remote?.resetAt || "";
     if (joining) {
       if (theirs) state.resetAt = theirs; else delete state.resetAt;
+      if (Object.keys(remote?.birds || {}).length) {
+        for (const [id, b] of Object.entries(state.birds)) if (!b.u) delete state.birds[id];
+      }
       changed = true;
     } else {
       if (mine > theirs) return false;
