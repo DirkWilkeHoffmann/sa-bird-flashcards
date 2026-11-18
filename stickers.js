@@ -25,6 +25,23 @@ const stickersLoaded = fetch("data/stickers.json").then((r) => (r.ok ? r.json() 
   .catch(() => {});
 
 const stickerUrl = (id) => `stickers/${id}.webp`;
+
+// A sticker picture for the album and calendar. One that fails to load (a dropped connection, a
+// server hiccup) is tried twice more, then left blank rather than showing the broken-picture box;
+// the album and calendar try again each time they're opened.
+function stickerImage(id) {
+  const img = new Image();
+  let tries = 0;
+  img.addEventListener("error", () => {
+    if (++tries > 2) { img.classList.add("failed"); return; }
+    setTimeout(() => { img.src = `${stickerUrl(id)}?try=${tries}`; }, 1500 * tries);
+  });
+  img.addEventListener("load", () => img.classList.remove("failed"));
+  img.alt = "";
+  img.decoding = "async";
+  img.src = stickerUrl(id);
+  return img;
+}
 const stickerOf = (id) => stickerSet.find((x) => x.id === Number(id)) || null;
 const stickerName = (id) => { const s = speciesById.get(Number(id)); return s ? nameOf(s) : "A bird"; };
 
@@ -268,14 +285,9 @@ function renderAlbum() {
       const cell = document.createElement(has ? "button" : "div");
       cell.className = `album-cell ${tier}${has ? "" : " missing"}`;
       const name = document.createElement("small");
-      {
-        const img = new Image();
-        img.src = stickerUrl(st.id);
-        img.alt = "";
-        img.loading = "lazy";
-        img.decoding = "async";
-        cell.append(img);
-      }
+      const img = stickerImage(st.id);
+      img.loading = "lazy";
+      cell.append(img);
       name.textContent = has || tier === "common" ? stickerName(st.id) : "?";
       cell.append(name);
       if (has) {

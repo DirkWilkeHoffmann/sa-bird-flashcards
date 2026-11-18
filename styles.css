@@ -824,6 +824,12 @@ textarea.select { resize: none; line-height: 1.4; padding: 10px 14px; }
 .streak { padding: 12px 10px 14px; margin: 0 0 18px; border-radius: var(--radius-sm); background: var(--fill); }
 .streak-title { margin: 0 0 10px; text-align: center; font-weight: 700; font-size: var(--fs-headline); }
 .week { display: flex; align-items: center; gap: 2px; }
+/* The month label above the days: small, and tapping it opens the whole month. */
+.cal-toggle { display: flex; align-items: center; gap: 4px; margin: -6px auto 4px; padding: 4px 10px; min-height: 32px;
+  border: 0; border-radius: 999px; background: none; font: inherit; font-size: var(--fs-footnote); font-weight: 600; color: var(--label-2); }
+.cal-toggle span:last-child { color: var(--tint); font-size: .8em; }
+.week-days.month { row-gap: 8px; }
+.wletter { text-align: center; font-size: var(--fs-caption); color: var(--label-2); }
 .week-nav { flex: none; width: 32px; height: var(--tap); border: 0; background: none; color: var(--tint); font-size: 1.5rem; }
 .week-nav:disabled { opacity: .25; }
 .week-days { flex: 1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; min-width: 0; touch-action: pan-y; }
@@ -869,6 +875,7 @@ textarea.select { resize: none; line-height: 1.4; padding: 10px 14px; }
   box-shadow: inset 0 0 0 1.5px var(--tier-common); }
 .album-cell.rare { box-shadow: inset 0 0 0 1.5px var(--tier-rare); }
 .album-cell.legendary { box-shadow: inset 0 0 0 1.5px var(--tier-legend); }
+img.failed { visibility: hidden; }
 .album-cell img { width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, .25)); }
 .album-cell small { font-size: var(--fs-caption); line-height: 1.2; text-align: center; color: var(--label-2); }
 /* Not collected yet: a Common shows its shape and name, a Rare its shape (a little clearer) with a
