@@ -2070,8 +2070,20 @@ document.addEventListener("touchmove", (e) => {
   if (!e.target.closest(".carousel, .info, .sheet")) e.preventDefault();
 }, { passive: false });
 
+// The app opens from the copy on the phone (sw.js), so it asks for a new version itself rather than
+// leaving that to the browser, which iPhones (above all Home Screen apps) don't always do. It asks
+// each time the app opens, and when it comes back to the screen after an hour or more away. A new
+// version downloads in the background and shows the next time the app opens.
 if ("serviceWorker" in navigator) {
-  whenFirstPhotoShown(() => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  whenFirstPhotoShown(() => navigator.serviceWorker.register("sw.js").then((reg) => {
+    let lastCheck = Date.now();
+    reg.update().catch(() => {});
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState !== "visible" || Date.now() - lastCheck < 60 * 60 * 1000) return;
+      lastCheck = Date.now();
+      reg.update().catch(() => {});
+    });
+  }).catch(() => {}));
 }
 
 $("filterSummary").textContent = summary();
