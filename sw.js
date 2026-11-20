@@ -4,7 +4,7 @@
 // Offline downloads (offline.js) live in their own cache, which is never trimmed.
 // The Dev build (…/dev/) shares this site with the main app, so its caches get their own names.
 const PREFIX = self.registration.scope.includes("/dev/") ? "sabirds-dev-" : "sabirds-";
-const APP_CACHE = `${PREFIX}app-v87`;
+const APP_CACHE = `${PREFIX}app-v88`;
 const WIKI_CACHE = `${PREFIX}wiki-v1`;
 const INFO_CACHE = `${PREFIX}info-v1`;  // each bird's range/months file, kept across app updates
 const APP_FILES = [
@@ -142,6 +142,9 @@ async function call(request) {
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET") return;
+  // The dashboard and photo review aren't part of the app: always fresh from the server, never kept
+  // (kept, a dashboard update didn't show until the next app release).
+  if (url.origin === self.location.origin && /\/(admin|review)\.html$/.test(url.pathname)) return;
   if ((url.hostname === "inaturalist-open-data.s3.amazonaws.com" || url.hostname === "static.inaturalist.org")
       && url.pathname.includes("/photos/")) {
     e.respondWith(photo(e.request));
