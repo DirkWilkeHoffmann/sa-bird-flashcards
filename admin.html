@@ -51,6 +51,9 @@
     .bars i:hover::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
       white-space: nowrap; font-size: .7rem; font-style: normal; padding: 2px 6px; border-radius: 6px; color: #fff; background: #222; }
     .axis { display: flex; justify-content: space-between; color: var(--label-3); font-size: .7rem; margin-top: 4px; }
+    .bars i.peak { background: var(--tint); }
+    .axis.even { justify-content: stretch; gap: 2px; } .axis.even span { flex: 1; text-align: center; }
+    #timesBox > .note { margin: 8px 0 0; color: var(--label-2); font-size: .8rem; }
     table { width: 100%; border-collapse: collapse; font-size: .88rem; }
     td, th { padding: 7px 4px; border-bottom: 1px solid var(--fill); text-align: left; vertical-align: middle; }
     th { color: var(--label-2); font-weight: 600; font-size: .78rem; }
@@ -192,6 +195,11 @@
         <div class="tiles" id="tiles"></div>
         <h2>Over time</h2>
         <div class="grid2" id="charts"></div>
+        <div id="timesBox" hidden>
+          <h2>When players play</h2>
+          <div class="grid2" id="times"></div>
+          <p class="note">South African time. Each bar counts a player once per day they played in that hour (or on that weekday), so one keen player doesn't fill a bar. Hover a bar for players and answers.</p>
+        </div>
         <h2>Do new players come back?</h2>
         <div class="tiles" id="retTiles"></div>
         <div class="card">
@@ -338,6 +346,28 @@
       return `<div class="card chart"><h3>${title} · ${label}</h3><div class="bars">${list.map(([d, n]) =>
         `<i style="height:${(n / max) * 100}%" data-tip="${d.slice(5)}: ${n}"></i>`).join("")}</div>
         <div class="axis"><span>${list[0][0].slice(5)}</span><span>today</span></div></div>`;
+    }
+
+    // When players play (admin_play_times): bars by hour of day and by weekday; the busiest bars stand out.
+    const HOUR = (h) => `${h % 12 || 12}${h < 12 ? "am" : "pm"}`;
+    const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    function timesChart(title, list, axis) {
+      const max = Math.max(1, ...list.map((x) => x.plays));
+      const top = [...list].sort((a, b) => b.plays - a.plays).slice(0, 3).filter((x) => x.plays).map((x) => x.label);
+      return `<div class="card chart"><h3>${title} · busiest ${esc(top[0] || "–")}</h3><div class="bars">${list.map((x) =>
+        `<i class="${top.includes(x.label) ? "peak" : ""}" style="height:${(x.plays / max) * 100}%"
+          data-tip="${esc(x.label)}: ${fmt(x.players)} players · ${fmt(x.answers)} answers"></i>`).join("")}</div>${axis}</div>`;
+    }
+    function renderTimes(t) {
+      $("timesBox").hidden = !t;
+      if (!t) return;
+      const blank = { plays: 0, players: 0, answers: 0 };
+      const byHour = new Map(t.hours.map((x) => [x.hour, x])), byDow = new Map(t.weekdays.map((x) => [x.dow, x]));
+      const hours = Array.from({ length: 24 }, (_, h) => ({ ...blank, ...byHour.get(h), label: `${HOUR(h)}–${HOUR((h + 1) % 24)}` }));
+      const dows = WEEKDAYS.map((d, i) => ({ ...blank, ...byDow.get(i + 1), label: d }));
+      $("times").innerHTML = timesChart("By hour", hours,
+          `<div class="axis"><span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span></div>`)
+        + timesChart("By weekday", dows, `<div class="axis even">${WEEKDAYS.map((d) => `<span>${d}</span>`).join("")}</div>`);
     }
 
     function render(r) {
@@ -679,17 +709,19 @@
       if (!key()) { $("keyForm").hidden = false; $("report").hidden = true; return; }
       $("msg").textContent = "Loading…";
       try {
-        const [r, pl, st, so, ret] = await Promise.all([rpcRetry("admin_report", { p_key: key(), p_env: env, p_days: days }),
+        const [r, pl, st, so, ret, times] = await Promise.all([rpcRetry("admin_report", { p_key: key(), p_env: env, p_days: days }),
           rpcRetry("admin_players", { p_key: key(), p_env: env }),
           rpcRetry("admin_stickers", { p_key: key() }).catch(() => null),
           rpcRetry("admin_sources", { p_key: key(), p_env: env, p_days: days }).catch(() => null),
-          rpcRetry("admin_retention", { p_key: key(), p_env: env, p_days: days }).catch(() => null)]);
+          rpcRetry("admin_retention", { p_key: key(), p_env: env, p_days: days }).catch(() => null),
+          rpcRetry("admin_play_times", { p_key: key(), p_env: env, p_days: days }).catch(() => null)]);
         retention = ret;
         $("msg").textContent = "";
         $("keyForm").hidden = true;
         $("report").hidden = false;
         render(r);
         renderSources(so);
+        renderTimes(times);
         renderRetention();
         players = pl;
         stickers = st;
