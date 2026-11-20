@@ -53,7 +53,22 @@
     .axis { display: flex; justify-content: space-between; color: var(--label-3); font-size: .7rem; margin-top: 4px; }
     .bars i.peak { background: var(--tint); }
     .axis.even { justify-content: stretch; gap: 2px; } .axis.even span { flex: 1; text-align: center; }
-    #timesBox > .note { margin: 8px 0 0; color: var(--label-2); font-size: .8rem; }
+    #timesBox > .note { margin: 8px 0 12px; color: var(--label-2); font-size: .8rem; }
+    .dayhead { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; }
+    .dayhead div { flex: 1; text-align: center; }
+    .dayhead h3 { margin: 0; }
+    .dayhead span { color: var(--label-2); font-size: .8rem; }
+    .dayhead .step { flex: none; width: 36px; height: 36px; border: 0; border-radius: 50%; font: inherit; font-size: 1.3rem;
+      line-height: 1; color: var(--label); background: var(--fill); cursor: pointer; }
+    .dayhead .step:disabled { opacity: .3; cursor: default; }
+    .dayview .pick { margin: 14px 0 4px; color: var(--label-2); font-size: .75rem; }
+    .daystrip { display: flex; align-items: flex-end; gap: 2px; height: 44px; touch-action: pan-y; }
+    .daystrip button { flex: 1; min-width: 3px; height: 100%; padding: 0; border: 0; background: none; cursor: pointer;
+      display: flex; align-items: flex-end; }
+    .daystrip i { display: block; width: 100%; min-height: 2px; border-radius: 2px 2px 0 0; background: var(--fill-2); }
+    .daystrip button:hover i { background: var(--label-3); }
+    .daystrip button[aria-pressed="true"] i { background: var(--tint); }
+    #dayHours { touch-action: pan-y; }
     table { width: 100%; border-collapse: collapse; font-size: .88rem; }
     td, th { padding: 7px 4px; border-bottom: 1px solid var(--fill); text-align: left; vertical-align: middle; }
     th { color: var(--label-2); font-weight: 600; font-size: .78rem; }
@@ -199,6 +214,17 @@
           <h2>When players play</h2>
           <div class="grid2" id="times"></div>
           <p class="note">South African time. Each bar counts a player once per day they played in that hour (or on that weekday), so one keen player doesn't fill a bar. Hover a bar for players and answers.</p>
+          <div class="card chart dayview" id="dayView" hidden>
+            <div class="dayhead">
+              <button type="button" class="step" data-step="-1" aria-label="Day before">‹</button>
+              <div><h3 id="dayTitle"></h3><span id="daySub"></span></div>
+              <button type="button" class="step" data-step="1" aria-label="Day after">›</button>
+            </div>
+            <div class="bars" id="dayHours"></div>
+            <div class="axis"><span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span></div>
+            <p class="pick">Pick a day: each bar is how many players played that day.</p>
+            <div class="daystrip" id="dayStrip"></div>
+          </div>
         </div>
         <h2>Do new players come back?</h2>
         <div class="tiles" id="retTiles"></div>
@@ -368,6 +394,50 @@
       $("times").innerHTML = timesChart("By hour", hours,
           `<div class="axis"><span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span></div>`)
         + timesChart("By weekday", dows, `<div class="axis even">${WEEKDAYS.map((d) => `<span>${d}</span>`).join("")}</div>`);
+      renderDays(t.dates);
+    }
+
+    // One calendar day at a time (admin_play_times.dates): its players by hour, so one busy day can be looked at
+    // on its own. Every day of the period is in the strip, quiet ones too; arrows, ←/→ and swipes step a day.
+    let playDates = [], dayAt = -1, dayPicked = null;
+    const saDate = (ms) => new Date(ms).toLocaleDateString("en-CA", { timeZone: "Africa/Johannesburg" });
+    function renderDays(dates) {
+      $("dayView").hidden = !dates;
+      if (!dates) return;
+      const by = new Map(dates.map((d) => [d.day, d]));
+      playDates = [];
+      for (let i = days - 1; i >= 0; i--) {
+        const day = saDate(Date.now() - i * 864e5);
+        playDates.push(by.get(day) || { day, players: 0, answers: 0, hours: [] });
+      }
+      // Stay on the day being looked at when the period or app changes; otherwise start on today.
+      dayAt = playDates.findIndex((d) => d.day === dayPicked);
+      if (dayAt < 0) dayAt = playDates.length - 1;
+      const max = Math.max(1, ...playDates.map((d) => d.players));
+      $("dayStrip").innerHTML = playDates.map((d, i) => `<button type="button" data-i="${i}"
+        title="${esc(dayLabel(d.day))}: ${fmt(d.players)} players"><i style="height:${(d.players / max) * 100}%"></i></button>`).join("");
+      showDay();
+    }
+    function showDay() {
+      const d = playDates[dayAt];
+      dayPicked = d.day;
+      const byHour = new Map(d.hours.map((x) => [x.hour, x]));
+      const hours = Array.from({ length: 24 }, (_, h) => ({ players: 0, answers: 0, ...byHour.get(h), label: `${HOUR(h)}–${HOUR((h + 1) % 24)}` }));
+      const max = Math.max(1, ...hours.map((x) => x.players));
+      const top = [...hours].sort((a, b) => b.players - a.players).slice(0, 3).filter((x) => x.players);
+      $("dayTitle").textContent = `${dayLabel(d.day)}${dayAt === playDates.length - 1 ? " (today)" : ""}`;
+      $("daySub").textContent = d.players
+        ? `${fmt(d.players)} players · ${fmt(d.answers)} answers${top[0] ? ` · busiest ${top[0].label} (${fmt(top[0].players)})` : ""}`
+        : "No one played";
+      $("dayHours").innerHTML = hours.map((x) => `<i class="${top.includes(x) ? "peak" : ""}" style="height:${(x.players / max) * 100}%"
+        data-tip="${esc(x.label)}: ${fmt(x.players)} players · ${fmt(x.answers)} answers"></i>`).join("");
+      $("dayStrip").querySelectorAll("button").forEach((b, i) => b.setAttribute("aria-pressed", String(i === dayAt)));
+      $("dayView").querySelector('[data-step="-1"]').disabled = dayAt === 0;
+      $("dayView").querySelector('[data-step="1"]').disabled = dayAt === playDates.length - 1;
+    }
+    function stepDay(n) {
+      const to = Math.max(0, Math.min(playDates.length - 1, dayAt + n));
+      if (to !== dayAt) { dayAt = to; showDay(); }
     }
 
     function render(r) {
@@ -764,6 +834,29 @@
       const b = e.target.closest("button[data-tab]"); if (!b) return;
       showTab(b.dataset.tab);
       window.scrollTo({ top: 0 });
+    });
+    $("dayView").addEventListener("click", (e) => {
+      const s = e.target.closest("[data-step]"); if (s) { stepDay(Number(s.dataset.step)); return; }
+      const b = e.target.closest("#dayStrip button"); if (b) { dayAt = Number(b.dataset.i); showDay(); }
+    });
+    // Dragging along the strip scrubs through the days.
+    $("dayStrip").addEventListener("pointermove", (e) => {
+      if (e.buttons !== 1 && e.pointerType === "mouse") return;
+      const b = document.elementFromPoint(e.clientX, e.clientY)?.closest("#dayStrip button");
+      if (b && Number(b.dataset.i) !== dayAt) { dayAt = Number(b.dataset.i); showDay(); }
+    });
+    // A sideways swipe on the hours steps a day: left for the next day, right for the day before.
+    let swipeX = null;
+    $("dayHours").addEventListener("pointerdown", (e) => { swipeX = e.clientX; });
+    $("dayHours").addEventListener("pointerup", (e) => {
+      if (swipeX !== null && Math.abs(e.clientX - swipeX) > 40) stepDay(e.clientX < swipeX ? 1 : -1);
+      swipeX = null;
+    });
+    document.addEventListener("keydown", (e) => {
+      if ($("dayView").hidden || $("dayView").closest(".panel").hidden || $("playerDlg").open
+        || e.target.closest?.("input, select, textarea") || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === "ArrowLeft") stepDay(-1);
+      if (e.key === "ArrowRight") stepDay(1);
     });
     const resetPlayers = () => { shownPlayers = PAGE; renderPlayers(); };
     $("playerSearch").addEventListener("input", resetPlayers);
