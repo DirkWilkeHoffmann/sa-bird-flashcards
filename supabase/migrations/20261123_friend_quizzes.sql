@@ -377,6 +377,8 @@ declare
   tidy text := upper(regexp_replace(coalesce(p_code, ''), '\s', '', 'g'));
 begin
   if me is null then raise exception 'not signed in'; end if;
+  -- one try at a time per player, so many tries sent at once can't slip past the limit
+  perform pg_advisory_xact_lock(hashtext('quiz_add_friend:' || me::text));
   if (select count(*) from public.quiz_code_tries where user_id = me and at > now() - interval '1 hour') >= 20 then
     return jsonb_build_object('error', 'too_many');
   end if;
