@@ -1367,7 +1367,10 @@ body.onboarding { background: var(--bg); }
 .quiz-history summary::-webkit-details-marker { display: none; }
 .quiz-history summary::after { content: "›"; margin-left: 6px; font-size: 1.2em; transition: transform 160ms ease-out; }
 .quiz-history[open] summary::after { transform: rotate(90deg); }
-.quiz-card.to-play { background: color-mix(in srgb, var(--tint) 12%, var(--bg-elev)); }
+/* Quizzes to play: a friend's in the orange tint, your own in a cool green, so a long list reads at a glance. */
+.quiz-card.to-play.incoming { background: color-mix(in srgb, var(--tint) 14%, var(--bg-elev)); box-shadow: inset 3px 0 0 var(--tint); }
+.quiz-card.to-play.outgoing { background: color-mix(in srgb, var(--data) 12%, var(--bg-elev)); box-shadow: inset 3px 0 0 var(--data); }
+.quiz-more { margin: 0 0 12px; }
 .quiz-invites { display: grid; gap: 6px; }
 .quiz-invite { display: flex; align-items: center; gap: 12px; min-height: var(--tap); padding: 0 14px;
   border-radius: var(--radius-sm); background: var(--fill); font-size: var(--fs-body); }

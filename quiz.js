@@ -115,8 +115,17 @@ function renderQuiz(problem = "") {
     return;
   }
 
-  const toPlay = quizRounds.filter(waitingForMe);
-  for (const r of toPlay) body.append(roundCard(r, true));
+  // Quizzes from friends first, then your own; a long list shows 3 and folds the rest away.
+  const toPlay = quizRounds.filter(waitingForMe).sort((a, b) => Number(a.mine) - Number(b.mine));
+  for (const r of toPlay.slice(0, 3)) body.append(roundCard(r, true));
+  if (toPlay.length > 3) {
+    const more = qel("details", "quiz-history quiz-more");
+    more.open = quizMoreOpen;
+    more.addEventListener("toggle", () => { quizMoreOpen = more.open; });
+    more.append(qel("summary", null, `${toPlay.length - 3} more to play`));
+    for (const r of toPlay.slice(3)) more.append(roundCard(r, true));
+    body.append(more);
+  }
 
   if (quizFriends.length) {
     body.append(qbutton("New quiz", "btn primary quiz-new", openNewQuiz));
@@ -148,6 +157,7 @@ function renderQuiz(problem = "") {
   }
 }
 let quizHistoryOpen = false;
+let quizMoreOpen = false;
 
 function openFriends() {
   renderFriends();
@@ -171,14 +181,15 @@ function playerLine(r) {
 }
 
 function roundCard(r, toPlay = false) {
-  const card = qel("div", `quiz-card${toPlay ? " to-play" : ""}`);
+  const card = qel("div", `quiz-card${toPlay ? ` to-play ${r.mine ? "outgoing" : "incoming"}` : ""}`);
   const head = qel("div", "quiz-card-head");
   const settled = !r.players.some((p) => p.status === "invited" || p.status === "playing");
   head.append(qel("b", null, `${r.area_name} · ${levelName(r.level)}`),
     qel("span", "quiz-when", roundOpen(r) && !settled ? timeLeft(r) : shortDate(r.created_at)));
   card.append(head);
   if (toPlay) {
-    card.append(qel("p", "quiz-meta", r.mine ? "Your quiz" : `From ${r.by}`));
+    const sentTo = r.players.filter((p) => !p.me).map((p) => p.name).join(", ");
+    card.append(qel("p", "quiz-meta", r.mine ? `You sent this to ${sentTo}` : `From ${r.by}`));
     const row = qel("div", "quiz-card-actions");
     const done = r.my_answers?.length || 0;
     row.append(qbutton(r.my_status === "playing" && done ? `Carry on (${done}/10)` : "Play", "btn primary small", () => startRound(r.id)));
@@ -375,8 +386,21 @@ function drawBirds(area, level) {
   });
 }
 
+// 3 new quizzes an hour (quiz_create checks this too): when the next one can go, or null if now.
+const QUIZ_PER_HOUR = 3;
+function nextQuizAt() {
+  const hourAgo = Date.now() - 3600e3;
+  const sent = quizRounds.filter((r) => r.mine && new Date(r.created_at) > hourAgo)
+    .map((r) => new Date(r.created_at).getTime()).sort((a, b) => a - b);
+  return sent.length >= QUIZ_PER_HOUR ? new Date(sent[sent.length - QUIZ_PER_HOUR] + 3600e3) : null;
+}
+const quizLimitText = (at) => `You can send 3 quizzes an hour. Your next one can go at ${
+  at ? at.toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" }) : "the end of the hour"}.`;
+
 function openNewQuiz() {
   if (!species.length) { showToast("The birds are still loading. Try again in a moment.", { ms: 3000 }); return; }
+  const wait = nextQuizAt();
+  if (wait) { showToast(quizLimitText(wait), { ms: 5000 }); return; }
   if (!quizFriends.length) { showToast("Add a friend first, with their friend code.", { ms: 3000 }); return; }
   const sel = $("quizArea");
   sel.replaceChildren(...[...$("areaSelect").children].map((n) => n.cloneNode(true)));
@@ -438,7 +462,7 @@ $("quizSend").addEventListener("click", async () => {
     const to = names.join(", ");
     showToast(`Quiz sent to ${to}${to.endsWith(".") ? "" : "."} Play your 10 now?`, { action: { label: "Play", run: () => startRound(id) }, ms: 9000 });
   } catch (e) {
-    showToast(/too many/.test(e.message || "") ? "That's a lot of quizzes today. Try again tomorrow."
+    showToast(/too many/.test(e.message || "") ? quizLimitText(nextQuizAt())
       : "Couldn't send the quiz. Check your signal and try again.", { ms: 4000 });
   } finally {
     $("quizSend").textContent = "Send quiz";

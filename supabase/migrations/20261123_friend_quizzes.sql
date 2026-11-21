@@ -407,3 +407,11 @@ begin
   on conflict (endpoint) do update set user_id = excluded.user_id, env = excluded.env,
     p256dh = excluded.p256dh, auth = excluded.auth;
 end $$;
+
+-- 21 Nov, later: sending is limited to 3 new quizzes an hour per player (receiving has no limit).
+-- quiz_create was replaced with the version applied as migration quiz_three_an_hour: the same, but
+-- with a per-player lock and this check in place of the 30-a-day one:
+--   perform pg_advisory_xact_lock(hashtext('quiz_create:' || me::text));
+--   if (select count(*) from public.quiz_rounds where created_by = me and created_at > now() - interval '1 hour') >= 3 then
+--     raise exception 'too many quizzes this hour';
+--   end if;
