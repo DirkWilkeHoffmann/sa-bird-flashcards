@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Build data/species.json: the bird species of the Southern African subregion,
 with Creative Commons photos taken in the region, taxonomy, the countries each
-bird is regularly seen in, and a difficulty level.
+bird is regularly seen in, and a difficulty level. English names come from the
+IOC World Bird List (build_names.py); iNaturalist's are kept as "was" where they differ.
 
 Run from the repo root:  python3 scripts/build_data.py [--photos-only]
 """
@@ -11,6 +12,8 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
+
+import build_names
 
 API = "https://api.inaturalist.org/v1"
 OUT = Path(__file__).resolve().parent.parent / "data" / "species.json"
@@ -193,6 +196,9 @@ def main():
         })
 
     species.sort(key=lambda s: (s["order"] or "", s["family"] or "", s["sci"]))
+    missing = build_names.apply(species, build_names.ioc_names())  # IOC names, iNaturalist's kept in "was"
+    if missing:
+        print("not in the IOC list (add to SAME_BIRD in build_names.py):", ", ".join(s["sci"] for s in missing))
     OUT.parent.mkdir(exist_ok=True)
     OUT.write_text(json.dumps(species, ensure_ascii=False, separators=(",", ":")))
     print(f"wrote {len(species)} species to {OUT}")

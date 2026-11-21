@@ -472,31 +472,19 @@ $("quizSend").addEventListener("click", async () => {
 
 /* ---------- Checking a typed name ---------- */
 // Forgiving: capitals, accents, spaces, hyphens and apostrophes don't matter, "gray" = "grey", and a few
-// typos are fine (more for longer names). English, Afrikaans and scientific names count, and so do the
-// names South African birders use where the app's list has another (Dark-capped Bulbul, Fork-tailed
-// Drongo…), and the name without a leading Common / African / Southern / Eurasian / Western
+// typos are fine (more for longer names). English (IOC), Afrikaans and scientific names count, and so do
+// the bird's former name in the app (Spotted Dikkop, Cape Turtle Dove…), the names South African birders
+// use where the IOC list has another (Dark-capped Bulbul…), and the name without a leading Common / African / Southern / Eurasian / Western
 // (Stonechat, Hoopoe, Masked Weaver). But a typo that is as close or closer to another bird's name
 // doesn't count.
 const QUIZ_ALSO = {  // scientific name → other names in use in Southern Africa
   "Pycnonotus barbatus": ["Dark-capped Bulbul", "Black-eyed Bulbul"],
-  "Dicrurus adsimilis": ["Fork-tailed Drongo"],
   "Upupa epops": ["African Hoopoe"],
-  "Burhinus capensis": ["Spotted Thick-knee"],
-  "Tauraco corythaix": ["Knysna Turaco"],
-  "Lamprotornis nitens": ["Cape Starling"],
-  "Gallinula chloropus": ["Common Moorhen"],
-  "Streptopelia capicola": ["Ring-necked Dove"],
   "Chrysococcyx caprius": ["Dideric Cuckoo"],
   "Tyto alba": ["Barn Owl"],
-  "Anthus cinnamomeus": ["African Pipit"],
-  "Aquila verreauxii": ["Verreaux's Eagle"],
   "Elanus caeruleus": ["Black-shouldered Kite"],
   "Buteo buteo": ["Steppe Buzzard"],
-  "Lanius collurio": ["Red-backed Shrike"],
   "Lanius collaris": ["Common Fiscal", "Fiscal Shrike"],
-  "Treron calvus": ["African Green Pigeon"],
-  "Bostrychia hagedash": ["Hadada Ibis"],
-  "Balearica regulorum": ["Grey Crowned Crane"],
   "Gallirex porphyreolophus": ["Purple-crested Lourie"],
   "Ploceus velatus": ["Masked Weaver"],
   "Bucorvus leadbeateri": ["Ground Hornbill"],
@@ -511,7 +499,7 @@ function squash(text) {
 
 function namesOf(s) {
   const out = new Set();
-  for (const n of [s.name, s.af, s.sci, ...(QUIZ_ALSO[s.sci] || [])]) {
+  for (const n of [s.name, s.af, s.sci, s.was, ...(QUIZ_ALSO[s.sci] || [])]) {
     if (!n) continue;
     out.add(squash(n));
     const plain = n.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");

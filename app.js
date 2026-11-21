@@ -140,11 +140,14 @@ function setAltName(el, s) {
   el.lang = afFirst ? "en" : "af";
   el.hidden = !el.textContent;
 }
-// The answer screen's two names, with a small "?" after the Afrikaans one to suggest a better name.
+// The answer screen's two names, with a small "?" after the Afrikaans one to suggest a better name,
+// and the bird's former English name if the IOC list renamed it ("Formerly Spotted Dikkop").
 function showNames(s) {
   $("name").textContent = nameOf(s);
   $("name").lang = afFirst && s.af ? "af" : "en";
   setAltName($("altName"), s);
+  $("wasName").textContent = s.was ? `Formerly ${s.was}` : "";
+  $("wasName").hidden = !s.was;
   if (!s.af) return;
   const q = document.createElement("button");
   q.type = "button";
@@ -1374,6 +1377,7 @@ const KIND_ALIASES = {
 };
 
 function kindOf(s) {
+  if (/ Wood Hoopoe$/.test(s.name)) return "Wood Hoopoe";  // not the same family as Common Hoopoe
   const last = s.name.split(" ").pop();
   if (KIND_ALIASES[last]) return KIND_ALIASES[last];
   const tail = last.split("-").pop();
@@ -1812,6 +1816,10 @@ function compareColumn(s) {
   const alt = document.createElement("p");
   alt.className = "alt-name";
   setAltName(alt, s);
+  const was = document.createElement("p");
+  was.className = "was-name";
+  was.textContent = s.was ? `Formerly ${s.was}` : "";
+  was.hidden = !s.was;
   const sci = document.createElement("p");
   sci.className = "sci";
   sci.textContent = s.sci;
@@ -1822,7 +1830,7 @@ function compareColumn(s) {
     const d = w?.sections.find((x) => x.h === "Description")?.text || w?.intro || "";
     text.textContent = trimText(d, 420);
   });
-  col.append(photos, name, alt, sci);
+  col.append(photos, name, alt, was, sci);
   if (s.calls.length) {
     const audio = new Audio();
     audio.preload = "none";

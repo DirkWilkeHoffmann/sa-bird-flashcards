@@ -73,6 +73,11 @@ and Mozambique south of the Zambezi.
 - `scripts/build_spread.py` builds `data/spread.json` (map cells per bird) from `data/near.json`.
 - Photos are the best-voted Creative Commons photos taken in the region.
 
+English names follow the IOC World Bird List (`scripts/build_names.py`, run by `build_data.py`;
+`python3 scripts/build_names.py` on its own refreshes only the names). iNaturalist's names are a mix
+of old Roberts and American names, so where the IOC name differs the old one is kept as `was`: the
+answer screen shows "Formerly Spotted Dikkop" and quizzes accept it.
+
 `scripts/build_calls.py` builds `data/calls.json` from [xeno-canto](https://xeno-canto.org)
 (quality A/B, preferring Southern African recordings and MP3 files). Calls stream from xeno-canto.
 
@@ -96,7 +101,7 @@ and `data/map.json` (country outlines).
 
 To rebuild:
 
-    python3 scripts/build_data.py
+    python3 scripts/build_data.py      # also sets the IOC names (build_names.py)
     XC_API_KEY=your-key python3 scripts/build_calls.py --missing-only
     python3 scripts/build_info.py
     python3 scripts/build_similar.py
