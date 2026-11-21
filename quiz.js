@@ -119,20 +119,44 @@ function renderQuiz(problem = "") {
   for (const r of toPlay) body.append(roundCard(r, true));
 
   if (quizFriends.length) {
-    body.append(qbutton("New quiz", `btn ${toPlay.length ? "ghost" : "primary"} quiz-new`, openNewQuiz));
+    body.append(qbutton("New quiz", "btn primary quiz-new", openNewQuiz));
   } else {
-    body.append(qel("p", "quiz-lead", "Send friends 10 birds and see who names the most. Start by adding a friend."));
+    body.append(qel("p", "quiz-lead", "Send friends 10 birds and see who names the most. Start by adding a friend."),
+      qbutton("Add a friend", "btn primary quiz-new", openFriends));
   }
 
-  const rest = quizRounds.filter((r) => !waitingForMe(r));
-  if (rest.length) {
-    body.append(qel("h3", "quiz-h", "Your quizzes"));
-    for (const r of rest) body.append(roundCard(r));
+  // Friends have their own screen; here just who they are.
+  if (quizFriends.length) {
+    const row = qbutton("", "quiz-row", openFriends);
+    row.append(qel("b", null, "Friends"), qel("span", "quiz-row-list", quizFriends.map((f) => f.name).join(", ")));
+    row.insertAdjacentHTML("beforeend", icon("chevron", "small"));
+    body.append(row);
   }
 
-  body.append(friendsSection());
   const push = pushButton();
   if (push) body.append(push);
+
+  // Past quizzes at the bottom, folded away until opened.
+  const rest = quizRounds.filter((r) => !waitingForMe(r));
+  if (rest.length) {
+    const history = qel("details", "quiz-history");
+    history.open = quizHistoryOpen;
+    history.addEventListener("toggle", () => { quizHistoryOpen = history.open; });
+    history.append(qel("summary", null, `Your quizzes (${rest.length})`));
+    for (const r of rest) history.append(roundCard(r));
+    body.append(history);
+  }
+}
+let quizHistoryOpen = false;
+
+function openFriends() {
+  renderFriends();
+  openSheet($("quizFriendsSheet"));
+}
+
+function renderFriends() {
+  if (!quizMe) return;
+  $("quizFriendsBody").replaceChildren(friendsSection());
 }
 
 // "You 8 · Dirk H. 7", or how far each player is while the quiz is on.
@@ -187,13 +211,12 @@ async function declineRound(r) {
 
 function friendsSection() {
   const box = qel("section", "quiz-friends");
-  box.append(qel("h3", "quiz-h", "Friends"));
 
   for (const f of quizFriends) {
     const row = qel("div", "quiz-friend");
     const remove = qbutton("", "quiz-remove", async () => {
       if (!confirm(`Remove ${f.name} from your friends?`)) return;
-      try { await qrpc("quiz_remove_friend", { p_id: f.id }); await loadQuiz(true); renderQuiz(); }
+      try { await qrpc("quiz_remove_friend", { p_id: f.id }); await loadQuiz(true); renderQuiz(); renderFriends(); }
       catch { showToast("Couldn't remove them. Check your signal.", { ms: 3500 }); }
     });
     remove.innerHTML = icon("xmark");
@@ -228,6 +251,7 @@ function friendsSection() {
         logEvent("quiz", null, { step: "friend" });
         await loadQuiz(true);
         renderQuiz();
+        renderFriends();
         return;
       }
     } catch { showToast("Couldn't add your friend. Check your signal and try again.", { ms: 4000 }); }
@@ -250,7 +274,7 @@ function friendsSection() {
 async function changeQuizName() {
   const name = prompt("The name your friends see:", quizMe.name);
   if (name == null || !name.trim()) return;
-  try { quizMe = await qrpc("quiz_set_name", { p_name: name }); renderQuiz(); }
+  try { quizMe = await qrpc("quiz_set_name", { p_name: name }); renderQuiz(); renderFriends(); }
   catch { showToast("Couldn't change your name. Check your signal.", { ms: 3500 }); }
 }
 
@@ -367,7 +391,6 @@ function openNewQuiz() {
     const box = qel("input");
     box.type = "checkbox";
     box.value = f.id;
-    box.checked = quizFriends.length === 1;
     label.append(box, qel("span", null, f.name));
     list.append(label);
   }

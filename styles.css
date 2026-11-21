@@ -1346,6 +1346,7 @@ body.onboarding { background: var(--bg); }
   color: var(--label-3); background: none; }
 .quiz-remove:active { background: var(--fill); }
 .quiz-add { display: flex; gap: 8px; margin: 12px 0 10px; }
+.quiz-friends .quiz-add:first-child { margin-top: 0; }
 .quiz-add .select { flex: 1; min-width: 0; text-transform: uppercase; }
 .quiz-add .select::placeholder { text-transform: none; }
 .sheet .quiz-add .btn { width: auto; flex: none; }
@@ -1354,6 +1355,18 @@ body.onboarding { background: var(--bg); }
 .quiz-me .quiz-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .03em; }
 .quiz-me .link-btn { font-size: inherit; font-weight: 600; text-decoration: none; }
 .quiz-push-btn { margin-top: 18px; font-size: var(--fs-subhead); }
+.quiz-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; margin: 14px 0 0; padding: 0 14px;
+  border: 0; border-radius: var(--radius-sm); font: inherit; text-align: left; color: var(--label); background: var(--fill); }
+.quiz-row:active { background: var(--fill-2); }
+.quiz-row b { flex: none; font-weight: 600; }
+.quiz-row-list { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--label-2); font-size: var(--fs-subhead); }
+.quiz-row .i { color: var(--label-3); }
+.quiz-history { margin-top: 18px; }
+.quiz-history summary { display: flex; align-items: center; min-height: var(--tap); margin-bottom: 6px; cursor: pointer;
+  font-size: var(--fs-subhead); font-weight: 600; color: var(--tint); list-style: none; }
+.quiz-history summary::-webkit-details-marker { display: none; }
+.quiz-history summary::after { content: "›"; margin-left: 6px; font-size: 1.2em; transition: transform 160ms ease-out; }
+.quiz-history[open] summary::after { transform: rotate(90deg); }
 .quiz-card.to-play { background: color-mix(in srgb, var(--tint) 12%, var(--bg-elev)); }
 .quiz-invites { display: grid; gap: 6px; }
 .quiz-invite { display: flex; align-items: center; gap: 12px; min-height: var(--tap); padding: 0 14px;
