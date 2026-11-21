@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Add each bird's Afrikaans name to data/species.json (field "af").
 
-Run after build_data.py:  python3 scripts/build_afrikaans.py
+Run after build_data.py:  python3 scripts/build_afrikaans.py [--missing-only]
+(--missing-only looks up only birds without an Afrikaans name and leaves the others as they are.)
 Sources, in order of preference:
   1. the title of the bird's Afrikaans Wikipedia article (usually the current Roberts name),
   2. iNaturalist's Afrikaans common names (the first one listed),
@@ -98,10 +99,11 @@ def tidy(name):
 
 def main():
     species = json.loads(DATA.read_text())
-    inat = inat_names([s["id"] for s in species])
-    wiki = wiki_titles([s["sci"] for s in species])
+    todo = [s for s in species if "af" not in s] if "--missing-only" in sys.argv else species
+    inat = inat_names([s["id"] for s in todo])
+    wiki = wiki_titles([s["sci"] for s in todo])
     counts = {"wikipedia": 0, "inaturalist": 0, "manual": 0, "none": 0}
-    for s in species:
+    for s in todo:
         if s["sci"] in wiki:
             name, src = wiki[s["sci"]], "wikipedia"
         elif inat.get(s["id"]):

@@ -4,7 +4,12 @@ with Creative Commons photos taken in the region, taxonomy, the countries each
 bird is regularly seen in, and a difficulty level. English names come from the
 IOC World Bird List (build_names.py); iNaturalist's are kept as "was" where they differ.
 
-Run from the repo root:  python3 scripts/build_data.py [--photos-only]
+Every bird on BirdLife South Africa's checklist (data/checklist.json, build_checklist.py) is in,
+however few records it has: rare visitors are "hard", and birds with few photos from the region
+get photos from elsewhere. Birds only on the Prince Edward Islands have no country.
+
+Run from the repo root:  python3 scripts/build_data.py [--photos-only | --add-checklist]
+(--add-checklist adds the checklist birds the list doesn't have yet, leaving the rest alone.)
 """
 import json
 import time
@@ -35,7 +40,11 @@ EASY, MEDIUM = 150, 300     # most-recorded 150 = easy, next 300 = medium, rest 
 PHOTOS_PER_SPECIES = 8
 # Corrections the data can't make by itself.
 ALWAYS_INCLUDE = {3017}    # Rock Pigeon: established, but most records are marked "domestic"
-ALWAYS_EXCLUDE = {14110, 20504, 1204}  # Zebra Finch, Emu, Indian Peafowl: escaped or kept birds
+ALWAYS_EXCLUDE = {14110, 20504}  # Zebra Finch, Emu: escaped or kept birds
+MIN_PHOTOS = 4               # fewer photos from the region than this: top up with photos from elsewhere
+CHECKLIST = OUT.parent / "checklist.json"
+# Checklist birds iNaturalist lumps into another bird the app already has (BLSA name -> why left out).
+NOT_SEPARATE = {"Camaroptera brevicaudata", "Milvus aegyptius"}
 LICENSES = "cc0,cc-by,cc-by-sa,cc-by-nc,cc-by-nc-sa,cc-by-nd,cc-by-nc-nd"
 
 
@@ -117,6 +126,96 @@ def regional_photos(taxon_id):
     return photos
 
 
+def photos_for(taxon_id):
+    """Photos from the region first; a rare visitor or island bird gets photos from elsewhere too."""
+    photos = regional_photos(taxon_id)
+    if len(photos) >= MIN_PHOTOS:
+        return photos
+    seen = {p["id"] for p in photos}
+    common = dict(taxon_id=taxon_id, photos="true", photo_license=LICENSES, order_by="votes")
+    d = (get("observations", quality_grade="research", term_id=17, term_value_id=ALIVE, per_page=30, **common)["results"]
+         + get("observations", quality_grade="research", per_page=30, **common)["results"])
+    for o in d:
+        p = next((p for p in o["photos"] if p.get("license_code")), None)
+        if p and p["id"] not in seen and usable(o):
+            seen.add(p["id"])
+            base, ext = p["url"].rsplit("/", 1)[0], p["url"].rsplit(".", 1)[-1]
+            photos.append({"id": p["id"], "base": base, "ext": ext, "attr": p["attribution"]})
+        if len(photos) == PHOTOS_PER_SPECIES:
+            break
+    return photos
+
+
+def checklist_birds():
+    """{iNaturalist id: checklist entry} for the BirdLife South Africa checklist birds the app keeps apart."""
+    if not CHECKLIST.exists():
+        return {}
+    birds = json.loads(CHECKLIST.read_text())["birds"]
+    return {b["inat"]: b for b in birds if b.get("inat") and b["sci"] not in NOT_SEPARATE}
+
+
+def count_records(per_country, totals, tid):
+    """Records per country for a bird the species counts don't list (a subspecies, or none in the region)."""
+    for code, q in COUNTRIES.items():
+        per_country[code][tid] = get("observations", taxon_id=tid, quality_grade="research", captive="false",
+                                     per_page=0, **q)["total_results"]
+    totals[tid] = sum(per_country[c][tid] for c in COUNTRIES)
+
+
+def entry(t, photos, obs, level, countries, checklist):
+    """One bird in species.json. Checklist birds get BLSA's scientific name (IOC's), so a bird
+    iNaturalist files as a subspecies (Agulhas Long-billed Lark) still finds its IOC name."""
+    fam, order, genus = ancestor(t, "family"), ancestor(t, "order"), ancestor(t, "genus")
+    b = checklist.get(t["id"])
+    if b:
+        countries = [] if b["pei"] else sorted(set(countries) | {"ZA"}, key=list(COUNTRIES).index)
+    return {
+        "id": t["id"],
+        "name": english_name(t),
+        "sci": b["sci"] if b and t["rank"] != "species" else t["name"],
+        "genus": genus["name"] if genus else None,
+        "family": fam["name"] if fam else None,
+        "familyName": fam.get("preferred_common_name") if fam else None,
+        "order": order["name"] if order else None,
+        "obs": obs,
+        "level": level,
+        "countries": countries,
+        "wiki": t.get("wikipedia_url"),
+        "photos": photos,
+    }
+
+
+def add_checklist():
+    """--add-checklist: add the checklist birds species.json doesn't have yet, as "hard" birds."""
+    species = json.loads(OUT.read_text())
+    have = {s["id"] for s in species}
+    checklist = checklist_birds()
+    todo = [tid for tid in checklist if tid not in have]
+    per_country = {code: {} for code in COUNTRIES}
+    totals = {}
+    for tid in todo:
+        count_records(per_country, totals, tid)
+    for i in range(0, len(todo), 30):
+        d = get(f"taxa/{','.join(map(str, todo[i:i + 30]))}", locale="en", preferred_place_id=6986, all_names="true")
+        for t in d["results"]:
+            photos = photos_for(t["id"])
+            if not photos:
+                print(f"  no photos at all: {english_name(t)}")
+                continue
+            countries = [c for c in COUNTRIES if per_country[c].get(t["id"], 0) >= MIN_IN_COUNTRY]
+            species.append(entry(t, photos, totals[t["id"]], "hard", countries, checklist))
+            print(f"  added {english_name(t)} ({totals[t['id']]} records, {len(photos)} photos)")
+    for s in species:  # checklist birds already in the list: on the South Africa list, so in "ZA"
+        b = checklist.get(s["id"])
+        if b and not b["pei"] and "ZA" not in s["countries"]:
+            s["countries"] = sorted(s["countries"] + ["ZA"], key=list(COUNTRIES).index)
+    species.sort(key=lambda s: (s["order"] or "", s["family"] or "", s["sci"]))
+    build_names.apply(species, build_names.ioc_names())
+    build_names.add_aka(species)
+    OUT.write_text(json.dumps(species, ensure_ascii=False, separators=(",", ":")))
+    print(f"wrote {len(species)} species")
+
+
 def refresh_photos():
     """--photos-only: re-pick photos for the existing species list, keeping everything else."""
     species = json.loads(OUT.read_text())
@@ -154,8 +253,13 @@ def main():
             per_country[code][tid] = get("observations", taxon_id=tid, quality_grade="research",
                                          per_page=0, **q)["total_results"]
         totals[tid] = sum(per_country[c][tid] for c in COUNTRIES)
+    checklist = checklist_birds()
+    for tid in checklist:
+        if tid not in totals:  # a subspecies on iNaturalist, or never recorded in the region
+            count_records(per_country, totals, tid)
     ids = [tid for tid, c in totals.items()
-           if (c >= MIN_OBSERVATIONS and tid not in escapees and tid not in ALWAYS_EXCLUDE) or tid in ALWAYS_INCLUDE]
+           if (c >= MIN_OBSERVATIONS and tid not in escapees and tid not in ALWAYS_EXCLUDE)
+           or tid in ALWAYS_INCLUDE or tid in checklist]
     print(f"{len(totals)} species recorded; {len(escapees)} escapees and "
           f"{sum(1 for c in totals.values() if c < MIN_OBSERVATIONS)} vagrants removed; {len(ids)} kept")
 
@@ -175,28 +279,16 @@ def main():
         t = taxa[tid]
         if n % 50 == 0:
             print(f"photos {n}/{len(ids)}")
-        photos = regional_photos(tid)
+        photos = photos_for(tid) if tid in checklist else regional_photos(tid)
         if not photos:
-            print(f"  no regional photos: {english_name(t)}")
+            print(f"  no photos: {english_name(t)}")
             continue
-        fam, order, genus = ancestor(t, "family"), ancestor(t, "order"), ancestor(t, "genus")
-        species.append({
-            "id": tid,
-            "name": english_name(t),
-            "sci": t["name"],
-            "genus": genus["name"] if genus else None,
-            "family": fam["name"] if fam else None,
-            "familyName": fam.get("preferred_common_name") if fam else None,
-            "order": order["name"] if order else None,
-            "obs": totals[tid],
-            "level": level[tid],
-            "countries": [c for c in COUNTRIES if per_country[c].get(tid, 0) >= MIN_IN_COUNTRY],
-            "wiki": t.get("wikipedia_url"),
-            "photos": photos,
-        })
+        countries = [c for c in COUNTRIES if per_country[c].get(tid, 0) >= MIN_IN_COUNTRY]
+        species.append(entry(t, photos, totals[tid], level[tid], countries, checklist))
 
     species.sort(key=lambda s: (s["order"] or "", s["family"] or "", s["sci"]))
     missing = build_names.apply(species, build_names.ioc_names())  # IOC names, iNaturalist's kept in "was"
+    build_names.add_aka(species)  # BLSA's other names, accepted in quizzes
     if missing:
         print("not in the IOC list (add to SAME_BIRD in build_names.py):", ", ".join(s["sci"] for s in missing))
     OUT.parent.mkdir(exist_ok=True)
@@ -206,4 +298,9 @@ def main():
 
 if __name__ == "__main__":
     import sys
-    refresh_photos() if "--photos-only" in sys.argv else main()
+    if "--photos-only" in sys.argv:
+        refresh_photos()
+    elif "--add-checklist" in sys.argv:
+        add_checklist()
+    else:
+        main()

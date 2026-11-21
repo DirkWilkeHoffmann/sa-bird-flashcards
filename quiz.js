@@ -473,8 +473,8 @@ $("quizSend").addEventListener("click", async () => {
 /* ---------- Checking a typed name ---------- */
 // Forgiving: capitals, accents, spaces, hyphens and apostrophes don't matter, "gray" = "grey", and a few
 // typos are fine (more for longer names). English (IOC), Afrikaans and scientific names count, and so do
-// the bird's former name in the app (Spotted Dikkop, Cape Turtle Dove…), the names South African birders
-// use where the IOC list has another (Dark-capped Bulbul…), and the name without a leading Common / African / Southern / Eurasian / Western
+// the bird's former name in the app (Spotted Dikkop…), the other names BirdLife South Africa's checklist
+// gives (Hadeda Ibis, Cape Turtle Dove…), a few more names SA birders use, and the name without a leading Common / African / Southern / Eurasian / Western
 // (Stonechat, Hoopoe, Masked Weaver). But a typo that is as close or closer to another bird's name
 // doesn't count.
 const QUIZ_ALSO = {  // scientific name → other names in use in Southern Africa
@@ -499,7 +499,7 @@ function squash(text) {
 
 function namesOf(s) {
   const out = new Set();
-  for (const n of [s.name, s.af, s.sci, s.was, ...(QUIZ_ALSO[s.sci] || [])]) {
+  for (const n of [s.name, s.af, s.sci, s.was, ...(s.aka || []), ...(QUIZ_ALSO[s.sci] || [])]) {
     if (!n) continue;
     out.add(squash(n));
     const plain = n.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");

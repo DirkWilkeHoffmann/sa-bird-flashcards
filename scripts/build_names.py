@@ -6,7 +6,9 @@ iNaturalist's English names are a mix of old Roberts names (Spotted Dikkop, Cape
 American eBird/Clements names (Pied Cuckoo, Gray Kestrel); South African birders use the IOC names.
 Birds are matched on their scientific name. Where the IOC name differs from iNaturalist's by more
 than spelling ("Fish-Eagle" vs "Fish Eagle", "Gray" vs "Grey"), iNaturalist's name is kept in "was",
-which the app shows as "Formerly …" and accepts as an answer in quizzes.
+which the app shows as "Formerly …" and accepts as an answer in quizzes. The other names BirdLife
+South Africa's checklist gives (data/checklist.json: Hadeda Ibis, Cape Turtle Dove…) go in "aka",
+also accepted in quizzes.
 """
 import json
 import re
@@ -69,12 +71,29 @@ def plain(name):
     return re.sub(r"[^a-z]", "", name.lower().replace("gray", "grey").replace("colored", "coloured"))
 
 
+def blsa_names():
+    """{scientific name: BirdLife South Africa's first name} from data/checklist.json."""
+    path = DATA.parent / "checklist.json"
+    if not path.exists():
+        return {}
+    return {b["sci"]: b["names"][0] for b in json.loads(path.read_text())["birds"]}
+
+
 def apply(species, ioc):
-    """Set each bird's IOC name; return the birds the IOC list doesn't have."""
+    """Set each bird's IOC name (BLSA's for a bird the IOC list doesn't keep apart, like Agulhas
+    Long-billed Lark); return the birds neither list has."""
+    blsa = blsa_names()
     missing = []
     for s in species:
         old = s.get("was") or s["name"]  # iNaturalist's name, also when this runs a second time
         sci = SAME_BIRD.get(s["sci"], s["sci"])
+        if sci not in ioc and s["sci"] in blsa:
+            s["name"] = blsa[s["sci"]]
+            if plain(old) != plain(s["name"]):
+                s["was"] = old
+            else:
+                s.pop("was", None)
+            continue
         if sci not in ioc:
             missing.append(s)
             s["name"] = old
@@ -88,10 +107,35 @@ def apply(species, ioc):
     return missing
 
 
+def add_aka(species):
+    """BLSA's names for each bird that differ from its IOC name and former name, in "aka"."""
+    path = DATA.parent / "checklist.json"
+    if not path.exists():
+        return
+    by_id = {}
+    for b in json.loads(path.read_text())["birds"]:
+        by_id.setdefault(b.get("inat"), []).append(b)
+    for s in species:
+        entries = by_id.get(s["id"], [])
+        if len(entries) > 1:  # iNaturalist lumps two checklist birds: use the one with this bird's name
+            entries = [b for b in entries if b["sci"] == s["sci"]]
+        taken = {plain(s["name"]), plain(s.get("was", ""))}
+        aka = []
+        for name in (n for b in entries for n in b["names"]):
+            if plain(name) not in taken:
+                taken.add(plain(name))
+                aka.append(name)
+        if aka:
+            s["aka"] = aka
+        else:
+            s.pop("aka", None)
+
+
 def main():
     species = json.loads(DATA.read_text())
     before = {s["id"]: s["name"] for s in species}
     missing = apply(species, ioc_names())
+    add_aka(species)
     DATA.write_text(json.dumps(species, ensure_ascii=False, separators=(",", ":")))
     renamed = [s for s in species if before[s["id"]] != s["name"]]
     print(f"IOC {IOC_VERSION}: {len(renamed)} names changed, "

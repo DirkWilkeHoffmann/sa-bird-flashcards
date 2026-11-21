@@ -1,0 +1,9858 @@
+{
+ "source": "BirdLife South Africa Checklist of Birds in South Africa 2026",
+ "birds": [
+  {
+   "names": [
+    "Amsterdam Albatross"
+   ],
+   "sci": "Diomedea amsterdamensis",
+   "codes": [
+    "NA",
+    "EN",
+    "V"
+   ],
+   "pei": false,
+   "inat": 99304,
+   "inatSci": "Diomedea amsterdamensis"
+  },
+  {
+   "names": [
+    "Pririt Batis"
+   ],
+   "sci": "Batis pririt",
+   "codes": [],
+   "pei": false,
+   "inat": 8412,
+   "inatSci": "Batis pririt"
+  },
+  {
+   "names": [
+    "Atlantic Yellow-nosed Albatross"
+   ],
+   "sci": "Thalassarche chlororhynchos",
+   "codes": [
+    "EN",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 1506786,
+   "inatSci": "Thalassarche chlororhynchos"
+  },
+  {
+   "names": [
+    "Woodwards' Batis"
+   ],
+   "sci": "Batis fratrum",
+   "codes": [],
+   "pei": false,
+   "inat": 8403,
+   "inatSci": "Batis fratrum"
+  },
+  {
+   "names": [
+    "Black-browed Albatross"
+   ],
+   "sci": "Thalassarche melanophris",
+   "codes": [
+    "LC",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 144433,
+   "inatSci": "Thalassarche melanophris"
+  },
+  {
+   "names": [
+    "Blue-cheeked Bee-eater"
+   ],
+   "sci": "Merops persicus",
+   "codes": [],
+   "pei": false,
+   "inat": 2245,
+   "inatSci": "Merops persicus"
+  },
+  {
+   "names": [
+    "Buller's Albatross"
+   ],
+   "sci": "Thalassarche bulleri",
+   "codes": [
+    "NA",
+    "NT",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4087,
+   "inatSci": "Thalassarche bulleri"
+  },
+  {
+   "names": [
+    "European Bee-eater"
+   ],
+   "sci": "Merops apiaster",
+   "codes": [],
+   "pei": false,
+   "inat": 2191,
+   "inatSci": "Merops apiaster"
+  },
+  {
+   "names": [
+    "Chatham Albatross"
+   ],
+   "sci": "Thalassarche eremita",
+   "codes": [
+    "NA",
+    "VU",
+    "V"
+   ],
+   "pei": false,
+   "inat": 73480,
+   "inatSci": "Thalassarche eremita"
+  },
+  {
+   "names": [
+    "Little Bee-eater"
+   ],
+   "sci": "Merops pusillus",
+   "codes": [],
+   "pei": false,
+   "inat": 2185,
+   "inatSci": "Merops pusillus"
+  },
+  {
+   "names": [
+    "Grey-headed Albatross"
+   ],
+   "sci": "Thalassarche chrysostoma",
+   "codes": [
+    "EN",
+    "EN",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4090,
+   "inatSci": "Thalassarche chrysostoma"
+  },
+  {
+   "names": [
+    "Northern Carmine Bee-eater"
+   ],
+   "sci": "Merops nubicus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 2220,
+   "inatSci": "Merops nubicus"
+  },
+  {
+   "names": [
+    "Indian Yellow-nosed Albatross"
+   ],
+   "sci": "Thalassarche carteri",
+   "codes": [
+    "EN",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 113965,
+   "inatSci": "Thalassarche carteri"
+  },
+  {
+   "names": [
+    "Olive Bee-eater"
+   ],
+   "sci": "Merops superciliosus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 2226,
+   "inatSci": "Merops superciliosus"
+  },
+  {
+   "names": [
+    "Laysan Albatross"
+   ],
+   "sci": "Phoebastria immutabilis",
+   "codes": [
+    "NA",
+    "NT",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4144,
+   "inatSci": "Phoebastria immutabilis"
+  },
+  {
+   "names": [
+    "Southern Carmine Bee-eater"
+   ],
+   "sci": "Merops nubicoides",
+   "codes": [],
+   "pei": false,
+   "inat": 67434,
+   "inatSci": "Merops nubicoides"
+  },
+  {
+   "names": [
+    "Light-mantled Albatross"
+   ],
+   "sci": "Phoebetria palpebrata",
+   "codes": [
+    "VU",
+    "NT",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4191,
+   "inatSci": "Phoebetria palpebrata"
+  },
+  {
+   "names": [
+    "Swallow-tailed Bee-eater"
+   ],
+   "sci": "Merops hirundineus",
+   "codes": [],
+   "pei": false,
+   "inat": 2203,
+   "inatSci": "Merops hirundineus"
+  },
+  {
+   "names": [
+    "Northern Royal Albatross"
+   ],
+   "sci": "Diomedea sanfordi",
+   "codes": [
+    "EN",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 1506470,
+   "inatSci": "Diomedea sanfordi"
+  },
+  {
+   "names": [
+    "White-fronted Bee-eater"
+   ],
+   "sci": "Merops bullockoides",
+   "codes": [],
+   "pei": false,
+   "inat": 2248,
+   "inatSci": "Merops bullockoides"
+  },
+  {
+   "names": [
+    "Salvin's Albatross"
+   ],
+   "sci": "Thalassarche salvini",
+   "codes": [
+    "NA",
+    "VU",
+    "V"
+   ],
+   "pei": false,
+   "inat": 73481,
+   "inatSci": "Thalassarche salvini"
+  },
+  {
+   "names": [
+    "White-throated Bee-eater"
+   ],
+   "sci": "Merops albicollis",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 2240,
+   "inatSci": "Merops albicollis"
+  },
+  {
+   "names": [
+    "Shy Albatross"
+   ],
+   "sci": "Thalassarche cauta",
+   "codes": [
+    "NT",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 4088,
+   "inatSci": "Thalassarche cauta"
+  },
+  {
+   "names": [
+    "Southern Red Bishop"
+   ],
+   "sci": "Euplectes orix",
+   "codes": [],
+   "pei": false,
+   "inat": 13962,
+   "inatSci": "Euplectes orix"
+  },
+  {
+   "names": [
+    "Sooty Albatross"
+   ],
+   "sci": "Phoebetria fusca",
+   "codes": [
+    "EN",
+    "EN",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4192,
+   "inatSci": "Phoebetria fusca"
+  },
+  {
+   "names": [
+    "Yellow Bishop"
+   ],
+   "sci": "Euplectes capensis",
+   "codes": [],
+   "pei": false,
+   "inat": 13964,
+   "inatSci": "Euplectes capensis"
+  },
+  {
+   "names": [
+    "Southern Royal Albatross"
+   ],
+   "sci": "Diomedea epomophora",
+   "codes": [
+    "VU",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 4124,
+   "inatSci": "Diomedea epomophora"
+  },
+  {
+   "names": [
+    "Yellow-crowned Bishop"
+   ],
+   "sci": "Euplectes afer",
+   "codes": [],
+   "pei": false,
+   "inat": 13974,
+   "inatSci": "Euplectes afer"
+  },
+  {
+   "names": [
+    "Tristan Albatross"
+   ],
+   "sci": "Diomedea dabbenena",
+   "codes": [
+    "CR",
+    "CR",
+    "V"
+   ],
+   "pei": false,
+   "inat": 99306,
+   "inatSci": "Diomedea dabbenena"
+  },
+  {
+   "names": [
+    "Dwarf Bittern"
+   ],
+   "sci": "Botaurus sturmii",
+   "codes": [],
+   "pei": false,
+   "inat": 1583065,
+   "inatSci": "Botaurus sturmii"
+  },
+  {
+   "names": [
+    "Wandering Albatross"
+   ],
+   "sci": "Diomedea exulans",
+   "codes": [
+    "VU",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 4117,
+   "inatSci": "Diomedea exulans"
+  },
+  {
+   "names": [
+    "Eurasian Bittern"
+   ],
+   "sci": "Botaurus stellaris",
+   "codes": [],
+   "pei": false,
+   "inat": 5033,
+   "inatSci": "Botaurus stellaris"
+  },
+  {
+   "names": [
+    "Bar-throated Apalis"
+   ],
+   "sci": "Apalis thoracica",
+   "codes": [],
+   "pei": false,
+   "inat": 7742,
+   "inatSci": "Apalis thoracica"
+  },
+  {
+   "names": [
+    "Little Bittern"
+   ],
+   "sci": "Botaurus minutus",
+   "codes": [],
+   "pei": false,
+   "inat": 1578961,
+   "inatSci": "Botaurus minutus"
+  },
+  {
+   "names": [
+    "Rudd's Apalis"
+   ],
+   "sci": "Apalis ruddi",
+   "codes": [],
+   "pei": false,
+   "inat": 7753,
+   "inatSci": "Apalis ruddi"
+  },
+  {
+   "names": [
+    "Bush Blackcap"
+   ],
+   "sci": "Sylvia nigricapillus",
+   "codes": [
+    "VU",
+    "VU",
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 979951,
+   "inatSci": "Sylvia nigricapillus"
+  },
+  {
+   "names": [
+    "Yellow-breasted Apalis"
+   ],
+   "sci": "Apalis flavida",
+   "codes": [],
+   "pei": false,
+   "inat": 7749,
+   "inatSci": "Apalis flavida"
+  },
+  {
+   "names": [
+    "Eurasian Blackcap"
+   ],
+   "sci": "Sylvia atricapilla",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 15282,
+   "inatSci": "Sylvia atricapilla"
+  },
+  {
+   "names": [
+    "Pied Avocet"
+   ],
+   "sci": "Recurvirostra avosetta",
+   "codes": [],
+   "pei": false,
+   "inat": 4883,
+   "inatSci": "Recurvirostra avosetta"
+  },
+  {
+   "names": [
+    "Bokmakierie"
+   ],
+   "sci": "Telophorus zeylonus",
+   "codes": [],
+   "pei": false,
+   "inat": 8188,
+   "inatSci": "Telophorus zeylonus"
+  },
+  {
+   "names": [
+    "Arrow-marked Babbler"
+   ],
+   "sci": "Turdoides jardineii",
+   "codes": [],
+   "pei": false,
+   "inat": 15052,
+   "inatSci": "Turdoides jardineii"
+  },
+  {
+   "names": [
+    "Brown Booby"
+   ],
+   "sci": "Sula leucogaster",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 3797,
+   "inatSci": "Sula leucogaster"
+  },
+  {
+   "names": [
+    "Southern Pied Babbler"
+   ],
+   "sci": "Turdoides bicolor",
+   "codes": [],
+   "pei": false,
+   "inat": 15054,
+   "inatSci": "Turdoides bicolor"
+  },
+  {
+   "names": [
+    "Masked Booby"
+   ],
+   "sci": "Sula dactylatra",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 3788,
+   "inatSci": "Sula dactylatra"
+  },
+  {
+   "names": [
+    "Acacia Pied Barbet"
+   ],
+   "sci": "Tricholaema leucomelas",
+   "codes": [],
+   "pei": false,
+   "inat": 117140,
+   "inatSci": "Tricholaema leucomelas"
+  },
+  {
+   "names": [
+    "Red-footed Booby"
+   ],
+   "sci": "Sula sula",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 3793,
+   "inatSci": "Sula sula"
+  },
+  {
+   "names": [
+    "Black-collared Barbet"
+   ],
+   "sci": "Lybius torquatus",
+   "codes": [],
+   "pei": false,
+   "inat": 116950,
+   "inatSci": "Lybius torquatus"
+  },
+  {
+   "names": [
+    "Southern Boubou"
+   ],
+   "sci": "Laniarius ferrugineus",
+   "codes": [],
+   "pei": false,
+   "inat": 8224,
+   "inatSci": "Laniarius ferrugineus"
+  },
+  {
+   "names": [
+    "Crested Barbet"
+   ],
+   "sci": "Trachyphonus vaillantii",
+   "codes": [],
+   "pei": false,
+   "inat": 117135,
+   "inatSci": "Trachyphonus vaillantii"
+  },
+  {
+   "names": [
+    "Tropical Boubou"
+   ],
+   "sci": "Laniarius major",
+   "codes": [],
+   "pei": false,
+   "inat": 597463,
+   "inatSci": "Laniarius major"
+  },
+  {
+   "names": [
+    "Green Barbet"
+   ],
+   "sci": "Cryptolybia olivacea",
+   "codes": [
+    "EN",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 1506305,
+   "inatSci": "Cryptolybia olivacea"
+  },
+  {
+   "names": [
+    "African Broadbill"
+   ],
+   "sci": "Smithornis capensis",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 8961,
+   "inatSci": "Smithornis capensis"
+  },
+  {
+   "names": [
+    "White-eared Barbet"
+   ],
+   "sci": "Stactolaema leucotis",
+   "codes": [],
+   "pei": false,
+   "inat": 117115,
+   "inatSci": "Stactolaema leucotis"
+  },
+  {
+   "names": [
+    "Terrestrial Brownbul"
+   ],
+   "sci": "Phyllastrephus terrestris",
+   "codes": [],
+   "pei": false,
+   "inat": 14563,
+   "inatSci": "Phyllastrephus terrestris"
+  },
+  {
+   "names": [
+    "Bateleur"
+   ],
+   "sci": "Terathopius ecaudatus",
+   "codes": [
+    "EN",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 5231,
+   "inatSci": "Terathopius ecaudatus"
+  },
+  {
+   "names": [
+    "Brubru"
+   ],
+   "sci": "Nilaus afer",
+   "codes": [],
+   "pei": false,
+   "inat": 8580,
+   "inatSci": "Nilaus afer"
+  },
+  {
+   "names": [
+    "Cape Batis"
+   ],
+   "sci": "Batis capensis",
+   "codes": [],
+   "pei": false,
+   "inat": 8396,
+   "inatSci": "Batis capensis"
+  },
+  {
+   "names": [
+    "African Red-eyed Bulbul"
+   ],
+   "sci": "Pycnonotus nigricans",
+   "codes": [],
+   "pei": false,
+   "inat": 14625,
+   "inatSci": "Pycnonotus nigricans"
+  },
+  {
+   "names": [
+    "Chinspot Batis"
+   ],
+   "sci": "Batis molitor",
+   "codes": [],
+   "pei": false,
+   "inat": 8399,
+   "inatSci": "Batis molitor"
+  },
+  {
+   "names": [
+    "Cape Bulbul"
+   ],
+   "sci": "Pycnonotus capensis",
+   "codes": [
+    "E"
+   ],
+   "pei": false,
+   "inat": 14594,
+   "inatSci": "Pycnonotus capensis"
+  },
+  {
+   "names": [
+    "Common Bulbul",
+    "Dark-capped Bulbul"
+   ],
+   "sci": "Pycnonotus barbatus",
+   "codes": [],
+   "pei": false,
+   "inat": 14588,
+   "inatSci": "Pycnonotus barbatus"
+  },
+  {
+   "names": [
+    "Cape Canary"
+   ],
+   "sci": "Serinus canicollis",
+   "codes": [],
+   "pei": false,
+   "inat": 9271,
+   "inatSci": "Serinus canicollis"
+  },
+  {
+   "names": [
+    "Cape Bunting"
+   ],
+   "sci": "Emberiza capensis",
+   "codes": [],
+   "pei": false,
+   "inat": 204506,
+   "inatSci": "Emberiza capensis"
+  },
+  {
+   "names": [
+    "Forest Canary"
+   ],
+   "sci": "Crithagra scotops",
+   "codes": [
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 558607,
+   "inatSci": "Crithagra scotops"
+  },
+  {
+   "names": [
+    "Cinnamon-breasted Bunting"
+   ],
+   "sci": "Emberiza tahapisi",
+   "codes": [],
+   "pei": false,
+   "inat": 367712,
+   "inatSci": "Emberiza tahapisi"
+  },
+  {
+   "names": [
+    "Lemon-breasted Canary"
+   ],
+   "sci": "Crithagra citrinipectus",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 558612,
+   "inatSci": "Crithagra citrinipectus"
+  },
+  {
+   "names": [
+    "Golden-breasted Bunting"
+   ],
+   "sci": "Emberiza flaviventris",
+   "codes": [],
+   "pei": false,
+   "inat": 9202,
+   "inatSci": "Emberiza flaviventris"
+  },
+  {
+   "names": [
+    "Protea Canary",
+    "Protea Seedeater"
+   ],
+   "sci": "Crithagra leucoptera",
+   "codes": [
+    "NT",
+    "NT",
+    "E"
+   ],
+   "pei": false,
+   "inat": 558625,
+   "inatSci": "Crithagra leucoptera"
+  },
+  {
+   "names": [
+    "Lark-like Bunting"
+   ],
+   "sci": "Emberiza impetuani",
+   "codes": [],
+   "pei": false,
+   "inat": 9221,
+   "inatSci": "Emberiza impetuani"
+  },
+  {
+   "names": [
+    "White-throated Canary"
+   ],
+   "sci": "Crithagra albogularis",
+   "codes": [],
+   "pei": false,
+   "inat": 527434,
+   "inatSci": "Crithagra albogularis"
+  },
+  {
+   "names": [
+    "Ortolan Bunting"
+   ],
+   "sci": "Emberiza hortulana",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 9196,
+   "inatSci": "Emberiza hortulana"
+  },
+  {
+   "names": [
+    "Yellow Canary"
+   ],
+   "sci": "Crithagra flaviventris",
+   "codes": [],
+   "pei": false,
+   "inat": 527609,
+   "inatSci": "Crithagra flaviventris"
+  },
+  {
+   "names": [
+    "Black-fronted Bush-shrike"
+   ],
+   "sci": "Chlorophoneus nigrifrons",
+   "codes": [],
+   "pei": false,
+   "inat": 1586909,
+   "inatSci": "Chlorophoneus nigrifrons"
+  },
+  {
+   "names": [
+    "Yellow-fronted Canary"
+   ],
+   "sci": "Crithagra mozambica",
+   "codes": [],
+   "pei": false,
+   "inat": 558601,
+   "inatSci": "Crithagra mozambica"
+  },
+  {
+   "names": [
+    "Gorgeous Bush-shrike"
+   ],
+   "sci": "Telophorus viridis",
+   "codes": [],
+   "pei": false,
+   "inat": 8194,
+   "inatSci": "Telophorus viridis"
+  },
+  {
+   "names": [
+    "Eurasian Chaffinch"
+   ],
+   "sci": "Fringilla coelebs",
+   "codes": [
+    "I"
+   ],
+   "pei": false,
+   "inat": 10070,
+   "inatSci": "Fringilla coelebs"
+  },
+  {
+   "names": [
+    "Grey-headed Bush-shrike"
+   ],
+   "sci": "Malaconotus blanchoti",
+   "codes": [],
+   "pei": false,
+   "inat": 8257,
+   "inatSci": "Malaconotus blanchoti"
+  },
+  {
+   "names": [
+    "Ant-eating Chat"
+   ],
+   "sci": "Myrmecocichla formicivora",
+   "codes": [],
+   "pei": false,
+   "inat": 12873,
+   "inatSci": "Myrmecocichla formicivora"
+  },
+  {
+   "names": [
+    "Olive Bush-shrike"
+   ],
+   "sci": "Chlorophoneus olivaceus",
+   "codes": [],
+   "pei": false,
+   "inat": 1586888,
+   "inatSci": "Chlorophoneus olivaceus"
+  },
+  {
+   "names": [
+    "Arnot's Chat"
+   ],
+   "sci": "Myrmecocichla arnotti",
+   "codes": [],
+   "pei": false,
+   "inat": 145075,
+   "inatSci": "Myrmecocichla arnotti"
+  },
+  {
+   "names": [
+    "Orange-breasted Bush-shrike"
+   ],
+   "sci": "Chlorophoneus sulfureopectus",
+   "codes": [],
+   "pei": false,
+   "inat": 1586878,
+   "inatSci": "Chlorophoneus sulfureopectus"
+  },
+  {
+   "names": [
+    "Boulder Chat"
+   ],
+   "sci": "Pinarornis plumosus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 13268,
+   "inatSci": "Pinarornis plumosus"
+  },
+  {
+   "names": [
+    "Black-bellied Bustard"
+   ],
+   "sci": "Lissotis melanogaster",
+   "codes": [],
+   "pei": false,
+   "inat": 144472,
+   "inatSci": "Lissotis melanogaster"
+  },
+  {
+   "names": [
+    "Buff-streaked Chat"
+   ],
+   "sci": "Campicoloides bifasciatus",
+   "codes": [
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 979944,
+   "inatSci": "Campicoloides bifasciatus"
+  },
+  {
+   "names": [
+    "Denham's Bustard"
+   ],
+   "sci": "Neotis denhami",
+   "codes": [
+    "VU",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 85,
+   "inatSci": "Neotis denhami"
+  },
+  {
+   "names": [
+    "Familiar Chat"
+   ],
+   "sci": "Oenanthe familiaris",
+   "codes": [],
+   "pei": false,
+   "inat": 980204,
+   "inatSci": "Oenanthe familiaris"
+  },
+  {
+   "names": [
+    "Kori Bustard"
+   ],
+   "sci": "Ardeotis kori",
+   "codes": [
+    "NT",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 115,
+   "inatSci": "Ardeotis kori"
+  },
+  {
+   "names": [
+    "Karoo Chat"
+   ],
+   "sci": "Emarginata schlegelii",
+   "codes": [],
+   "pei": false,
+   "inat": 980210,
+   "inatSci": "Emarginata schlegelii"
+  },
+  {
+   "names": [
+    "Ludwig's Bustard"
+   ],
+   "sci": "Neotis ludwigii",
+   "codes": [
+    "EN",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 91,
+   "inatSci": "Neotis ludwigii"
+  },
+  {
+   "names": [
+    "Mocking Cliff Chat"
+   ],
+   "sci": "Thamnolaea cinnamomeiventris",
+   "codes": [],
+   "pei": false,
+   "inat": 144298,
+   "inatSci": "Thamnolaea cinnamomeiventris"
+  },
+  {
+   "names": [
+    "Black-rumped Buttonquail"
+   ],
+   "sci": "Turnix nanus",
+   "codes": [
+    "EN",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 980031,
+   "inatSci": "Turnix nanus"
+  },
+  {
+   "names": [
+    "Sickle-winged Chat"
+   ],
+   "sci": "Emarginata sinuata",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 980209,
+   "inatSci": "Emarginata sinuata"
+  },
+  {
+   "names": [
+    "Common Buttonquail",
+    "Kurrichane Buttonquail"
+   ],
+   "sci": "Turnix sylvaticus",
+   "codes": [],
+   "pei": false,
+   "inat": 20887,
+   "inatSci": "Turnix sylvaticus"
+  },
+  {
+   "names": [
+    "Tractrac Chat"
+   ],
+   "sci": "Emarginata tractrac",
+   "codes": [],
+   "pei": false,
+   "inat": 980207,
+   "inatSci": "Emarginata tractrac"
+  },
+  {
+   "names": [
+    "Fynbos Buttonquail"
+   ],
+   "sci": "Turnix hottentottus",
+   "codes": [
+    "NT",
+    "EN",
+    "E"
+   ],
+   "pei": false,
+   "inat": 980032,
+   "inatSci": "Turnix hottentottus"
+  },
+  {
+   "names": [
+    "Cloud Cisticola"
+   ],
+   "sci": "Cisticola textrix",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 7700,
+   "inatSci": "Cisticola textrix"
+  },
+  {
+   "names": [
+    "Common Buzzard"
+   ],
+   "sci": "Buteo buteo",
+   "codes": [],
+   "pei": false,
+   "inat": 204472,
+   "inatSci": "Buteo buteo"
+  },
+  {
+   "names": [
+    "Croaking Cisticola"
+   ],
+   "sci": "Cisticola natalensis",
+   "codes": [],
+   "pei": false,
+   "inat": 7676,
+   "inatSci": "Cisticola natalensis"
+  },
+  {
+   "names": [
+    "Crested Honey Buzzard"
+   ],
+   "sci": "Pernis ptilorhynchus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 144458,
+   "inatSci": "Pernis ptilorhynchus"
+  },
+  {
+   "names": [
+    "Desert Cisticola"
+   ],
+   "sci": "Cisticola aridulus",
+   "codes": [],
+   "pei": false,
+   "inat": 7698,
+   "inatSci": "Cisticola aridulus"
+  },
+  {
+   "names": [
+    "European Honey Buzzard"
+   ],
+   "sci": "Pernis apivorus",
+   "codes": [],
+   "pei": false,
+   "inat": 5325,
+   "inatSci": "Pernis apivorus"
+  },
+  {
+   "names": [
+    "Grey-backed Cisticola"
+   ],
+   "sci": "Cisticola subruficapilla",
+   "codes": [],
+   "pei": false,
+   "inat": 72733,
+   "inatSci": "Cisticola subruficapilla"
+  },
+  {
+   "names": [
+    "Forest Buzzard"
+   ],
+   "sci": "Buteo trizonatus",
+   "codes": [
+    "LC",
+    "NT",
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 512762,
+   "inatSci": "Buteo trizonatus"
+  },
+  {
+   "names": [
+    "Levaillant's Cisticola"
+   ],
+   "sci": "Cisticola tinniens",
+   "codes": [],
+   "pei": false,
+   "inat": 7660,
+   "inatSci": "Cisticola tinniens"
+  },
+  {
+   "names": [
+    "Jackal Buzzard"
+   ],
+   "sci": "Buteo rufofuscus",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 5198,
+   "inatSci": "Buteo rufofuscus"
+  },
+  {
+   "names": [
+    "Pale-crowned Cisticola"
+   ],
+   "sci": "Cisticola cinnamomeus",
+   "codes": [],
+   "pei": false,
+   "inat": 144952,
+   "inatSci": "Cisticola cinnamomeus"
+  },
+  {
+   "names": [
+    "Lizard Buzzard"
+   ],
+   "sci": "Kaupifalco monogrammicus",
+   "codes": [],
+   "pei": false,
+   "inat": 5430,
+   "inatSci": "Kaupifalco monogrammicus"
+  },
+  {
+   "names": [
+    "Rattling Cisticola"
+   ],
+   "sci": "Cisticola chiniana",
+   "codes": [],
+   "pei": false,
+   "inat": 72729,
+   "inatSci": "Cisticola chiniana"
+  },
+  {
+   "names": [
+    "Red-necked Buzzard"
+   ],
+   "sci": "Buteo auguralis",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 5191,
+   "inatSci": "Buteo auguralis"
+  },
+  {
+   "names": [
+    "Red-faced Cisticola"
+   ],
+   "sci": "Cisticola erythrops",
+   "codes": [],
+   "pei": false,
+   "inat": 7653,
+   "inatSci": "Cisticola erythrops"
+  },
+  {
+   "names": [
+    "Green-backed Camaroptera"
+   ],
+   "sci": "Camaroptera brachyura",
+   "codes": [],
+   "pei": false,
+   "inat": 979641,
+   "inatSci": "Camaroptera brachyura"
+  },
+  {
+   "names": [
+    "Rock-loving Cisticola",
+    "Lazy Cisticola"
+   ],
+   "sci": "Cisticola aberrans",
+   "codes": [],
+   "pei": false,
+   "inat": 7672,
+   "inatSci": "Cisticola aberrans"
+  },
+  {
+   "names": [
+    "Grey-backed Camaroptera"
+   ],
+   "sci": "Camaroptera brevicaudata",
+   "codes": [],
+   "pei": false,
+   "inat": 979641,
+   "inatSci": "Camaroptera brachyura"
+  },
+  {
+   "names": [
+    "Rufous-winged Cisticola"
+   ],
+   "sci": "Cisticola galactotes",
+   "codes": [],
+   "pei": false,
+   "inat": 980078,
+   "inatSci": "Cisticola galactotes"
+  },
+  {
+   "names": [
+    "Black-headed Canary"
+   ],
+   "sci": "Serinus alario",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 72477,
+   "inatSci": "Serinus alario"
+  },
+  {
+   "names": [
+    "Tinkling Cisticola"
+   ],
+   "sci": "Cisticola rufilatus",
+   "codes": [],
+   "pei": false,
+   "inat": 7669,
+   "inatSci": "Cisticola rufilatus"
+  },
+  {
+   "names": [
+    "Black-throated Canary"
+   ],
+   "sci": "Crithagra atrogularis",
+   "codes": [],
+   "pei": false,
+   "inat": 558609,
+   "inatSci": "Crithagra atrogularis"
+  },
+  {
+   "names": [
+    "Wailing Cisticola"
+   ],
+   "sci": "Cisticola lais",
+   "codes": [],
+   "pei": false,
+   "inat": 7658,
+   "inatSci": "Cisticola lais"
+  },
+  {
+   "names": [
+    "Brimstone Canary"
+   ],
+   "sci": "Crithagra sulphurata",
+   "codes": [],
+   "pei": false,
+   "inat": 558618,
+   "inatSci": "Crithagra sulphurata"
+  },
+  {
+   "names": [
+    "Wing-snapping Cisticola"
+   ],
+   "sci": "Cisticola ayresii",
+   "codes": [],
+   "pei": false,
+   "inat": 7662,
+   "inatSci": "Cisticola ayresii"
+  },
+  {
+   "names": [
+    "Zitting Cisticola"
+   ],
+   "sci": "Cisticola juncidis",
+   "codes": [],
+   "pei": false,
+   "inat": 7697,
+   "inatSci": "Cisticola juncidis"
+  },
+  {
+   "names": [
+    "African Cuckoo"
+   ],
+   "sci": "Cuculus gularis",
+   "codes": [],
+   "pei": false,
+   "inat": 1917,
+   "inatSci": "Cuculus gularis"
+  },
+  {
+   "names": [
+    "Red-knobbed Coot"
+   ],
+   "sci": "Fulica cristata",
+   "codes": [],
+   "pei": false,
+   "inat": 487,
+   "inatSci": "Fulica cristata"
+  },
+  {
+   "names": [
+    "African Emerald Cuckoo"
+   ],
+   "sci": "Chrysococcyx cupreus",
+   "codes": [],
+   "pei": false,
+   "inat": 1736,
+   "inatSci": "Chrysococcyx cupreus"
+  },
+  {
+   "names": [
+    "Bank Cormorant"
+   ],
+   "sci": "Phalacrocorax neglectus",
+   "codes": [
+    "EN",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 4309,
+   "inatSci": "Phalacrocorax neglectus"
+  },
+  {
+   "names": [
+    "Barred Long-tailed Cuckoo"
+   ],
+   "sci": "Cercococcyx montanus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 1999,
+   "inatSci": "Cercococcyx montanus"
+  },
+  {
+   "names": [
+    "Cape Cormorant"
+   ],
+   "sci": "Phalacrocorax capensis",
+   "codes": [
+    "EN",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 4287,
+   "inatSci": "Phalacrocorax capensis"
+  },
+  {
+   "names": [
+    "Black Cuckoo"
+   ],
+   "sci": "Cuculus clamosus",
+   "codes": [],
+   "pei": false,
+   "inat": 1913,
+   "inatSci": "Cuculus clamosus"
+  },
+  {
+   "names": [
+    "Crowned Cormorant"
+   ],
+   "sci": "Microcarbo coronatus",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 508247,
+   "inatSci": "Microcarbo coronatus"
+  },
+  {
+   "names": [
+    "Common Cuckoo"
+   ],
+   "sci": "Cuculus canorus",
+   "codes": [],
+   "pei": false,
+   "inat": 1907,
+   "inatSci": "Cuculus canorus"
+  },
+  {
+   "names": [
+    "Great Cormorant",
+    "White-breasted Cormorant"
+   ],
+   "sci": "Phalacrocorax carbo",
+   "codes": [],
+   "pei": false,
+   "inat": 4270,
+   "inatSci": "Phalacrocorax carbo"
+  },
+  {
+   "names": [
+    "Diederik Cuckoo"
+   ],
+   "sci": "Chrysococcyx caprius",
+   "codes": [],
+   "pei": false,
+   "inat": 1738,
+   "inatSci": "Chrysococcyx caprius"
+  },
+  {
+   "names": [
+    "Reed Cormorant"
+   ],
+   "sci": "Microcarbo africanus",
+   "codes": [],
+   "pei": false,
+   "inat": 508246,
+   "inatSci": "Microcarbo africanus"
+  },
+  {
+   "names": [
+    "Great Spotted Cuckoo"
+   ],
+   "sci": "Clamator glandarius",
+   "codes": [],
+   "pei": false,
+   "inat": 1787,
+   "inatSci": "Clamator glandarius"
+  },
+  {
+   "names": [
+    "Black Coucal"
+   ],
+   "sci": "Centropus grillii",
+   "codes": [],
+   "pei": false,
+   "inat": 1685,
+   "inatSci": "Centropus grillii"
+  },
+  {
+   "names": [
+    "Jacobin Cuckoo"
+   ],
+   "sci": "Clamator jacobinus",
+   "codes": [],
+   "pei": false,
+   "inat": 1789,
+   "inatSci": "Clamator jacobinus"
+  },
+  {
+   "names": [
+    "Burchell's Coucal"
+   ],
+   "sci": "Centropus burchellii",
+   "codes": [],
+   "pei": false,
+   "inat": 1583337,
+   "inatSci": "Centropus burchellii"
+  },
+  {
+   "names": [
+    "Klaas's Cuckoo"
+   ],
+   "sci": "Chrysococcyx klaas",
+   "codes": [],
+   "pei": false,
+   "inat": 1730,
+   "inatSci": "Chrysococcyx klaas"
+  },
+  {
+   "names": [
+    "Senegal Coucal"
+   ],
+   "sci": "Centropus senegalensis",
+   "codes": [],
+   "pei": false,
+   "inat": 1670,
+   "inatSci": "Centropus senegalensis"
+  },
+  {
+   "names": [
+    "Lesser Cuckoo"
+   ],
+   "sci": "Cuculus poliocephalus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 1902,
+   "inatSci": "Cuculus poliocephalus"
+  },
+  {
+   "names": [
+    "Bronze-winged Courser"
+   ],
+   "sci": "Rhinoptilus chalcopterus",
+   "codes": [],
+   "pei": false,
+   "inat": 4614,
+   "inatSci": "Rhinoptilus chalcopterus"
+  },
+  {
+   "names": [
+    "Levaillant's Cuckoo"
+   ],
+   "sci": "Clamator levaillantii",
+   "codes": [],
+   "pei": false,
+   "inat": 1793,
+   "inatSci": "Clamator levaillantii"
+  },
+  {
+   "names": [
+    "Burchell's Courser"
+   ],
+   "sci": "Cursorius rufus",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4592,
+   "inatSci": "Cursorius rufus"
+  },
+  {
+   "names": [
+    "Madagascar Cuckoo"
+   ],
+   "sci": "Cuculus rochii",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 1923,
+   "inatSci": "Cuculus rochii"
+  },
+  {
+   "names": [
+    "Double-banded Courser"
+   ],
+   "sci": "Smutsornis africanus",
+   "codes": [],
+   "pei": false,
+   "inat": 144498,
+   "inatSci": "Smutsornis africanus"
+  },
+  {
+   "names": [
+    "Red-chested Cuckoo"
+   ],
+   "sci": "Cuculus solitarius",
+   "codes": [],
+   "pei": false,
+   "inat": 1903,
+   "inatSci": "Cuculus solitarius"
+  },
+  {
+   "names": [
+    "Temminck's Courser"
+   ],
+   "sci": "Cursorius temminckii",
+   "codes": [],
+   "pei": false,
+   "inat": 4593,
+   "inatSci": "Cursorius temminckii"
+  },
+  {
+   "names": [
+    "Thick-billed Cuckoo"
+   ],
+   "sci": "Pachycoccyx audeberti",
+   "codes": [],
+   "pei": false,
+   "inat": 2003,
+   "inatSci": "Pachycoccyx audeberti"
+  },
+  {
+   "names": [
+    "Three-banded Courser"
+   ],
+   "sci": "Rhinoptilus cinctus",
+   "codes": [],
+   "pei": false,
+   "inat": 4613,
+   "inatSci": "Rhinoptilus cinctus"
+  },
+  {
+   "names": [
+    "Black Cuckooshrike"
+   ],
+   "sci": "Campephaga flava",
+   "codes": [],
+   "pei": false,
+   "inat": 8313,
+   "inatSci": "Campephaga flava"
+  },
+  {
+   "names": [
+    "African Crake"
+   ],
+   "sci": "Crecopsis egregia",
+   "codes": [],
+   "pei": false,
+   "inat": 1583484,
+   "inatSci": "Crecopsis egregia"
+  },
+  {
+   "names": [
+    "Grey Cuckooshrike"
+   ],
+   "sci": "Ceblepyris caesius",
+   "codes": [],
+   "pei": false,
+   "inat": 1585528,
+   "inatSci": "Ceblepyris caesius"
+  },
+  {
+   "names": [
+    "Baillon's Crake"
+   ],
+   "sci": "Zapornia pusilla",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 508920,
+   "inatSci": "Zapornia pusilla"
+  },
+  {
+   "names": [
+    "White-breasted Cuckooshrike"
+   ],
+   "sci": "Ceblepyris pectoralis",
+   "codes": [],
+   "pei": false,
+   "inat": 1585533,
+   "inatSci": "Ceblepyris pectoralis"
+  },
+  {
+   "names": [
+    "Black Crake"
+   ],
+   "sci": "Zapornia flavirostra",
+   "codes": [],
+   "pei": false,
+   "inat": 508918,
+   "inatSci": "Zapornia flavirostra"
+  },
+  {
+   "names": [
+    "Eurasian Curlew"
+   ],
+   "sci": "Numenius arquata",
+   "codes": [
+    "NA",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 3896,
+   "inatSci": "Numenius arquata"
+  },
+  {
+   "names": [
+    "Corn Crake"
+   ],
+   "sci": "Crex crex",
+   "codes": [],
+   "pei": false,
+   "inat": 443,
+   "inatSci": "Crex crex"
+  },
+  {
+   "names": [
+    "African Darter"
+   ],
+   "sci": "Anhinga rufa",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 5066,
+   "inatSci": "Anhinga rufa"
+  },
+  {
+   "names": [
+    "Little Crake"
+   ],
+   "sci": "Zapornia parva",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 508919,
+   "inatSci": "Zapornia parva"
+  },
+  {
+   "names": [
+    "African Mourning Dove",
+    "Mourning Collared Dove"
+   ],
+   "sci": "Streptopelia decipiens",
+   "codes": [],
+   "pei": false,
+   "inat": 2951,
+   "inatSci": "Streptopelia decipiens"
+  },
+  {
+   "names": [
+    "Spotted Crake"
+   ],
+   "sci": "Porzana porzana",
+   "codes": [],
+   "pei": false,
+   "inat": 178,
+   "inatSci": "Porzana porzana"
+  },
+  {
+   "names": [
+    "Blue-spotted Wood Dove"
+   ],
+   "sci": "Turtur afer",
+   "codes": [],
+   "pei": false,
+   "inat": 3326,
+   "inatSci": "Turtur afer"
+  },
+  {
+   "names": [
+    "Striped Crake"
+   ],
+   "sci": "Aenigmatolimnas marginalis",
+   "codes": [],
+   "pei": false,
+   "inat": 1583488,
+   "inatSci": "Aenigmatolimnas marginalis"
+  },
+  {
+   "names": [
+    "Cape Turtle Dove",
+    "Ring-necked Dove"
+   ],
+   "sci": "Streptopelia capicola",
+   "codes": [],
+   "pei": false,
+   "inat": 2959,
+   "inatSci": "Streptopelia capicola"
+  },
+  {
+   "names": [
+    "Blue Crane"
+   ],
+   "sci": "Grus paradisea",
+   "codes": [
+    "VU",
+    "VU",
+    "SLE NE"
+   ],
+   "pei": false,
+   "inat": 47,
+   "inatSci": "Grus paradisea"
+  },
+  {
+   "names": [
+    "Emerald-spotted Wood Dove"
+   ],
+   "sci": "Turtur chalcospilos",
+   "codes": [],
+   "pei": false,
+   "inat": 3327,
+   "inatSci": "Turtur chalcospilos"
+  },
+  {
+   "names": [
+    "Grey Crowned Crane"
+   ],
+   "sci": "Balearica regulorum",
+   "codes": [
+    "VU",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 53,
+   "inatSci": "Balearica regulorum"
+  },
+  {
+   "names": [
+    "European Turtle Dove"
+   ],
+   "sci": "Streptopelia turtur",
+   "codes": [
+    "NA",
+    "VU",
+    "V"
+   ],
+   "pei": false,
+   "inat": 2938,
+   "inatSci": "Streptopelia turtur"
+  },
+  {
+   "names": [
+    "Wattled Crane"
+   ],
+   "sci": "Grus carunculata",
+   "codes": [
+    "EN",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 57,
+   "inatSci": "Grus carunculata"
+  },
+  {
+   "names": [
+    "Laughing Dove"
+   ],
+   "sci": "Spilopelia senegalensis",
+   "codes": [],
+   "pei": false,
+   "inat": 1455922,
+   "inatSci": "Spilopelia senegalensis"
+  },
+  {
+   "names": [
+    "African Spotted Creeper"
+   ],
+   "sci": "Salpornis salvadori",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 339694,
+   "inatSci": "Salpornis salvadori"
+  },
+  {
+   "names": [
+    "Lemon Dove"
+   ],
+   "sci": "Aplopelia larvata",
+   "codes": [],
+   "pei": false,
+   "inat": 1423879,
+   "inatSci": "Aplopelia larvata"
+  },
+  {
+   "names": [
+    "Long-billed Crombec"
+   ],
+   "sci": "Sylvietta rufescens",
+   "codes": [],
+   "pei": false,
+   "inat": 15254,
+   "inatSci": "Sylvietta rufescens"
+  },
+  {
+   "names": [
+    "Namaqua Dove"
+   ],
+   "sci": "Oena capensis",
+   "codes": [],
+   "pei": false,
+   "inat": 3652,
+   "inatSci": "Oena capensis"
+  },
+  {
+   "names": [
+    "Cape Crow"
+   ],
+   "sci": "Corvus capensis",
+   "codes": [],
+   "pei": false,
+   "inat": 8006,
+   "inatSci": "Corvus capensis"
+  },
+  {
+   "names": [
+    "Red-eyed Dove"
+   ],
+   "sci": "Streptopelia semitorquata",
+   "codes": [],
+   "pei": false,
+   "inat": 2988,
+   "inatSci": "Streptopelia semitorquata"
+  },
+  {
+   "names": [
+    "House Crow"
+   ],
+   "sci": "Corvus splendens",
+   "codes": [
+    "I"
+   ],
+   "pei": false,
+   "inat": 8031,
+   "inatSci": "Corvus splendens"
+  },
+  {
+   "names": [
+    "Rock Dove"
+   ],
+   "sci": "Columba livia",
+   "codes": [],
+   "pei": false,
+   "inat": 3017,
+   "inatSci": "Columba livia"
+  },
+  {
+   "names": [
+    "Pied Crow"
+   ],
+   "sci": "Corvus albus",
+   "codes": [],
+   "pei": false,
+   "inat": 8038,
+   "inatSci": "Corvus albus"
+  },
+  {
+   "names": [
+    "Tambourine Dove"
+   ],
+   "sci": "Turtur tympanistria",
+   "codes": [],
+   "pei": false,
+   "inat": 3328,
+   "inatSci": "Turtur tympanistria"
+  },
+  {
+   "names": [
+    "Asian Dowitcher"
+   ],
+   "sci": "Limnodromus semipalmatus",
+   "codes": [
+    "NA",
+    "NT",
+    "V"
+   ],
+   "pei": false,
+   "inat": 3868,
+   "inatSci": "Limnodromus semipalmatus"
+  },
+  {
+   "names": [
+    "Western Cattle Egret"
+   ],
+   "sci": "Ardea ibis",
+   "codes": [],
+   "pei": false,
+   "inat": 411086,
+   "inatSci": "Ardea ibis"
+  },
+  {
+   "names": [
+    "Fork-tailed Drongo"
+   ],
+   "sci": "Dicrurus adsimilis",
+   "codes": [],
+   "pei": false,
+   "inat": 8268,
+   "inatSci": "Dicrurus adsimilis"
+  },
+  {
+   "names": [
+    "Yellow-billed Egret"
+   ],
+   "sci": "Ardea brachyrhyncha",
+   "codes": [],
+   "pei": false,
+   "inat": 1505778,
+   "inatSci": "Ardea brachyrhyncha"
+  },
+  {
+   "names": [
+    "Square-tailed Drongo"
+   ],
+   "sci": "Dicrurus ludwigii",
+   "codes": [],
+   "pei": false,
+   "inat": 980195,
+   "inatSci": "Dicrurus ludwigii"
+  },
+  {
+   "names": [
+    "Burnt-necked Eremomela"
+   ],
+   "sci": "Eremomela usticollis",
+   "codes": [],
+   "pei": false,
+   "inat": 15457,
+   "inatSci": "Eremomela usticollis"
+  },
+  {
+   "names": [
+    "African Black Duck"
+   ],
+   "sci": "Anas sparsa",
+   "codes": [],
+   "pei": false,
+   "inat": 6976,
+   "inatSci": "Anas sparsa"
+  },
+  {
+   "names": [
+    "Green-capped Eremomela"
+   ],
+   "sci": "Eremomela scotops",
+   "codes": [],
+   "pei": false,
+   "inat": 15458,
+   "inatSci": "Eremomela scotops"
+  },
+  {
+   "names": [
+    "Fulvous Whistling Duck"
+   ],
+   "sci": "Dendrocygna bicolor",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 6899,
+   "inatSci": "Dendrocygna bicolor"
+  },
+  {
+   "names": [
+    "Karoo Eremomela"
+   ],
+   "sci": "Eremomela gregalis",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 15460,
+   "inatSci": "Eremomela gregalis"
+  },
+  {
+   "names": [
+    "Knob-billed Duck"
+   ],
+   "sci": "Sarkidiornis melanotos",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 7160,
+   "inatSci": "Sarkidiornis melanotos"
+  },
+  {
+   "names": [
+    "Yellow-bellied Eremomela"
+   ],
+   "sci": "Eremomela icteropygialis",
+   "codes": [],
+   "pei": false,
+   "inat": 204508,
+   "inatSci": "Eremomela icteropygialis"
+  },
+  {
+   "names": [
+    "Maccoa Duck"
+   ],
+   "sci": "Oxyura maccoa",
+   "codes": [
+    "VU",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 7076,
+   "inatSci": "Oxyura maccoa"
+  },
+  {
+   "names": [
+    "Amur Falcon"
+   ],
+   "sci": "Falco amurensis",
+   "codes": [],
+   "pei": false,
+   "inat": 4686,
+   "inatSci": "Falco amurensis"
+  },
+  {
+   "names": [
+    "White-backed Duck"
+   ],
+   "sci": "Thalassornis leuconotus",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 6902,
+   "inatSci": "Thalassornis leuconotus"
+  },
+  {
+   "names": [
+    "Eleonora's Falcon"
+   ],
+   "sci": "Falco eleonorae",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4671,
+   "inatSci": "Falco eleonorae"
+  },
+  {
+   "names": [
+    "White-faced Whistling Duck"
+   ],
+   "sci": "Dendrocygna viduata",
+   "codes": [],
+   "pei": false,
+   "inat": 6898,
+   "inatSci": "Dendrocygna viduata"
+  },
+  {
+   "names": [
+    "Lanner Falcon"
+   ],
+   "sci": "Falco biarmicus",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4684,
+   "inatSci": "Falco biarmicus"
+  },
+  {
+   "names": [
+    "Yellow-billed Duck"
+   ],
+   "sci": "Anas undulata",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 6965,
+   "inatSci": "Anas undulata"
+  },
+  {
+   "names": [
+    "Peregrine Falcon"
+   ],
+   "sci": "Falco peregrinus",
+   "codes": [],
+   "pei": false,
+   "inat": 4647,
+   "inatSci": "Falco peregrinus"
+  },
+  {
+   "names": [
+    "Dunlin"
+   ],
+   "sci": "Calidris alpina",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 3857,
+   "inatSci": "Calidris alpina"
+  },
+  {
+   "names": [
+    "Pygmy Falcon"
+   ],
+   "sci": "Polihierax semitorquatus",
+   "codes": [],
+   "pei": false,
+   "inat": 4724,
+   "inatSci": "Polihierax semitorquatus"
+  },
+  {
+   "names": [
+    "African Fish Eagle"
+   ],
+   "sci": "Icthyophaga vocifer",
+   "codes": [],
+   "pei": false,
+   "inat": 1505670,
+   "inatSci": "Icthyophaga vocifer"
+  },
+  {
+   "names": [
+    "Red-footed Falcon"
+   ],
+   "sci": "Falco vespertinus",
+   "codes": [
+    "NT",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 4641,
+   "inatSci": "Falco vespertinus"
+  },
+  {
+   "names": [
+    "African Hawk Eagle"
+   ],
+   "sci": "Aquila spilogaster",
+   "codes": [],
+   "pei": false,
+   "inat": 144468,
+   "inatSci": "Aquila spilogaster"
+  },
+  {
+   "names": [
+    "Red-necked Falcon"
+   ],
+   "sci": "Falco chicquera",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4670,
+   "inatSci": "Falco chicquera"
+  },
+  {
+   "names": [
+    "Ayres's Hawk Eagle"
+   ],
+   "sci": "Hieraaetus ayresii",
+   "codes": [],
+   "pei": false,
+   "inat": 5152,
+   "inatSci": "Hieraaetus ayresii"
+  },
+  {
+   "names": [
+    "Sooty Falcon"
+   ],
+   "sci": "Falco concolor",
+   "codes": [
+    "NA",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 4683,
+   "inatSci": "Falco concolor"
+  },
+  {
+   "names": [
+    "Black-chested Snake Eagle"
+   ],
+   "sci": "Circaetus pectoralis",
+   "codes": [],
+   "pei": false,
+   "inat": 5240,
+   "inatSci": "Circaetus pectoralis"
+  },
+  {
+   "names": [
+    "Taita Falcon"
+   ],
+   "sci": "Falco fasciinucha",
+   "codes": [
+    "CR",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 4687,
+   "inatSci": "Falco fasciinucha"
+  },
+  {
+   "names": [
+    "Booted Eagle"
+   ],
+   "sci": "Hieraaetus pennatus",
+   "codes": [],
+   "pei": false,
+   "inat": 5154,
+   "inatSci": "Hieraaetus pennatus"
+  },
+  {
+   "names": [
+    "Cuckoo Finch"
+   ],
+   "sci": "Anomalospiza imberbis",
+   "codes": [],
+   "pei": false,
+   "inat": 14121,
+   "inatSci": "Anomalospiza imberbis"
+  },
+  {
+   "names": [
+    "Brown Snake Eagle"
+   ],
+   "sci": "Circaetus cinereus",
+   "codes": [],
+   "pei": false,
+   "inat": 5241,
+   "inatSci": "Circaetus cinereus"
+  },
+  {
+   "names": [
+    "Cut-throat Finch"
+   ],
+   "sci": "Amadina fasciata",
+   "codes": [],
+   "pei": false,
+   "inat": 14096,
+   "inatSci": "Amadina fasciata"
+  },
+  {
+   "names": [
+    "Crowned Eagle"
+   ],
+   "sci": "Stephanoaetus coronatus",
+   "codes": [
+    "VU",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 5323,
+   "inatSci": "Stephanoaetus coronatus"
+  },
+  {
+   "names": [
+    "Red-headed Finch"
+   ],
+   "sci": "Amadina erythrocephala",
+   "codes": [],
+   "pei": false,
+   "inat": 14095,
+   "inatSci": "Amadina erythrocephala"
+  },
+  {
+   "names": [
+    "Lesser Spotted Eagle"
+   ],
+   "sci": "Clanga pomarina",
+   "codes": [],
+   "pei": false,
+   "inat": 201033,
+   "inatSci": "Clanga pomarina"
+  },
+  {
+   "names": [
+    "Scaly-feathered Finch",
+    "Scaly-feathered Weaver"
+   ],
+   "sci": "Sporopipes squamifrons",
+   "codes": [],
+   "pei": false,
+   "inat": 13921,
+   "inatSci": "Sporopipes squamifrons"
+  },
+  {
+   "names": [
+    "Long-crested Eagle"
+   ],
+   "sci": "Lophaetus occipitalis",
+   "codes": [],
+   "pei": false,
+   "inat": 5335,
+   "inatSci": "Lophaetus occipitalis"
+  },
+  {
+   "names": [
+    "African Finfoot"
+   ],
+   "sci": "Podica senegalensis",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 62,
+   "inatSci": "Podica senegalensis"
+  },
+  {
+   "names": [
+    "Martial Eagle"
+   ],
+   "sci": "Polemaetus bellicosus",
+   "codes": [
+    "EN",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 5344,
+   "inatSci": "Polemaetus bellicosus"
+  },
+  {
+   "names": [
+    "African Firefinch"
+   ],
+   "sci": "Lagonosticta rubricata",
+   "codes": [],
+   "pei": false,
+   "inat": 14053,
+   "inatSci": "Lagonosticta rubricata"
+  },
+  {
+   "names": [
+    "Southern Banded Snake Eagle"
+   ],
+   "sci": "Circaetus fasciolatus",
+   "codes": [
+    "CR",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 5243,
+   "inatSci": "Circaetus fasciolatus"
+  },
+  {
+   "names": [
+    "Jameson's Firefinch"
+   ],
+   "sci": "Lagonosticta rhodopareia",
+   "codes": [],
+   "pei": false,
+   "inat": 204528,
+   "inatSci": "Lagonosticta rhodopareia"
+  },
+  {
+   "names": [
+    "Steppe Eagle"
+   ],
+   "sci": "Aquila nipalensis",
+   "codes": [
+    "LC",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 5083,
+   "inatSci": "Aquila nipalensis"
+  },
+  {
+   "names": [
+    "Red-billed Firefinch"
+   ],
+   "sci": "Lagonosticta senegala",
+   "codes": [],
+   "pei": false,
+   "inat": 14051,
+   "inatSci": "Lagonosticta senegala"
+  },
+  {
+   "names": [
+    "Tawny Eagle"
+   ],
+   "sci": "Aquila rapax",
+   "codes": [
+    "EN",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 5079,
+   "inatSci": "Aquila rapax"
+  },
+  {
+   "names": [
+    "Southern Fiscal"
+   ],
+   "sci": "Lanius collaris",
+   "codes": [],
+   "pei": false,
+   "inat": 204531,
+   "inatSci": "Lanius collaris"
+  },
+  {
+   "names": [
+    "Verreaux's Eagle"
+   ],
+   "sci": "Aquila verreauxii",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 5077,
+   "inatSci": "Aquila verreauxii"
+  },
+  {
+   "names": [
+    "Greater Flamingo"
+   ],
+   "sci": "Phoenicopterus roseus",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 73222,
+   "inatSci": "Phoenicopterus roseus"
+  },
+  {
+   "names": [
+    "Wahlberg's Eagle"
+   ],
+   "sci": "Hieraaetus wahlbergi",
+   "codes": [],
+   "pei": false,
+   "inat": 144469,
+   "inatSci": "Hieraaetus wahlbergi"
+  },
+  {
+   "names": [
+    "Lesser Flamingo"
+   ],
+   "sci": "Phoeniconaias minor",
+   "codes": [
+    "VU",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 4259,
+   "inatSci": "Phoeniconaias minor"
+  },
+  {
+   "names": [
+    "Great Egret"
+   ],
+   "sci": "Ardea alba",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 144455,
+   "inatSci": "Ardea alba"
+  },
+  {
+   "names": [
+    "Buff-spotted Flufftail"
+   ],
+   "sci": "Sarothrura elegans",
+   "codes": [],
+   "pei": false,
+   "inat": 349,
+   "inatSci": "Sarothrura elegans"
+  },
+  {
+   "names": [
+    "Little Egret"
+   ],
+   "sci": "Egretta garzetta",
+   "codes": [],
+   "pei": false,
+   "inat": 4943,
+   "inatSci": "Egretta garzetta"
+  },
+  {
+   "names": [
+    "Red-chested Flufftail"
+   ],
+   "sci": "Sarothrura rufa",
+   "codes": [],
+   "pei": false,
+   "inat": 352,
+   "inatSci": "Sarothrura rufa"
+  },
+  {
+   "names": [
+    "Slaty Egret"
+   ],
+   "sci": "Egretta vinaceigula",
+   "codes": [
+    "NA",
+    "VU",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4945,
+   "inatSci": "Egretta vinaceigula"
+  },
+  {
+   "names": [
+    "Streaky-breasted Flufftail"
+   ],
+   "sci": "Sarothrura boehmi",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 348,
+   "inatSci": "Sarothrura boehmi"
+  },
+  {
+   "names": [
+    "Snowy Egret"
+   ],
+   "sci": "Egretta thula",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4940,
+   "inatSci": "Egretta thula"
+  },
+  {
+   "names": [
+    "Striped Flufftail"
+   ],
+   "sci": "Sarothrura affinis",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 339,
+   "inatSci": "Sarothrura affinis"
+  },
+  {
+   "names": [
+    "White-winged Flufftail"
+   ],
+   "sci": "Sarothrura ayresi",
+   "codes": [
+    "EN",
+    "CR"
+   ],
+   "pei": false,
+   "inat": 347,
+   "inatSci": "Sarothrura ayresi"
+  },
+  {
+   "names": [
+    "Cape Gannet"
+   ],
+   "sci": "Morus capensis",
+   "codes": [
+    "VU",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 3803,
+   "inatSci": "Morus capensis"
+  },
+  {
+   "names": [
+    "African Dusky Flycatcher"
+   ],
+   "sci": "Muscicapa adusta",
+   "codes": [],
+   "pei": false,
+   "inat": 12978,
+   "inatSci": "Muscicapa adusta"
+  },
+  {
+   "names": [
+    "Garganey"
+   ],
+   "sci": "Spatula querquedula",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 558429,
+   "inatSci": "Spatula querquedula"
+  },
+  {
+   "names": [
+    "African Paradise Flycatcher"
+   ],
+   "sci": "Terpsiphone viridis",
+   "codes": [],
+   "pei": false,
+   "inat": 8354,
+   "inatSci": "Terpsiphone viridis"
+  },
+  {
+   "names": [
+    "Grey Go-away-bird"
+   ],
+   "sci": "Crinifer concolor",
+   "codes": [],
+   "pei": false,
+   "inat": 1506034,
+   "inatSci": "Crinifer concolor"
+  },
+  {
+   "names": [
+    "Ashy Flycatcher"
+   ],
+   "sci": "Fraseria caerulescens",
+   "codes": [],
+   "pei": false,
+   "inat": 522872,
+   "inatSci": "Fraseria caerulescens"
+  },
+  {
+   "names": [
+    "Bar-tailed Godwit"
+   ],
+   "sci": "Limosa lapponica",
+   "codes": [
+    "LC",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 3951,
+   "inatSci": "Limosa lapponica"
+  },
+  {
+   "names": [
+    "Black-and-white Flycatcher",
+    "Vanga Flycatcher"
+   ],
+   "sci": "Bias musicus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 8626,
+   "inatSci": "Bias musicus"
+  },
+  {
+   "names": [
+    "Black-tailed Godwit"
+   ],
+   "sci": "Limosa limosa",
+   "codes": [
+    "NA",
+    "NT",
+    "V"
+   ],
+   "pei": false,
+   "inat": 3947,
+   "inatSci": "Limosa limosa"
+  },
+  {
+   "names": [
+    "Blue-mantled Crested Flycatcher"
+   ],
+   "sci": "Trochocercus cyanomelas",
+   "codes": [],
+   "pei": false,
+   "inat": 8563,
+   "inatSci": "Trochocercus cyanomelas"
+  },
+  {
+   "names": [
+    "Hudsonian Godwit"
+   ],
+   "sci": "Limosa haemastica",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 3950,
+   "inatSci": "Limosa haemastica"
+  },
+  {
+   "names": [
+    "Chat Flycatcher"
+   ],
+   "sci": "Agricola infuscatus",
+   "codes": [],
+   "pei": false,
+   "inat": 522889,
+   "inatSci": "Agricola infuscatus"
+  },
+  {
+   "names": [
+    "African Pygmy Goose"
+   ],
+   "sci": "Nettapus auritus",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 7127,
+   "inatSci": "Nettapus auritus"
+  },
+  {
+   "names": [
+    "Collared Flycatcher"
+   ],
+   "sci": "Ficedula albicollis",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 13133,
+   "inatSci": "Ficedula albicollis"
+  },
+  {
+   "names": [
+    "Egyptian Goose"
+   ],
+   "sci": "Alopochen aegyptiaca",
+   "codes": [],
+   "pei": false,
+   "inat": 72486,
+   "inatSci": "Alopochen aegyptiaca"
+  },
+  {
+   "names": [
+    "European Pied Flycatcher"
+   ],
+   "sci": "Ficedula hypoleuca",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 204512,
+   "inatSci": "Ficedula hypoleuca"
+  },
+  {
+   "names": [
+    "Spur-winged Goose"
+   ],
+   "sci": "Plectropterus gambensis",
+   "codes": [],
+   "pei": false,
+   "inat": 7146,
+   "inatSci": "Plectropterus gambensis"
+  },
+  {
+   "names": [
+    "Fairy Flycatcher"
+   ],
+   "sci": "Stenostira scita",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 117118,
+   "inatSci": "Stenostira scita"
+  },
+  {
+   "names": [
+    "African Goshawk"
+   ],
+   "sci": "Aerospiza tachiro",
+   "codes": [],
+   "pei": false,
+   "inat": 1578973,
+   "inatSci": "Aerospiza tachiro"
+  },
+  {
+   "names": [
+    "Fiscal Flycatcher"
+   ],
+   "sci": "Sigelus silens",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 13251,
+   "inatSci": "Sigelus silens"
+  },
+  {
+   "names": [
+    "Dark Chanting Goshawk"
+   ],
+   "sci": "Melierax metabates",
+   "codes": [],
+   "pei": false,
+   "inat": 5340,
+   "inatSci": "Melierax metabates"
+  },
+  {
+   "names": [
+    "Grey Tit- Flycatcher"
+   ],
+   "sci": "Fraseria plumbea",
+   "codes": [],
+   "pei": false,
+   "inat": 522921,
+   "inatSci": "Fraseria plumbea"
+  },
+  {
+   "names": [
+    "Gabar Goshawk"
+   ],
+   "sci": "Micronisus gabar",
+   "codes": [],
+   "pei": false,
+   "inat": 144460,
+   "inatSci": "Micronisus gabar"
+  },
+  {
+   "names": [
+    "Livingstone's Flycatcher"
+   ],
+   "sci": "Erythrocercus livingstonei",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 8196,
+   "inatSci": "Erythrocercus livingstonei"
+  },
+  {
+   "names": [
+    "Pale Chanting Goshawk"
+   ],
+   "sci": "Melierax canorus",
+   "codes": [],
+   "pei": false,
+   "inat": 5338,
+   "inatSci": "Melierax canorus"
+  },
+  {
+   "names": [
+    "Marico Flycatcher"
+   ],
+   "sci": "Bradornis mariquensis",
+   "codes": [],
+   "pei": false,
+   "inat": 12803,
+   "inatSci": "Bradornis mariquensis"
+  },
+  {
+   "names": [
+    "Cape Grassbird"
+   ],
+   "sci": "Sphenoeacus afer",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 15717,
+   "inatSci": "Sphenoeacus afer"
+  },
+  {
+   "names": [
+    "Pale Flycatcher"
+   ],
+   "sci": "Agricola pallidus",
+   "codes": [],
+   "pei": false,
+   "inat": 522887,
+   "inatSci": "Agricola pallidus"
+  },
+  {
+   "names": [
+    "Black-necked Grebe"
+   ],
+   "sci": "Podiceps nigricollis",
+   "codes": [],
+   "pei": false,
+   "inat": 4205,
+   "inatSci": "Podiceps nigricollis"
+  },
+  {
+   "names": [
+    "Southern Black Flycatcher"
+   ],
+   "sci": "Melaenornis pammelaina",
+   "codes": [],
+   "pei": false,
+   "inat": 13185,
+   "inatSci": "Melaenornis pammelaina"
+  },
+  {
+   "names": [
+    "Great Crested Grebe"
+   ],
+   "sci": "Podiceps cristatus",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4208,
+   "inatSci": "Podiceps cristatus"
+  },
+  {
+   "names": [
+    "Spotted Flycatcher"
+   ],
+   "sci": "Muscicapa striata",
+   "codes": [],
+   "pei": false,
+   "inat": 12971,
+   "inatSci": "Muscicapa striata"
+  },
+  {
+   "names": [
+    "Little Grebe"
+   ],
+   "sci": "Tachybaptus ruficollis",
+   "codes": [],
+   "pei": false,
+   "inat": 4237,
+   "inatSci": "Tachybaptus ruficollis"
+  },
+  {
+   "names": [
+    "Coqui Francolin"
+   ],
+   "sci": "Campocolinus coqui",
+   "codes": [],
+   "pei": false,
+   "inat": 1289689,
+   "inatSci": "Campocolinus coqui"
+  },
+  {
+   "names": [
+    "Sombre Greenbul"
+   ],
+   "sci": "Andropadus importunus",
+   "codes": [],
+   "pei": false,
+   "inat": 14708,
+   "inatSci": "Andropadus importunus"
+  },
+  {
+   "names": [
+    "Crested Francolin"
+   ],
+   "sci": "Ortygornis sephaena",
+   "codes": [],
+   "pei": false,
+   "inat": 1289692,
+   "inatSci": "Ortygornis sephaena"
+  },
+  {
+   "names": [
+    "Yellow-bellied Greenbul"
+   ],
+   "sci": "Chlorocichla flaviventris",
+   "codes": [],
+   "pei": false,
+   "inat": 14688,
+   "inatSci": "Chlorocichla flaviventris"
+  },
+  {
+   "names": [
+    "Grey-winged Francolin"
+   ],
+   "sci": "Scleroptila afra",
+   "codes": [
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 550880,
+   "inatSci": "Scleroptila afra"
+  },
+  {
+   "names": [
+    "Yellow-streaked Greenbul"
+   ],
+   "sci": "Phyllastrephus flavostriatus",
+   "codes": [],
+   "pei": false,
+   "inat": 14570,
+   "inatSci": "Phyllastrephus flavostriatus"
+  },
+  {
+   "names": [
+    "Orange River Francolin"
+   ],
+   "sci": "Scleroptila gutturalis",
+   "codes": [],
+   "pei": false,
+   "inat": 550887,
+   "inatSci": "Scleroptila gutturalis"
+  },
+  {
+   "names": [
+    "Common Greenshank"
+   ],
+   "sci": "Tringa nebularia",
+   "codes": [],
+   "pei": false,
+   "inat": 3878,
+   "inatSci": "Tringa nebularia"
+  },
+  {
+   "names": [
+    "Red-winged Francolin"
+   ],
+   "sci": "Scleroptila levaillantii",
+   "codes": [],
+   "pei": false,
+   "inat": 550886,
+   "inatSci": "Scleroptila levaillantii"
+  },
+  {
+   "names": [
+    "Helmeted Guineafowl"
+   ],
+   "sci": "Numida meleagris",
+   "codes": [],
+   "pei": false,
+   "inat": 1428,
+   "inatSci": "Numida meleagris"
+  },
+  {
+   "names": [
+    "Shelley's Francolin"
+   ],
+   "sci": "Scleroptila shelleyi",
+   "codes": [],
+   "pei": false,
+   "inat": 550890,
+   "inatSci": "Scleroptila shelleyi"
+  },
+  {
+   "names": [
+    "Southern Crested Guineafowl"
+   ],
+   "sci": "Guttera edouardi",
+   "codes": [],
+   "pei": false,
+   "inat": 1424115,
+   "inatSci": "Guttera edouardi"
+  },
+  {
+   "names": [
+    "Christmas Frigatebird"
+   ],
+   "sci": "Fregata andrewsi",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4635,
+   "inatSci": "Fregata andrewsi"
+  },
+  {
+   "names": [
+    "Common Black-headed Gull",
+    "Black-headed Gull"
+   ],
+   "sci": "Chroicocephalus ridibundus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 144510,
+   "inatSci": "Chroicocephalus ridibundus"
+  },
+  {
+   "names": [
+    "Great Frigatebird"
+   ],
+   "sci": "Fregata minor",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4636,
+   "inatSci": "Fregata minor"
+  },
+  {
+   "names": [
+    "Franklin's Gull"
+   ],
+   "sci": "Leucophaeus pipixcan",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 144515,
+   "inatSci": "Leucophaeus pipixcan"
+  },
+  {
+   "names": [
+    "Lesser Frigatebird"
+   ],
+   "sci": "Fregata ariel",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4634,
+   "inatSci": "Fregata ariel"
+  },
+  {
+   "names": [
+    "Grey-headed Gull"
+   ],
+   "sci": "Chroicocephalus cirrocephalus",
+   "codes": [],
+   "pei": false,
+   "inat": 144508,
+   "inatSci": "Chroicocephalus cirrocephalus"
+  },
+  {
+   "names": [
+    "Southern Fulmar"
+   ],
+   "sci": "Fulmarus glacialoides",
+   "codes": [],
+   "pei": false,
+   "inat": 4184,
+   "inatSci": "Fulmarus glacialoides"
+  },
+  {
+   "names": [
+    "Hartlaub's Gull"
+   ],
+   "sci": "Chroicocephalus hartlaubii",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 144509,
+   "inatSci": "Chroicocephalus hartlaubii"
+  },
+  {
+   "names": [
+    "Allen's Gallinule"
+   ],
+   "sci": "Porphyrio alleni",
+   "codes": [],
+   "pei": false,
+   "inat": 522,
+   "inatSci": "Porphyrio alleni"
+  },
+  {
+   "names": [
+    "Kelp Gull"
+   ],
+   "sci": "Larus dominicanus",
+   "codes": [],
+   "pei": false,
+   "inat": 4388,
+   "inatSci": "Larus dominicanus"
+  },
+  {
+   "names": [
+    "American Purple Gallinule",
+    "Purple Gallinule"
+   ],
+   "sci": "Porphyrio martinica",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 519,
+   "inatSci": "Porphyrio martinica"
+  },
+  {
+   "names": [
+    "Laughing Gull"
+   ],
+   "sci": "Leucophaeus atricilla",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 144514,
+   "inatSci": "Leucophaeus atricilla"
+  },
+  {
+   "names": [
+    "Australasian Gannet"
+   ],
+   "sci": "Morus serrator",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 3801,
+   "inatSci": "Morus serrator"
+  },
+  {
+   "names": [
+    "Lesser Black-backed Gull"
+   ],
+   "sci": "Larus fuscus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4381,
+   "inatSci": "Larus fuscus"
+  },
+  {
+   "names": [
+    "Sabine's Gull"
+   ],
+   "sci": "Xema sabini",
+   "codes": [],
+   "pei": false,
+   "inat": 4571,
+   "inatSci": "Xema sabini"
+  },
+  {
+   "names": [
+    "Greater Honeyguide"
+   ],
+   "sci": "Indicator indicator",
+   "codes": [],
+   "pei": false,
+   "inat": 17570,
+   "inatSci": "Indicator indicator"
+  },
+  {
+   "names": [
+    "Slender-billed Gull"
+   ],
+   "sci": "Chroicocephalus genei",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 144501,
+   "inatSci": "Chroicocephalus genei"
+  },
+  {
+   "names": [
+    "Lesser Honeyguide"
+   ],
+   "sci": "Indicator minor",
+   "codes": [],
+   "pei": false,
+   "inat": 204526,
+   "inatSci": "Indicator minor"
+  },
+  {
+   "names": [
+    "Sooty Gull"
+   ],
+   "sci": "Ichthyaetus hemprichii",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 144520,
+   "inatSci": "Ichthyaetus hemprichii"
+  },
+  {
+   "names": [
+    "Scaly-throated Honeyguide"
+   ],
+   "sci": "Indicator variegatus",
+   "codes": [],
+   "pei": false,
+   "inat": 17556,
+   "inatSci": "Indicator variegatus"
+  },
+  {
+   "names": [
+    "Hamerkop"
+   ],
+   "sci": "Scopus umbretta",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 3834,
+   "inatSci": "Scopus umbretta"
+  },
+  {
+   "names": [
+    "Common Hoopoe"
+   ],
+   "sci": "Upupa epops",
+   "codes": [],
+   "pei": false,
+   "inat": 20969,
+   "inatSci": "Upupa epops"
+  },
+  {
+   "names": [
+    "African Marsh Harrier"
+   ],
+   "sci": "Circus ranivorus",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 5165,
+   "inatSci": "Circus ranivorus"
+  },
+  {
+   "names": [
+    "African Grey Hornbill"
+   ],
+   "sci": "Lophoceros nasutus",
+   "codes": [],
+   "pei": false,
+   "inat": 512166,
+   "inatSci": "Lophoceros nasutus"
+  },
+  {
+   "names": [
+    "Black Harrier"
+   ],
+   "sci": "Circus maurus",
+   "codes": [
+    "EN",
+    "EN",
+    "NE"
+   ],
+   "pei": false,
+   "inat": 5174,
+   "inatSci": "Circus maurus"
+  },
+  {
+   "names": [
+    "Crowned Hornbill"
+   ],
+   "sci": "Lophoceros alboterminatus",
+   "codes": [],
+   "pei": false,
+   "inat": 512160,
+   "inatSci": "Lophoceros alboterminatus"
+  },
+  {
+   "names": [
+    "Montagu's Harrier"
+   ],
+   "sci": "Circus pygargus",
+   "codes": [],
+   "pei": false,
+   "inat": 5167,
+   "inatSci": "Circus pygargus"
+  },
+  {
+   "names": [
+    "Southern Ground- Hornbill"
+   ],
+   "sci": "Bucorvus leadbeateri",
+   "codes": [
+    "EN",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 144281,
+   "inatSci": "Bucorvus leadbeateri"
+  },
+  {
+   "names": [
+    "Pallid Harrier"
+   ],
+   "sci": "Circus macrourus",
+   "codes": [
+    "NA",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 5178,
+   "inatSci": "Circus macrourus"
+  },
+  {
+   "names": [
+    "Southern Red-billed Hornbill"
+   ],
+   "sci": "Tockus rufirostris",
+   "codes": [],
+   "pei": false,
+   "inat": 144663,
+   "inatSci": "Tockus rufirostris"
+  },
+  {
+   "names": [
+    "Western Marsh Harrier"
+   ],
+   "sci": "Circus aeruginosus",
+   "codes": [],
+   "pei": false,
+   "inat": 5173,
+   "inatSci": "Circus aeruginosus"
+  },
+  {
+   "names": [
+    "Southern Yellow-billed Hornbill"
+   ],
+   "sci": "Tockus leucomelas",
+   "codes": [],
+   "pei": false,
+   "inat": 5479,
+   "inatSci": "Tockus leucomelas"
+  },
+  {
+   "names": [
+    "African Cuckoo Hawk"
+   ],
+   "sci": "Aviceda cuculoides",
+   "codes": [],
+   "pei": false,
+   "inat": 5260,
+   "inatSci": "Aviceda cuculoides"
+  },
+  {
+   "names": [
+    "Trumpeter Hornbill"
+   ],
+   "sci": "Bycanistes bucinator",
+   "codes": [],
+   "pei": false,
+   "inat": 507913,
+   "inatSci": "Bycanistes bucinator"
+  },
+  {
+   "names": [
+    "African Harrier- Hawk"
+   ],
+   "sci": "Polyboroides typus",
+   "codes": [],
+   "pei": false,
+   "inat": 5246,
+   "inatSci": "Polyboroides typus"
+  },
+  {
+   "names": [
+    "Southern Hyliota"
+   ],
+   "sci": "Hyliota australis",
+   "codes": [],
+   "pei": false,
+   "inat": 116925,
+   "inatSci": "Hyliota australis"
+  },
+  {
+   "names": [
+    "Bat Hawk"
+   ],
+   "sci": "Macheiramphus alcinus",
+   "codes": [
+    "EN",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 5409,
+   "inatSci": "Macheiramphus alcinus"
+  },
+  {
+   "names": [
+    "African Sacred Ibis"
+   ],
+   "sci": "Threskiornis aethiopicus",
+   "codes": [],
+   "pei": false,
+   "inat": 3739,
+   "inatSci": "Threskiornis aethiopicus"
+  },
+  {
+   "names": [
+    "Chestnut-fronted Helmet-shrike"
+   ],
+   "sci": "Prionops scopifrons",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 117072,
+   "inatSci": "Prionops scopifrons"
+  },
+  {
+   "names": [
+    "Glossy Ibis"
+   ],
+   "sci": "Plegadis falcinellus",
+   "codes": [],
+   "pei": false,
+   "inat": 3756,
+   "inatSci": "Plegadis falcinellus"
+  },
+  {
+   "names": [
+    "Retz's Helmet-shrike"
+   ],
+   "sci": "Prionops retzii",
+   "codes": [],
+   "pei": false,
+   "inat": 117071,
+   "inatSci": "Prionops retzii"
+  },
+  {
+   "names": [
+    "Hadeda Ibis",
+    "Hadada Ibis"
+   ],
+   "sci": "Bostrychia hagedash",
+   "codes": [],
+   "pei": false,
+   "inat": 3743,
+   "inatSci": "Bostrychia hagedash"
+  },
+  {
+   "names": [
+    "White-crested Helmet-shrike"
+   ],
+   "sci": "Prionops plumatus",
+   "codes": [],
+   "pei": false,
+   "inat": 117070,
+   "inatSci": "Prionops plumatus"
+  },
+  {
+   "names": [
+    "Southern Bald Ibis"
+   ],
+   "sci": "Geronticus calvus",
+   "codes": [
+    "NT",
+    "NT",
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 3754,
+   "inatSci": "Geronticus calvus"
+  },
+  {
+   "names": [
+    "Black Heron"
+   ],
+   "sci": "Egretta ardesiaca",
+   "codes": [],
+   "pei": false,
+   "inat": 4934,
+   "inatSci": "Egretta ardesiaca"
+  },
+  {
+   "names": [
+    "Dusky Indigobird"
+   ],
+   "sci": "Vidua funerea",
+   "codes": [],
+   "pei": false,
+   "inat": 14020,
+   "inatSci": "Vidua funerea"
+  },
+  {
+   "names": [
+    "Black-crowned Night Heron"
+   ],
+   "sci": "Nycticorax nycticorax",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4981,
+   "inatSci": "Nycticorax nycticorax"
+  },
+  {
+   "names": [
+    "Purple Indigobird"
+   ],
+   "sci": "Vidua purpurascens",
+   "codes": [],
+   "pei": false,
+   "inat": 14014,
+   "inatSci": "Vidua purpurascens"
+  },
+  {
+   "names": [
+    "Black-headed Heron"
+   ],
+   "sci": "Ardea melanocephala",
+   "codes": [],
+   "pei": false,
+   "inat": 4972,
+   "inatSci": "Ardea melanocephala"
+  },
+  {
+   "names": [
+    "Village Indigobird"
+   ],
+   "sci": "Vidua chalybeata",
+   "codes": [],
+   "pei": false,
+   "inat": 14010,
+   "inatSci": "Vidua chalybeata"
+  },
+  {
+   "names": [
+    "Goliath Heron"
+   ],
+   "sci": "Ardea goliath",
+   "codes": [],
+   "pei": false,
+   "inat": 4969,
+   "inatSci": "Ardea goliath"
+  },
+  {
+   "names": [
+    "African Jacana"
+   ],
+   "sci": "Actophilornis africanus",
+   "codes": [],
+   "pei": false,
+   "inat": 4585,
+   "inatSci": "Actophilornis africanus"
+  },
+  {
+   "names": [
+    "Grey Heron"
+   ],
+   "sci": "Ardea cinerea",
+   "codes": [],
+   "pei": false,
+   "inat": 4954,
+   "inatSci": "Ardea cinerea"
+  },
+  {
+   "names": [
+    "Lesser Jacana"
+   ],
+   "sci": "Microparra capensis",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4587,
+   "inatSci": "Microparra capensis"
+  },
+  {
+   "names": [
+    "Little Heron"
+   ],
+   "sci": "Butorides atricapilla",
+   "codes": [],
+   "pei": false,
+   "inat": 1636180,
+   "inatSci": "Butorides atricapilla"
+  },
+  {
+   "names": [
+    "Long-tailed Jaeger"
+   ],
+   "sci": "Stercorarius longicaudus",
+   "codes": [],
+   "pei": false,
+   "inat": 4481,
+   "inatSci": "Stercorarius longicaudus"
+  },
+  {
+   "names": [
+    "Little Blue Heron"
+   ],
+   "sci": "Egretta caerulea",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4937,
+   "inatSci": "Egretta caerulea"
+  },
+  {
+   "names": [
+    "Parasitic Jaeger"
+   ],
+   "sci": "Stercorarius parasiticus",
+   "codes": [],
+   "pei": false,
+   "inat": 4489,
+   "inatSci": "Stercorarius parasiticus"
+  },
+  {
+   "names": [
+    "Malagasy Pond Heron"
+   ],
+   "sci": "Ardeola idae",
+   "codes": [
+    "NA",
+    "EN",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4992,
+   "inatSci": "Ardeola idae"
+  },
+  {
+   "names": [
+    "Pomarine Jaeger"
+   ],
+   "sci": "Stercorarius pomarinus",
+   "codes": [],
+   "pei": false,
+   "inat": 4491,
+   "inatSci": "Stercorarius pomarinus"
+  },
+  {
+   "names": [
+    "Purple Heron"
+   ],
+   "sci": "Ardea purpurea",
+   "codes": [],
+   "pei": false,
+   "inat": 4951,
+   "inatSci": "Ardea purpurea"
+  },
+  {
+   "names": [
+    "Dickinson's Kestrel"
+   ],
+   "sci": "Falco dickinsoni",
+   "codes": [],
+   "pei": false,
+   "inat": 4661,
+   "inatSci": "Falco dickinsoni"
+  },
+  {
+   "names": [
+    "Rufous-bellied Heron"
+   ],
+   "sci": "Ardeola rufiventris",
+   "codes": [],
+   "pei": false,
+   "inat": 4995,
+   "inatSci": "Ardeola rufiventris"
+  },
+  {
+   "names": [
+    "Greater Kestrel"
+   ],
+   "sci": "Falco rupicoloides",
+   "codes": [],
+   "pei": false,
+   "inat": 4689,
+   "inatSci": "Falco rupicoloides"
+  },
+  {
+   "names": [
+    "Squacco Heron"
+   ],
+   "sci": "Ardeola ralloides",
+   "codes": [],
+   "pei": false,
+   "inat": 4994,
+   "inatSci": "Ardeola ralloides"
+  },
+  {
+   "names": [
+    "Lesser Kestrel"
+   ],
+   "sci": "Falco naumanni",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 59845,
+   "inatSci": "Falco naumanni"
+  },
+  {
+   "names": [
+    "White-backed Night Heron"
+   ],
+   "sci": "Calherodius leuconotus",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 1505859,
+   "inatSci": "Calherodius leuconotus"
+  },
+  {
+   "names": [
+    "Rock Kestrel"
+   ],
+   "sci": "Falco rupicolus",
+   "codes": [],
+   "pei": false,
+   "inat": 472764,
+   "inatSci": "Falco rupicolus"
+  },
+  {
+   "names": [
+    "African Hobby"
+   ],
+   "sci": "Falco cuvierii",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4639,
+   "inatSci": "Falco cuvierii"
+  },
+  {
+   "names": [
+    "African Pygmy Kingfisher"
+   ],
+   "sci": "Ispidina picta",
+   "codes": [],
+   "pei": false,
+   "inat": 144655,
+   "inatSci": "Ispidina picta"
+  },
+  {
+   "names": [
+    "Eurasian Hobby"
+   ],
+   "sci": "Falco subbuteo",
+   "codes": [],
+   "pei": false,
+   "inat": 4643,
+   "inatSci": "Falco subbuteo"
+  },
+  {
+   "names": [
+    "Brown-hooded Kingfisher"
+   ],
+   "sci": "Halcyon albiventris",
+   "codes": [],
+   "pei": false,
+   "inat": 2346,
+   "inatSci": "Halcyon albiventris"
+  },
+  {
+   "names": [
+    "Brown-backed Honeybird"
+   ],
+   "sci": "Prodotiscus regulus",
+   "codes": [],
+   "pei": false,
+   "inat": 17591,
+   "inatSci": "Prodotiscus regulus"
+  },
+  {
+   "names": [
+    "Giant Kingfisher"
+   ],
+   "sci": "Megaceryle maxima",
+   "codes": [],
+   "pei": false,
+   "inat": 73010,
+   "inatSci": "Megaceryle maxima"
+  },
+  {
+   "names": [
+    "Grey-headed Kingfisher"
+   ],
+   "sci": "Halcyon leucocephala",
+   "codes": [],
+   "pei": false,
+   "inat": 2328,
+   "inatSci": "Halcyon leucocephala"
+  },
+  {
+   "names": [
+    "Cape Clapper Lark"
+   ],
+   "sci": "Corypha apiata",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 1583737,
+   "inatSci": "Corypha apiata"
+  },
+  {
+   "names": [
+    "Half-collared Kingfisher"
+   ],
+   "sci": "Alcedo semitorquata",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 2618,
+   "inatSci": "Alcedo semitorquata"
+  },
+  {
+   "names": [
+    "Cape Long-billed Lark"
+   ],
+   "sci": "Certhilauda curvirostris",
+   "codes": [
+    "E"
+   ],
+   "pei": false,
+   "inat": 204482,
+   "inatSci": "Certhilauda curvirostris"
+  },
+  {
+   "names": [
+    "Malachite Kingfisher"
+   ],
+   "sci": "Corythornis cristatus",
+   "codes": [],
+   "pei": false,
+   "inat": 144651,
+   "inatSci": "Corythornis cristatus"
+  },
+  {
+   "names": [
+    "Chestnut-backed Sparrow- Lark"
+   ],
+   "sci": "Eremopterix leucotis",
+   "codes": [],
+   "pei": false,
+   "inat": 7375,
+   "inatSci": "Eremopterix leucotis"
+  },
+  {
+   "names": [
+    "Mangrove Kingfisher"
+   ],
+   "sci": "Halcyon senegaloides",
+   "codes": [
+    "EN",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 2351,
+   "inatSci": "Halcyon senegaloides"
+  },
+  {
+   "names": [
+    "Dune Lark"
+   ],
+   "sci": "Calendulauda erythrochlamys",
+   "codes": [],
+   "pei": false,
+   "inat": 144770,
+   "inatSci": "Calendulauda erythrochlamys"
+  },
+  {
+   "names": [
+    "Pied Kingfisher"
+   ],
+   "sci": "Ceryle rudis",
+   "codes": [],
+   "pei": false,
+   "inat": 2662,
+   "inatSci": "Ceryle rudis"
+  },
+  {
+   "names": [
+    "Dusky Lark"
+   ],
+   "sci": "Pinarocorys nigricans",
+   "codes": [],
+   "pei": false,
+   "inat": 7414,
+   "inatSci": "Pinarocorys nigricans"
+  },
+  {
+   "names": [
+    "Striped Kingfisher"
+   ],
+   "sci": "Halcyon chelicuti",
+   "codes": [],
+   "pei": false,
+   "inat": 2334,
+   "inatSci": "Halcyon chelicuti"
+  },
+  {
+   "names": [
+    "Eastern Clapper Lark"
+   ],
+   "sci": "Corypha fasciolata",
+   "codes": [],
+   "pei": false,
+   "inat": 1583740,
+   "inatSci": "Corypha fasciolata"
+  },
+  {
+   "names": [
+    "Woodland Kingfisher"
+   ],
+   "sci": "Halcyon senegalensis",
+   "codes": [],
+   "pei": false,
+   "inat": 2337,
+   "inatSci": "Halcyon senegalensis"
+  },
+  {
+   "names": [
+    "Eastern Long-billed Lark"
+   ],
+   "sci": "Certhilauda semitorquata",
+   "codes": [
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 72639,
+   "inatSci": "Certhilauda semitorquata"
+  },
+  {
+   "names": [
+    "Black Kite"
+   ],
+   "sci": "Milvus migrans",
+   "codes": [],
+   "pei": false,
+   "inat": 5268,
+   "inatSci": "Milvus migrans"
+  },
+  {
+   "names": [
+    "Fawn-coloured Lark"
+   ],
+   "sci": "Calendulauda africanoides",
+   "codes": [],
+   "pei": false,
+   "inat": 144765,
+   "inatSci": "Calendulauda africanoides"
+  },
+  {
+   "names": [
+    "Black-winged Kite"
+   ],
+   "sci": "Elanus caeruleus",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 5275,
+   "inatSci": "Elanus caeruleus"
+  },
+  {
+   "names": [
+    "Flappet Lark"
+   ],
+   "sci": "Amirafra rufocinnamomea",
+   "codes": [],
+   "pei": false,
+   "inat": 1583762,
+   "inatSci": "Amirafra rufocinnamomea"
+  },
+  {
+   "names": [
+    "Yellow-billed Kite"
+   ],
+   "sci": "Milvus aegyptius",
+   "codes": [],
+   "pei": false,
+   "inat": 5268,
+   "inatSci": "Milvus migrans"
+  },
+  {
+   "names": [
+    "Grey-backed Sparrow- Lark"
+   ],
+   "sci": "Eremopterix verticalis",
+   "codes": [],
+   "pei": false,
+   "inat": 7374,
+   "inatSci": "Eremopterix verticalis"
+  },
+  {
+   "names": [
+    "Black-legged Kittiwake"
+   ],
+   "sci": "Rissa tridactyla",
+   "codes": [
+    "LC",
+    "VU",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4494,
+   "inatSci": "Rissa tridactyla"
+  },
+  {
+   "names": [
+    "Karoo Lark"
+   ],
+   "sci": "Calendulauda albescens",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 144768,
+   "inatSci": "Calendulauda albescens"
+  },
+  {
+   "names": [
+    "Great Knot"
+   ],
+   "sci": "Calidris tenuirostris",
+   "codes": [
+    "NA",
+    "EN",
+    "V"
+   ],
+   "pei": false,
+   "inat": 3852,
+   "inatSci": "Calidris tenuirostris"
+  },
+  {
+   "names": [
+    "Karoo Long-billed Lark"
+   ],
+   "sci": "Certhilauda subcoronata",
+   "codes": [],
+   "pei": false,
+   "inat": 204481,
+   "inatSci": "Certhilauda subcoronata"
+  },
+  {
+   "names": [
+    "Red Knot"
+   ],
+   "sci": "Calidris canutus",
+   "codes": [
+    "NT",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 3845,
+   "inatSci": "Calidris canutus"
+  },
+  {
+   "names": [
+    "Large-billed Lark"
+   ],
+   "sci": "Galerida magnirostris",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 7358,
+   "inatSci": "Galerida magnirostris"
+  },
+  {
+   "names": [
+    "Blue Korhaan"
+   ],
+   "sci": "Eupodotis caerulescens",
+   "codes": [
+    "VU",
+    "NT",
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 94,
+   "inatSci": "Eupodotis caerulescens"
+  },
+  {
+   "names": [
+    "Melodious Lark"
+   ],
+   "sci": "Mirafra cheniana",
+   "codes": [
+    "NT",
+    "LC",
+    "NE"
+   ],
+   "pei": false,
+   "inat": 7336,
+   "inatSci": "Mirafra cheniana"
+  },
+  {
+   "names": [
+    "Karoo Korhaan"
+   ],
+   "sci": "Heterotetrax vigorsii",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 1505956,
+   "inatSci": "Heterotetrax vigorsii"
+  },
+  {
+   "names": [
+    "Monotonous Lark"
+   ],
+   "sci": "Mirafra passerina",
+   "codes": [],
+   "pei": false,
+   "inat": 7334,
+   "inatSci": "Mirafra passerina"
+  },
+  {
+   "names": [
+    "Northern Black Korhaan"
+   ],
+   "sci": "Afrotis afraoides",
+   "codes": [],
+   "pei": false,
+   "inat": 1505971,
+   "inatSci": "Afrotis afraoides"
+  },
+  {
+   "names": [
+    "Pink-billed Lark"
+   ],
+   "sci": "Spizocorys conirostris",
+   "codes": [],
+   "pei": false,
+   "inat": 7403,
+   "inatSci": "Spizocorys conirostris"
+  },
+  {
+   "names": [
+    "Red-crested Korhaan"
+   ],
+   "sci": "Lophotis ruficrista",
+   "codes": [],
+   "pei": false,
+   "inat": 1505966,
+   "inatSci": "Lophotis ruficrista"
+  },
+  {
+   "names": [
+    "Red Lark"
+   ],
+   "sci": "Calendulauda burra",
+   "codes": [
+    "VU",
+    "VU",
+    "E"
+   ],
+   "pei": false,
+   "inat": 144767,
+   "inatSci": "Calendulauda burra"
+  },
+  {
+   "names": [
+    "Southern Black Korhaan"
+   ],
+   "sci": "Afrotis afra",
+   "codes": [
+    "VU",
+    "VU",
+    "E"
+   ],
+   "pei": false,
+   "inat": 1505970,
+   "inatSci": "Afrotis afra"
+  },
+  {
+   "names": [
+    "Red-capped Lark"
+   ],
+   "sci": "Calandrella cinerea",
+   "codes": [],
+   "pei": false,
+   "inat": 204473,
+   "inatSci": "Calandrella cinerea"
+  },
+  {
+   "names": [
+    "White-bellied Korhaan",
+    "White-bellied Bustard"
+   ],
+   "sci": "Eupodotis senegalensis",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 95,
+   "inatSci": "Eupodotis senegalensis"
+  },
+  {
+   "names": [
+    "Rudd's Lark"
+   ],
+   "sci": "Heteromirafra ruddi",
+   "codes": [
+    "EN",
+    "EN",
+    "E"
+   ],
+   "pei": false,
+   "inat": 7381,
+   "inatSci": "Heteromirafra ruddi"
+  },
+  {
+   "names": [
+    "African Wattled Lapwing"
+   ],
+   "sci": "Vanellus senegallus",
+   "codes": [],
+   "pei": false,
+   "inat": 4868,
+   "inatSci": "Vanellus senegallus"
+  },
+  {
+   "names": [
+    "Rufous-naped Lark"
+   ],
+   "sci": "Corypha africana",
+   "codes": [],
+   "pei": false,
+   "inat": 1572860,
+   "inatSci": "Corypha africana"
+  },
+  {
+   "names": [
+    "Blacksmith Lapwing"
+   ],
+   "sci": "Vanellus armatus",
+   "codes": [],
+   "pei": false,
+   "inat": 4870,
+   "inatSci": "Vanellus armatus"
+  },
+  {
+   "names": [
+    "Sabota Lark"
+   ],
+   "sci": "Calendulauda sabota",
+   "codes": [],
+   "pei": false,
+   "inat": 144764,
+   "inatSci": "Calendulauda sabota"
+  },
+  {
+   "names": [
+    "Black-winged Lapwing"
+   ],
+   "sci": "Vanellus melanopterus",
+   "codes": [],
+   "pei": false,
+   "inat": 4864,
+   "inatSci": "Vanellus melanopterus"
+  },
+  {
+   "names": [
+    "Sclater's Lark"
+   ],
+   "sci": "Spizocorys sclateri",
+   "codes": [
+    "NT",
+    "NT",
+    "NE"
+   ],
+   "pei": false,
+   "inat": 7401,
+   "inatSci": "Spizocorys sclateri"
+  },
+  {
+   "names": [
+    "Crowned Lapwing"
+   ],
+   "sci": "Vanellus coronatus",
+   "codes": [],
+   "pei": false,
+   "inat": 4877,
+   "inatSci": "Vanellus coronatus"
+  },
+  {
+   "names": [
+    "Short-clawed Lark"
+   ],
+   "sci": "Certhilauda chuana",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 7286,
+   "inatSci": "Certhilauda chuana"
+  },
+  {
+   "names": [
+    "Long-toed Lapwing"
+   ],
+   "sci": "Vanellus crassirostris",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4862,
+   "inatSci": "Vanellus crassirostris"
+  },
+  {
+   "names": [
+    "Spike-heeled Lark"
+   ],
+   "sci": "Chersomanes albofasciata",
+   "codes": [],
+   "pei": false,
+   "inat": 204483,
+   "inatSci": "Chersomanes albofasciata"
+  },
+  {
+   "names": [
+    "Senegal Lapwing"
+   ],
+   "sci": "Vanellus lugubris",
+   "codes": [],
+   "pei": false,
+   "inat": 4861,
+   "inatSci": "Vanellus lugubris"
+  },
+  {
+   "names": [
+    "Stark's Lark"
+   ],
+   "sci": "Spizocorys starki",
+   "codes": [],
+   "pei": false,
+   "inat": 144778,
+   "inatSci": "Spizocorys starki"
+  },
+  {
+   "names": [
+    "Spur-winged Lapwing"
+   ],
+   "sci": "Vanellus spinosus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4866,
+   "inatSci": "Vanellus spinosus"
+  },
+  {
+   "names": [
+    "Cape Longclaw"
+   ],
+   "sci": "Macronyx capensis",
+   "codes": [],
+   "pei": false,
+   "inat": 14098,
+   "inatSci": "Macronyx capensis"
+  },
+  {
+   "names": [
+    "White-crowned Lapwing"
+   ],
+   "sci": "Vanellus albiceps",
+   "codes": [],
+   "pei": false,
+   "inat": 4855,
+   "inatSci": "Vanellus albiceps"
+  },
+  {
+   "names": [
+    "Rosy-throated Longclaw"
+   ],
+   "sci": "Macronyx ameliae",
+   "codes": [
+    "EN",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 14103,
+   "inatSci": "Macronyx ameliae"
+  },
+  {
+   "names": [
+    "Agulhas Long-billed Lark"
+   ],
+   "sci": "Certhilauda brevirostris",
+   "codes": [
+    "NT",
+    "NR",
+    "E"
+   ],
+   "pei": false,
+   "inat": 1423460,
+   "inatSci": "Certhilauda curvirostris brevirostris"
+  },
+  {
+   "names": [
+    "Yellow-throated Longclaw"
+   ],
+   "sci": "Macronyx croceus",
+   "codes": [],
+   "pei": false,
+   "inat": 14104,
+   "inatSci": "Macronyx croceus"
+  },
+  {
+   "names": [
+    "Black-eared Sparrow- Lark"
+   ],
+   "sci": "Eremopterix australis",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 7373,
+   "inatSci": "Eremopterix australis"
+  },
+  {
+   "names": [
+    "Rosy-faced Lovebird"
+   ],
+   "sci": "Agapornis roseicollis",
+   "codes": [],
+   "pei": false,
+   "inat": 19079,
+   "inatSci": "Agapornis roseicollis"
+  },
+  {
+   "names": [
+    "Botha's Lark"
+   ],
+   "sci": "Spizocorys fringillaris",
+   "codes": [
+    "CR",
+    "EN",
+    "E"
+   ],
+   "pei": false,
+   "inat": 7404,
+   "inatSci": "Spizocorys fringillaris"
+  },
+  {
+   "names": [
+    "Green Malkoha"
+   ],
+   "sci": "Ceuthmochares australis",
+   "codes": [],
+   "pei": false,
+   "inat": 509818,
+   "inatSci": "Ceuthmochares australis"
+  },
+  {
+   "names": [
+    "Mallard"
+   ],
+   "sci": "Anas platyrhynchos",
+   "codes": [
+    "I"
+   ],
+   "pei": false,
+   "inat": 6930,
+   "inatSci": "Anas platyrhynchos"
+  },
+  {
+   "names": [
+    "Black-headed Oriole"
+   ],
+   "sci": "Oriolus larvatus",
+   "codes": [],
+   "pei": false,
+   "inat": 7876,
+   "inatSci": "Oriolus larvatus"
+  },
+  {
+   "names": [
+    "Bronze Mannikin"
+   ],
+   "sci": "Spermestes cucullata",
+   "codes": [],
+   "pei": false,
+   "inat": 367700,
+   "inatSci": "Spermestes cucullata"
+  },
+  {
+   "names": [
+    "Eurasian Golden Oriole"
+   ],
+   "sci": "Oriolus oriolus",
+   "codes": [],
+   "pei": false,
+   "inat": 204556,
+   "inatSci": "Oriolus oriolus"
+  },
+  {
+   "names": [
+    "Magpie Mannikin"
+   ],
+   "sci": "Spermestes fringilloides",
+   "codes": [],
+   "pei": false,
+   "inat": 145349,
+   "inatSci": "Spermestes fringilloides"
+  },
+  {
+   "names": [
+    "Osprey"
+   ],
+   "sci": "Pandion haliaetus",
+   "codes": [],
+   "pei": false,
+   "inat": 116999,
+   "inatSci": "Pandion haliaetus"
+  },
+  {
+   "names": [
+    "Red-backed Mannikin"
+   ],
+   "sci": "Spermestes bicolor",
+   "codes": [],
+   "pei": false,
+   "inat": 145348,
+   "inatSci": "Spermestes bicolor"
+  },
+  {
+   "names": [
+    "Common Ostrich"
+   ],
+   "sci": "Struthio camelus",
+   "codes": [],
+   "pei": false,
+   "inat": 20526,
+   "inatSci": "Struthio camelus"
+  },
+  {
+   "names": [
+    "Banded Martin"
+   ],
+   "sci": "Neophedina cincta",
+   "codes": [],
+   "pei": false,
+   "inat": 1289491,
+   "inatSci": "Neophedina cincta"
+  },
+  {
+   "names": [
+    "African Grass Owl"
+   ],
+   "sci": "Tyto capensis",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 20438,
+   "inatSci": "Tyto capensis"
+  },
+  {
+   "names": [
+    "Brown-throated Martin"
+   ],
+   "sci": "Riparia paludicola",
+   "codes": [],
+   "pei": false,
+   "inat": 11945,
+   "inatSci": "Riparia paludicola"
+  },
+  {
+   "names": [
+    "African Scops Owl"
+   ],
+   "sci": "Otus senegalensis",
+   "codes": [],
+   "pei": false,
+   "inat": 20301,
+   "inatSci": "Otus senegalensis"
+  },
+  {
+   "names": [
+    "Large Rock Martin"
+   ],
+   "sci": "Ptyonoprogne fuligula",
+   "codes": [],
+   "pei": false,
+   "inat": 144789,
+   "inatSci": "Ptyonoprogne fuligula"
+  },
+  {
+   "names": [
+    "African Wood Owl"
+   ],
+   "sci": "Strix woodfordii",
+   "codes": [],
+   "pei": false,
+   "inat": 19965,
+   "inatSci": "Strix woodfordii"
+  },
+  {
+   "names": [
+    "Mascarene Martin"
+   ],
+   "sci": "Phedina borbonica",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 11985,
+   "inatSci": "Phedina borbonica"
+  },
+  {
+   "names": [
+    "Cape Eagle- Owl"
+   ],
+   "sci": "Bubo capensis",
+   "codes": [],
+   "pei": false,
+   "inat": 20095,
+   "inatSci": "Bubo capensis"
+  },
+  {
+   "names": [
+    "Sand Martin"
+   ],
+   "sci": "Riparia riparia",
+   "codes": [],
+   "pei": false,
+   "inat": 11941,
+   "inatSci": "Riparia riparia"
+  },
+  {
+   "names": [
+    "Marsh Owl"
+   ],
+   "sci": "Asio capensis",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 20327,
+   "inatSci": "Asio capensis"
+  },
+  {
+   "names": [
+    "Western House Martin"
+   ],
+   "sci": "Delichon urbicum",
+   "codes": [],
+   "pei": false,
+   "inat": 64705,
+   "inatSci": "Delichon urbicum"
+  },
+  {
+   "names": [
+    "Pel's Fishing Owl"
+   ],
+   "sci": "Scotopelia peli",
+   "codes": [
+    "NA",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 19971,
+   "inatSci": "Scotopelia peli"
+  },
+  {
+   "names": [
+    "Common Moorhen"
+   ],
+   "sci": "Gallinula chloropus",
+   "codes": [],
+   "pei": false,
+   "inat": 201282,
+   "inatSci": "Gallinula chloropus"
+  },
+  {
+   "names": [
+    "Southern White-faced Owl"
+   ],
+   "sci": "Ptilopsis granti",
+   "codes": [],
+   "pei": false,
+   "inat": 144592,
+   "inatSci": "Ptilopsis granti"
+  },
+  {
+   "names": [
+    "Lesser Moorhen"
+   ],
+   "sci": "Paragallinula angulata",
+   "codes": [],
+   "pei": false,
+   "inat": 979866,
+   "inatSci": "Paragallinula angulata"
+  },
+  {
+   "names": [
+    "Spotted Eagle- Owl"
+   ],
+   "sci": "Bubo africanus",
+   "codes": [],
+   "pei": false,
+   "inat": 204470,
+   "inatSci": "Bubo africanus"
+  },
+  {
+   "names": [
+    "Red-faced Mousebird"
+   ],
+   "sci": "Urocolius indicus",
+   "codes": [],
+   "pei": false,
+   "inat": 3689,
+   "inatSci": "Urocolius indicus"
+  },
+  {
+   "names": [
+    "Verreaux's Eagle- Owl"
+   ],
+   "sci": "Ketupa lactea",
+   "codes": [],
+   "pei": false,
+   "inat": 1441745,
+   "inatSci": "Ketupa lactea"
+  },
+  {
+   "names": [
+    "Speckled Mousebird"
+   ],
+   "sci": "Colius striatus",
+   "codes": [],
+   "pei": false,
+   "inat": 3704,
+   "inatSci": "Colius striatus"
+  },
+  {
+   "names": [
+    "Western Barn Owl"
+   ],
+   "sci": "Tyto alba",
+   "codes": [],
+   "pei": false,
+   "inat": 20445,
+   "inatSci": "Tyto alba"
+  },
+  {
+   "names": [
+    "White-backed Mousebird"
+   ],
+   "sci": "Colius colius",
+   "codes": [],
+   "pei": false,
+   "inat": 3722,
+   "inatSci": "Colius colius"
+  },
+  {
+   "names": [
+    "African Barred Owlet"
+   ],
+   "sci": "Glaucidium capense",
+   "codes": [],
+   "pei": false,
+   "inat": 19874,
+   "inatSci": "Glaucidium capense"
+  },
+  {
+   "names": [
+    "Common Myna"
+   ],
+   "sci": "Acridotheres tristis",
+   "codes": [
+    "I"
+   ],
+   "pei": false,
+   "inat": 204454,
+   "inatSci": "Acridotheres tristis"
+  },
+  {
+   "names": [
+    "Pearl-spotted Owlet"
+   ],
+   "sci": "Glaucidium perlatum",
+   "codes": [],
+   "pei": false,
+   "inat": 19882,
+   "inatSci": "Glaucidium perlatum"
+  },
+  {
+   "names": [
+    "Neddicky"
+   ],
+   "sci": "Cisticola fulvicapilla",
+   "codes": [],
+   "pei": false,
+   "inat": 72731,
+   "inatSci": "Cisticola fulvicapilla"
+  },
+  {
+   "names": [
+    "Red-billed Oxpecker"
+   ],
+   "sci": "Buphagus erythroryncha",
+   "codes": [],
+   "pei": false,
+   "inat": 1584479,
+   "inatSci": "Buphagus erythroryncha"
+  },
+  {
+   "names": [
+    "Eastern Nicator"
+   ],
+   "sci": "Nicator gularis",
+   "codes": [],
+   "pei": false,
+   "inat": 116991,
+   "inatSci": "Nicator gularis"
+  },
+  {
+   "names": [
+    "Yellow-billed Oxpecker"
+   ],
+   "sci": "Buphagus africanus",
+   "codes": [],
+   "pei": false,
+   "inat": 116831,
+   "inatSci": "Buphagus africanus"
+  },
+  {
+   "names": [
+    "Thrush Nightingale"
+   ],
+   "sci": "Luscinia luscinia",
+   "codes": [],
+   "pei": false,
+   "inat": 13075,
+   "inatSci": "Luscinia luscinia"
+  },
+  {
+   "names": [
+    "African Oystercatcher",
+    "Black Oystercatcher"
+   ],
+   "sci": "Haematopus moquini",
+   "codes": [],
+   "pei": false,
+   "inat": 4839,
+   "inatSci": "Haematopus moquini"
+  },
+  {
+   "names": [
+    "European Nightjar"
+   ],
+   "sci": "Caprimulgus europaeus",
+   "codes": [],
+   "pei": false,
+   "inat": 19410,
+   "inatSci": "Caprimulgus europaeus"
+  },
+  {
+   "names": [
+    "Eurasian Oystercatcher"
+   ],
+   "sci": "Haematopus ostralegus",
+   "codes": [
+    "NA",
+    "NT",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4843,
+   "inatSci": "Haematopus ostralegus"
+  },
+  {
+   "names": [
+    "Fiery-necked Nightjar"
+   ],
+   "sci": "Caprimulgus pectoralis",
+   "codes": [],
+   "pei": false,
+   "inat": 19392,
+   "inatSci": "Caprimulgus pectoralis"
+  },
+  {
+   "names": [
+    "Greater Painted-snipe"
+   ],
+   "sci": "Rostratula benghalensis",
+   "codes": [
+    "LC",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 3999,
+   "inatSci": "Rostratula benghalensis"
+  },
+  {
+   "names": [
+    "Freckled Nightjar"
+   ],
+   "sci": "Caprimulgus tristigma",
+   "codes": [],
+   "pei": false,
+   "inat": 19519,
+   "inatSci": "Caprimulgus tristigma"
+  },
+  {
+   "names": [
+    "Rose-ringed Parakeet"
+   ],
+   "sci": "Psittacula krameri",
+   "codes": [
+    "I"
+   ],
+   "pei": false,
+   "inat": 18911,
+   "inatSci": "Psittacula krameri"
+  },
+  {
+   "names": [
+    "Pennant-winged Nightjar"
+   ],
+   "sci": "Caprimulgus vexillarius",
+   "codes": [],
+   "pei": false,
+   "inat": 339628,
+   "inatSci": "Caprimulgus vexillarius"
+  },
+  {
+   "names": [
+    "Brown-headed Parrot"
+   ],
+   "sci": "Poicephalus cryptoxanthus",
+   "codes": [],
+   "pei": false,
+   "inat": 19050,
+   "inatSci": "Poicephalus cryptoxanthus"
+  },
+  {
+   "names": [
+    "Rufous-cheeked Nightjar"
+   ],
+   "sci": "Caprimulgus rufigena",
+   "codes": [],
+   "pei": false,
+   "inat": 19485,
+   "inatSci": "Caprimulgus rufigena"
+  },
+  {
+   "names": [
+    "Cape Parrot"
+   ],
+   "sci": "Poicephalus robustus",
+   "codes": [
+    "VU",
+    "VU",
+    "E"
+   ],
+   "pei": false,
+   "inat": 19056,
+   "inatSci": "Poicephalus robustus"
+  },
+  {
+   "names": [
+    "Square-tailed Nightjar"
+   ],
+   "sci": "Caprimulgus fossii",
+   "codes": [],
+   "pei": false,
+   "inat": 19447,
+   "inatSci": "Caprimulgus fossii"
+  },
+  {
+   "names": [
+    "Grey-headed Parrot",
+    "Brown-necked Parrot"
+   ],
+   "sci": "Poicephalus fuscicollis",
+   "codes": [],
+   "pei": false,
+   "inat": 467996,
+   "inatSci": "Poicephalus fuscicollis"
+  },
+  {
+   "names": [
+    "Swamp Nightjar"
+   ],
+   "sci": "Caprimulgus natalensis",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 19440,
+   "inatSci": "Caprimulgus natalensis"
+  },
+  {
+   "names": [
+    "Meyer's Parrot"
+   ],
+   "sci": "Poicephalus meyeri",
+   "codes": [],
+   "pei": false,
+   "inat": 19055,
+   "inatSci": "Poicephalus meyeri"
+  },
+  {
+   "names": [
+    "Brown Noddy"
+   ],
+   "sci": "Anous stolidus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4535,
+   "inatSci": "Anous stolidus"
+  },
+  {
+   "names": [
+    "Chukar Partridge"
+   ],
+   "sci": "Alectoris chukar",
+   "codes": [
+    "I"
+   ],
+   "pei": false,
+   "inat": 846,
+   "inatSci": "Alectoris chukar"
+  },
+  {
+   "names": [
+    "Lesser Noddy"
+   ],
+   "sci": "Anous tenuirostris",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4538,
+   "inatSci": "Anous tenuirostris"
+  },
+  {
+   "names": [
+    "Indian Peafowl"
+   ],
+   "sci": "Pavo cristatus",
+   "codes": [
+    "I"
+   ],
+   "pei": false,
+   "inat": 1204,
+   "inatSci": "Pavo cristatus"
+  },
+  {
+   "names": [
+    "African Openbill"
+   ],
+   "sci": "Anastomus lamelligerus",
+   "codes": [],
+   "pei": false,
+   "inat": 4776,
+   "inatSci": "Anastomus lamelligerus"
+  },
+  {
+   "names": [
+    "Great White Pelican"
+   ],
+   "sci": "Pelecanus onocrotalus",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4327,
+   "inatSci": "Pelecanus onocrotalus"
+  },
+  {
+   "names": [
+    "African Golden Oriole"
+   ],
+   "sci": "Oriolus auratus",
+   "codes": [],
+   "pei": false,
+   "inat": 7868,
+   "inatSci": "Oriolus auratus"
+  },
+  {
+   "names": [
+    "Pink-backed Pelican"
+   ],
+   "sci": "Pelecanus rufescens",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4335,
+   "inatSci": "Pelecanus rufescens"
+  },
+  {
+   "names": [
+    "Cape Penduline-tit"
+   ],
+   "sci": "Anthoscopus minutus",
+   "codes": [],
+   "pei": false,
+   "inat": 13671,
+   "inatSci": "Anthoscopus minutus"
+  },
+  {
+   "names": [
+    "White-headed Petrel"
+   ],
+   "sci": "Pterodroma lessonii",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4049,
+   "inatSci": "Pterodroma lessonii"
+  },
+  {
+   "names": [
+    "Grey Penduline-tit"
+   ],
+   "sci": "Anthoscopus caroli",
+   "codes": [],
+   "pei": false,
+   "inat": 13670,
+   "inatSci": "Anthoscopus caroli"
+  },
+  {
+   "names": [
+    "Wilson's Storm Petrel"
+   ],
+   "sci": "Oceanites oceanicus",
+   "codes": [],
+   "pei": false,
+   "inat": 4146,
+   "inatSci": "Oceanites oceanicus"
+  },
+  {
+   "names": [
+    "African Penguin"
+   ],
+   "sci": "Spheniscus demersus",
+   "codes": [
+    "EN",
+    "CR"
+   ],
+   "pei": false,
+   "inat": 3813,
+   "inatSci": "Spheniscus demersus"
+  },
+  {
+   "names": [
+    "Yellow-throated Petronia"
+   ],
+   "sci": "Gymnoris superciliaris",
+   "codes": [],
+   "pei": false,
+   "inat": 979725,
+   "inatSci": "Gymnoris superciliaris"
+  },
+  {
+   "names": [
+    "Eastern Rockhopper Penguin"
+   ],
+   "sci": "Eudyptes filholi",
+   "codes": [
+    "EN",
+    "VU",
+    "V"
+   ],
+   "pei": false,
+   "inat": 410384,
+   "inatSci": "Eudyptes filholi"
+  },
+  {
+   "names": [
+    "Red Phalarope"
+   ],
+   "sci": "Phalaropus fulicarius",
+   "codes": [],
+   "pei": false,
+   "inat": 73203,
+   "inatSci": "Phalaropus fulicarius"
+  },
+  {
+   "names": [
+    "King Penguin"
+   ],
+   "sci": "Aptenodytes patagonicus",
+   "codes": [
+    "NT",
+    "LC",
+    "V"
+   ],
+   "pei": false,
+   "inat": 3821,
+   "inatSci": "Aptenodytes patagonicus"
+  },
+  {
+   "names": [
+    "Red-necked Phalarope"
+   ],
+   "sci": "Phalaropus lobatus",
+   "codes": [],
+   "pei": false,
+   "inat": 3959,
+   "inatSci": "Phalaropus lobatus"
+  },
+  {
+   "names": [
+    "Macaroni Penguin"
+   ],
+   "sci": "Eudyptes chrysolophus",
+   "codes": [
+    "VU",
+    "VU",
+    "V"
+   ],
+   "pei": false,
+   "inat": 3825,
+   "inatSci": "Eudyptes chrysolophus"
+  },
+  {
+   "names": [
+    "Wilson's Phalarope"
+   ],
+   "sci": "Phalaropus tricolor",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 144497,
+   "inatSci": "Phalaropus tricolor"
+  },
+  {
+   "names": [
+    "Northern Rockhopper Penguin"
+   ],
+   "sci": "Eudyptes moseleyi",
+   "codes": [
+    "NA",
+    "EN",
+    "V"
+   ],
+   "pei": false,
+   "inat": 100696,
+   "inatSci": "Eudyptes moseleyi"
+  },
+  {
+   "names": [
+    "African Green Pigeon"
+   ],
+   "sci": "Treron calvus",
+   "codes": [],
+   "pei": false,
+   "inat": 3405,
+   "inatSci": "Treron calvus"
+  },
+  {
+   "names": [
+    "Antarctic Petrel"
+   ],
+   "sci": "Thalassoica antarctica",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4202,
+   "inatSci": "Thalassoica antarctica"
+  },
+  {
+   "names": [
+    "African Olive Pigeon"
+   ],
+   "sci": "Columba arquatrix",
+   "codes": [],
+   "pei": false,
+   "inat": 3012,
+   "inatSci": "Columba arquatrix"
+  },
+  {
+   "names": [
+    "Atlantic Petrel"
+   ],
+   "sci": "Pterodroma incerta",
+   "codes": [
+    "NA",
+    "EN",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4047,
+   "inatSci": "Pterodroma incerta"
+  },
+  {
+   "names": [
+    "Eastern Bronze-naped Pigeon"
+   ],
+   "sci": "Columba delegorguei",
+   "codes": [
+    "EN",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 3030,
+   "inatSci": "Columba delegorguei"
+  },
+  {
+   "names": [
+    "Barau's Petrel"
+   ],
+   "sci": "Pterodroma baraui",
+   "codes": [
+    "NA",
+    "EN",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4050,
+   "inatSci": "Pterodroma baraui"
+  },
+  {
+   "names": [
+    "Speckled Pigeon"
+   ],
+   "sci": "Columba guinea",
+   "codes": [],
+   "pei": false,
+   "inat": 3036,
+   "inatSci": "Columba guinea"
+  },
+  {
+   "names": [
+    "Black-bellied Storm Petrel"
+   ],
+   "sci": "Fregetta tropica",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4172,
+   "inatSci": "Fregetta tropica"
+  },
+  {
+   "names": [
+    "Northern Pintail"
+   ],
+   "sci": "Anas acuta",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 6933,
+   "inatSci": "Anas acuta"
+  },
+  {
+   "names": [
+    "Blue Petrel"
+   ],
+   "sci": "Halobaena caerulea",
+   "codes": [
+    "VU",
+    "LC",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4200,
+   "inatSci": "Halobaena caerulea"
+  },
+  {
+   "names": [
+    "African Pipit"
+   ],
+   "sci": "Anthus cinnamomeus",
+   "codes": [],
+   "pei": false,
+   "inat": 145208,
+   "inatSci": "Anthus cinnamomeus"
+  },
+  {
+   "names": [
+    "Common Diving Petrel"
+   ],
+   "sci": "Pelecanoides urinatrix",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4130,
+   "inatSci": "Pelecanoides urinatrix"
+  },
+  {
+   "names": [
+    "African Rock Pipit"
+   ],
+   "sci": "Anthus crenatus",
+   "codes": [
+    "LC",
+    "NT",
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 13741,
+   "inatSci": "Anthus crenatus"
+  },
+  {
+   "names": [
+    "European Storm Petrel"
+   ],
+   "sci": "Hydrobates pelagicus",
+   "codes": [],
+   "pei": false,
+   "inat": 4170,
+   "inatSci": "Hydrobates pelagicus"
+  },
+  {
+   "names": [
+    "Buffy Pipit"
+   ],
+   "sci": "Anthus vaalensis",
+   "codes": [],
+   "pei": false,
+   "inat": 13749,
+   "inatSci": "Anthus vaalensis"
+  },
+  {
+   "names": [
+    "Great-winged Petrel"
+   ],
+   "sci": "Pterodroma macroptera",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4056,
+   "inatSci": "Pterodroma macroptera"
+  },
+  {
+   "names": [
+    "Bushveld Pipit"
+   ],
+   "sci": "Anthus caffer",
+   "codes": [],
+   "pei": false,
+   "inat": 13719,
+   "inatSci": "Anthus caffer"
+  },
+  {
+   "names": [
+    "Grey Petrel"
+   ],
+   "sci": "Procellaria cinerea",
+   "codes": [
+    "EN",
+    "NT",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4139,
+   "inatSci": "Procellaria cinerea"
+  },
+  {
+   "names": [
+    "Golden Pipit"
+   ],
+   "sci": "Tmetothylacus tenellus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 14130,
+   "inatSci": "Tmetothylacus tenellus"
+  },
+  {
+   "names": [
+    "Grey-backed Storm Petrel"
+   ],
+   "sci": "Garrodia nereis",
+   "codes": [
+    "NT",
+    "LC",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4166,
+   "inatSci": "Garrodia nereis"
+  },
+  {
+   "names": [
+    "Mountain Pipit"
+   ],
+   "sci": "Anthus hoeschi",
+   "codes": [
+    "NT",
+    "NT",
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 13753,
+   "inatSci": "Anthus hoeschi"
+  },
+  {
+   "names": [
+    "Kerguelen Petrel"
+   ],
+   "sci": "Aphrodroma brevirostris",
+   "codes": [
+    "VU",
+    "LC",
+    "V"
+   ],
+   "pei": false,
+   "inat": 144434,
+   "inatSci": "Aphrodroma brevirostris"
+  },
+  {
+   "names": [
+    "Nicholson's Pipit"
+   ],
+   "sci": "Anthus nicholsoni",
+   "codes": [],
+   "pei": false,
+   "inat": 1286825,
+   "inatSci": "Anthus nicholsoni"
+  },
+  {
+   "names": [
+    "Leach's Storm Petrel"
+   ],
+   "sci": "Hydrobates leucorhous",
+   "codes": [
+    "CR",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 1289622,
+   "inatSci": "Hydrobates leucorhous"
+  },
+  {
+   "names": [
+    "Plain-backed Pipit"
+   ],
+   "sci": "Anthus leucophrys",
+   "codes": [],
+   "pei": false,
+   "inat": 13708,
+   "inatSci": "Anthus leucophrys"
+  },
+  {
+   "names": [
+    "Matsudaira's Storm Petrel"
+   ],
+   "sci": "Hydrobates matsudairae",
+   "codes": [
+    "NA",
+    "VU",
+    "V"
+   ],
+   "pei": false,
+   "inat": 1289611,
+   "inatSci": "Hydrobates matsudairae"
+  },
+  {
+   "names": [
+    "Red-throated Pipit"
+   ],
+   "sci": "Anthus cervinus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 13721,
+   "inatSci": "Anthus cervinus"
+  },
+  {
+   "names": [
+    "Northern Giant Petrel"
+   ],
+   "sci": "Macronectes halli",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4197,
+   "inatSci": "Macronectes halli"
+  },
+  {
+   "names": [
+    "Short-tailed Pipit"
+   ],
+   "sci": "Anthus brachyurus",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 13730,
+   "inatSci": "Anthus brachyurus"
+  },
+  {
+   "names": [
+    "Pincoya Storm Petrel"
+   ],
+   "sci": "Oceanites pincoyae",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 339589,
+   "inatSci": "Oceanites pincoyae"
+  },
+  {
+   "names": [
+    "Striped Pipit"
+   ],
+   "sci": "Anthus lineiventris",
+   "codes": [],
+   "pei": false,
+   "inat": 13720,
+   "inatSci": "Anthus lineiventris"
+  },
+  {
+   "names": [
+    "Pintado Petrel",
+    "Cape Petrel"
+   ],
+   "sci": "Daption capense",
+   "codes": [],
+   "pei": false,
+   "inat": 4168,
+   "inatSci": "Daption capense"
+  },
+  {
+   "names": [
+    "Tree Pipit"
+   ],
+   "sci": "Anthus trivialis",
+   "codes": [],
+   "pei": false,
+   "inat": 13711,
+   "inatSci": "Anthus trivialis"
+  },
+  {
+   "names": [
+    "Soft-plumaged Petrel"
+   ],
+   "sci": "Pterodroma mollis",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4033,
+   "inatSci": "Pterodroma mollis"
+  },
+  {
+   "names": [
+    "Yellow-breasted Pipit"
+   ],
+   "sci": "Hemimacronyx chloris",
+   "codes": [
+    "VU",
+    "VU",
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 145212,
+   "inatSci": "Hemimacronyx chloris"
+  },
+  {
+   "names": [
+    "Southern Giant Petrel"
+   ],
+   "sci": "Macronectes giganteus",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4198,
+   "inatSci": "Macronectes giganteus"
+  },
+  {
+   "names": [
+    "African Pitta"
+   ],
+   "sci": "Pitta angolensis",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 14384,
+   "inatSci": "Pitta angolensis"
+  },
+  {
+   "names": [
+    "Spectacled Petrel"
+   ],
+   "sci": "Procellaria conspicillata",
+   "codes": [
+    "NT",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 73281,
+   "inatSci": "Procellaria conspicillata"
+  },
+  {
+   "names": [
+    "American Golden Plover"
+   ],
+   "sci": "Pluvialis dominica",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4893,
+   "inatSci": "Pluvialis dominica"
+  },
+  {
+   "names": [
+    "Tahiti Petrel"
+   ],
+   "sci": "Pseudobulweria rostrata",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 73303,
+   "inatSci": "Pseudobulweria rostrata"
+  },
+  {
+   "names": [
+    "Caspian Plover"
+   ],
+   "sci": "Anarhynchus asiaticus",
+   "codes": [],
+   "pei": false,
+   "inat": 1505622,
+   "inatSci": "Anarhynchus asiaticus"
+  },
+  {
+   "names": [
+    "White-bellied Storm Petrel"
+   ],
+   "sci": "Fregetta grallaria",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4173,
+   "inatSci": "Fregetta grallaria"
+  },
+  {
+   "names": [
+    "Chestnut-banded Plover"
+   ],
+   "sci": "Anarhynchus pallidus",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 1505774,
+   "inatSci": "Anarhynchus pallidus"
+  },
+  {
+   "names": [
+    "White-chinned Petrel"
+   ],
+   "sci": "Procellaria aequinoctialis",
+   "codes": [
+    "VU",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 4136,
+   "inatSci": "Procellaria aequinoctialis"
+  },
+  {
+   "names": [
+    "Common Ringed Plover"
+   ],
+   "sci": "Charadrius hiaticula",
+   "codes": [],
+   "pei": false,
+   "inat": 4801,
+   "inatSci": "Charadrius hiaticula"
+  },
+  {
+   "names": [
+    "White-faced Storm Petrel"
+   ],
+   "sci": "Pelagodroma marina",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4153,
+   "inatSci": "Pelagodroma marina"
+  },
+  {
+   "names": [
+    "Crab- Plover"
+   ],
+   "sci": "Dromas ardeola",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4616,
+   "inatSci": "Dromas ardeola"
+  },
+  {
+   "names": [
+    "Greater Sand Plover"
+   ],
+   "sci": "Anarhynchus leschenaultii",
+   "codes": [],
+   "pei": false,
+   "inat": 1505629,
+   "inatSci": "Anarhynchus leschenaultii"
+  },
+  {
+   "names": [
+    "Red-headed Quelea"
+   ],
+   "sci": "Quelea erythrops",
+   "codes": [],
+   "pei": false,
+   "inat": 14006,
+   "inatSci": "Quelea erythrops"
+  },
+  {
+   "names": [
+    "Grey Plover"
+   ],
+   "sci": "Pluvialis squatarola",
+   "codes": [
+    "NT",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 4892,
+   "inatSci": "Pluvialis squatarola"
+  },
+  {
+   "names": [
+    "African Rail"
+   ],
+   "sci": "Rallus caerulescens",
+   "codes": [],
+   "pei": false,
+   "inat": 248,
+   "inatSci": "Rallus caerulescens"
+  },
+  {
+   "names": [
+    "Kittlitz's Plover"
+   ],
+   "sci": "Anarhynchus pecuarius",
+   "codes": [],
+   "pei": false,
+   "inat": 1505668,
+   "inatSci": "Anarhynchus pecuarius"
+  },
+  {
+   "names": [
+    "White-necked Raven"
+   ],
+   "sci": "Corvus albicollis",
+   "codes": [],
+   "pei": false,
+   "inat": 8004,
+   "inatSci": "Corvus albicollis"
+  },
+  {
+   "names": [
+    "Little Ringed Plover"
+   ],
+   "sci": "Thinornis dubius",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 1580336,
+   "inatSci": "Thinornis dubius"
+  },
+  {
+   "names": [
+    "Common Redshank"
+   ],
+   "sci": "Tringa totanus",
+   "codes": [],
+   "pei": false,
+   "inat": 3879,
+   "inatSci": "Tringa totanus"
+  },
+  {
+   "names": [
+    "Pacific Golden Plover"
+   ],
+   "sci": "Pluvialis fulva",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4896,
+   "inatSci": "Pluvialis fulva"
+  },
+  {
+   "names": [
+    "Spotted Redshank"
+   ],
+   "sci": "Tringa erythropus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 3882,
+   "inatSci": "Tringa erythropus"
+  },
+  {
+   "names": [
+    "Three-banded Plover"
+   ],
+   "sci": "Thinornis tricollaris",
+   "codes": [],
+   "pei": false,
+   "inat": 1580335,
+   "inatSci": "Thinornis tricollaris"
+  },
+  {
+   "names": [
+    "Common Redstart"
+   ],
+   "sci": "Phoenicurus phoenicurus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 12992,
+   "inatSci": "Phoenicurus phoenicurus"
+  },
+  {
+   "names": [
+    "Tibetan Sand Plover"
+   ],
+   "sci": "Anarhynchus atrifrons",
+   "codes": [],
+   "pei": false,
+   "inat": 1505780,
+   "inatSci": "Anarhynchus atrifrons"
+  },
+  {
+   "names": [
+    "Bearded Scrub Robin"
+   ],
+   "sci": "Tychaedon quadrivirgata",
+   "codes": [],
+   "pei": false,
+   "inat": 1585991,
+   "inatSci": "Tychaedon quadrivirgata"
+  },
+  {
+   "names": [
+    "White-fronted Plover"
+   ],
+   "sci": "Anarhynchus marginatus",
+   "codes": [],
+   "pei": false,
+   "inat": 1505776,
+   "inatSci": "Anarhynchus marginatus"
+  },
+  {
+   "names": [
+    "Brown Scrub Robin"
+   ],
+   "sci": "Tychaedon signata",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 1585985,
+   "inatSci": "Tychaedon signata"
+  },
+  {
+   "names": [
+    "Southern Pochard"
+   ],
+   "sci": "Netta erythrophthalma",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 7123,
+   "inatSci": "Netta erythrophthalma"
+  },
+  {
+   "names": [
+    "Kalahari Scrub Robin"
+   ],
+   "sci": "Cercotrichas paena",
+   "codes": [],
+   "pei": false,
+   "inat": 145028,
+   "inatSci": "Cercotrichas paena"
+  },
+  {
+   "names": [
+    "Black-winged Pratincole"
+   ],
+   "sci": "Glareola nordmanni",
+   "codes": [
+    "LC",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 4605,
+   "inatSci": "Glareola nordmanni"
+  },
+  {
+   "names": [
+    "Karoo Scrub Robin"
+   ],
+   "sci": "Tychaedon coryphoeus",
+   "codes": [],
+   "pei": false,
+   "inat": 1585977,
+   "inatSci": "Tychaedon coryphoeus"
+  },
+  {
+   "names": [
+    "Collared Pratincole"
+   ],
+   "sci": "Glareola pratincola",
+   "codes": [],
+   "pei": false,
+   "inat": 4604,
+   "inatSci": "Glareola pratincola"
+  },
+  {
+   "names": [
+    "Rufous-tailed Scrub Robin"
+   ],
+   "sci": "Cercotrichas galactotes",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 145026,
+   "inatSci": "Cercotrichas galactotes"
+  },
+  {
+   "names": [
+    "Madagascar Pratincole"
+   ],
+   "sci": "Glareola ocularis",
+   "codes": [
+    "NA",
+    "NT",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4607,
+   "inatSci": "Glareola ocularis"
+  },
+  {
+   "names": [
+    "White-browed Scrub Robin"
+   ],
+   "sci": "Cercotrichas leucophrys",
+   "codes": [],
+   "pei": false,
+   "inat": 145030,
+   "inatSci": "Cercotrichas leucophrys"
+  },
+  {
+   "names": [
+    "Rock Pratincole"
+   ],
+   "sci": "Glareola nuchalis",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4603,
+   "inatSci": "Glareola nuchalis"
+  },
+  {
+   "names": [
+    "White-starred Robin"
+   ],
+   "sci": "Pogonocichla stellata",
+   "codes": [],
+   "pei": false,
+   "inat": 13272,
+   "inatSci": "Pogonocichla stellata"
+  },
+  {
+   "names": [
+    "Black-chested Prinia"
+   ],
+   "sci": "Prinia flavicans",
+   "codes": [],
+   "pei": false,
+   "inat": 7721,
+   "inatSci": "Prinia flavicans"
+  },
+  {
+   "names": [
+    "White-throated Robin"
+   ],
+   "sci": "Irania gutturalis",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 13196,
+   "inatSci": "Irania gutturalis"
+  },
+  {
+   "names": [
+    "Drakensberg Prinia"
+   ],
+   "sci": "Prinia hypoxantha",
+   "codes": [
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 73278,
+   "inatSci": "Prinia hypoxantha"
+  },
+  {
+   "names": [
+    "Cape Robin-chat"
+   ],
+   "sci": "Dessonornis caffer",
+   "codes": [],
+   "pei": false,
+   "inat": 1585912,
+   "inatSci": "Dessonornis caffer"
+  },
+  {
+   "names": [
+    "Karoo Prinia"
+   ],
+   "sci": "Prinia maculosa",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 7730,
+   "inatSci": "Prinia maculosa"
+  },
+  {
+   "names": [
+    "Chorister Robin-chat"
+   ],
+   "sci": "Cossypha dichroa",
+   "codes": [
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 12796,
+   "inatSci": "Cossypha dichroa"
+  },
+  {
+   "names": [
+    "Tawny-flanked Prinia"
+   ],
+   "sci": "Prinia subflava",
+   "codes": [],
+   "pei": false,
+   "inat": 7729,
+   "inatSci": "Prinia subflava"
+  },
+  {
+   "names": [
+    "Red-capped Robin-chat"
+   ],
+   "sci": "Cossypha natalensis",
+   "codes": [],
+   "pei": false,
+   "inat": 12784,
+   "inatSci": "Cossypha natalensis"
+  },
+  {
+   "names": [
+    "Antarctic Prion"
+   ],
+   "sci": "Pachyptila desolata",
+   "codes": [],
+   "pei": false,
+   "inat": 4164,
+   "inatSci": "Pachyptila desolata"
+  },
+  {
+   "names": [
+    "White-browed Robin-chat"
+   ],
+   "sci": "Cossypha heuglini",
+   "codes": [],
+   "pei": false,
+   "inat": 12792,
+   "inatSci": "Cossypha heuglini"
+  },
+  {
+   "names": [
+    "Broad-billed Prion"
+   ],
+   "sci": "Pachyptila vittata",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4159,
+   "inatSci": "Pachyptila vittata"
+  },
+  {
+   "names": [
+    "White-throated Robin-chat"
+   ],
+   "sci": "Dessonornis humeralis",
+   "codes": [],
+   "pei": false,
+   "inat": 1585917,
+   "inatSci": "Dessonornis humeralis"
+  },
+  {
+   "names": [
+    "Fairy Prion"
+   ],
+   "sci": "Pachyptila turtur",
+   "codes": [
+    "NT",
+    "LC",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4158,
+   "inatSci": "Pachyptila turtur"
+  },
+  {
+   "names": [
+    "Cape Rockjumper"
+   ],
+   "sci": "Chaetops frenatus",
+   "codes": [
+    "NT",
+    "NT",
+    "E"
+   ],
+   "pei": false,
+   "inat": 116869,
+   "inatSci": "Chaetops frenatus"
+  },
+  {
+   "names": [
+    "Salvin's Prion"
+   ],
+   "sci": "Pachyptila salvini",
+   "codes": [
+    "NT",
+    "LC",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4161,
+   "inatSci": "Pachyptila salvini"
+  },
+  {
+   "names": [
+    "Drakensberg Rockjumper"
+   ],
+   "sci": "Chaetops aurantius",
+   "codes": [
+    "LC",
+    "NT",
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 116868,
+   "inatSci": "Chaetops aurantius"
+  },
+  {
+   "names": [
+    "Slender-billed Prion"
+   ],
+   "sci": "Pachyptila belcheri",
+   "codes": [],
+   "pei": false,
+   "inat": 4163,
+   "inatSci": "Pachyptila belcheri"
+  },
+  {
+   "names": [
+    "Broad-billed Roller"
+   ],
+   "sci": "Eurystomus glaucurus",
+   "codes": [],
+   "pei": false,
+   "inat": 2288,
+   "inatSci": "Eurystomus glaucurus"
+  },
+  {
+   "names": [
+    "Black-backed Puffback"
+   ],
+   "sci": "Dryoscopus cubla",
+   "codes": [],
+   "pei": false,
+   "inat": 8296,
+   "inatSci": "Dryoscopus cubla"
+  },
+  {
+   "names": [
+    "European Roller"
+   ],
+   "sci": "Coracias garrulus",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 2266,
+   "inatSci": "Coracias garrulus"
+  },
+  {
+   "names": [
+    "Green-winged Pytilia"
+   ],
+   "sci": "Pytilia melba",
+   "codes": [],
+   "pei": false,
+   "inat": 13999,
+   "inatSci": "Pytilia melba"
+  },
+  {
+   "names": [
+    "Lilac-breasted Roller"
+   ],
+   "sci": "Coracias caudatus",
+   "codes": [],
+   "pei": false,
+   "inat": 2269,
+   "inatSci": "Coracias caudatus"
+  },
+  {
+   "names": [
+    "Orange-winged Pytilia"
+   ],
+   "sci": "Pytilia afra",
+   "codes": [],
+   "pei": false,
+   "inat": 14003,
+   "inatSci": "Pytilia afra"
+  },
+  {
+   "names": [
+    "Purple Roller"
+   ],
+   "sci": "Coracias naevius",
+   "codes": [],
+   "pei": false,
+   "inat": 144659,
+   "inatSci": "Coracias naevius"
+  },
+  {
+   "names": [
+    "Blue Quail"
+   ],
+   "sci": "Synoicus adansonii",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 505883,
+   "inatSci": "Synoicus adansonii"
+  },
+  {
+   "names": [
+    "Racket-tailed Roller"
+   ],
+   "sci": "Coracias spatulatus",
+   "codes": [],
+   "pei": false,
+   "inat": 2279,
+   "inatSci": "Coracias spatulatus"
+  },
+  {
+   "names": [
+    "Common Quail"
+   ],
+   "sci": "Coturnix coturnix",
+   "codes": [],
+   "pei": false,
+   "inat": 804,
+   "inatSci": "Coturnix coturnix"
+  },
+  {
+   "names": [
+    "Ruff"
+   ],
+   "sci": "Calidris pugnax",
+   "codes": [],
+   "pei": false,
+   "inat": 339593,
+   "inatSci": "Calidris pugnax"
+  },
+  {
+   "names": [
+    "Harlequin Quail"
+   ],
+   "sci": "Coturnix delegorguei",
+   "codes": [],
+   "pei": false,
+   "inat": 820,
+   "inatSci": "Coturnix delegorguei"
+  },
+  {
+   "names": [
+    "Sanderling"
+   ],
+   "sci": "Calidris alba",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 3849,
+   "inatSci": "Calidris alba"
+  },
+  {
+   "names": [
+    "Quailfinch"
+   ],
+   "sci": "Ortygospiza atricollis",
+   "codes": [],
+   "pei": false,
+   "inat": 204557,
+   "inatSci": "Ortygospiza atricollis"
+  },
+  {
+   "names": [
+    "Burchell's Sandgrouse"
+   ],
+   "sci": "Pterocles burchelli",
+   "codes": [],
+   "pei": false,
+   "inat": 117080,
+   "inatSci": "Pterocles burchelli"
+  },
+  {
+   "names": [
+    "Red-billed Quelea"
+   ],
+   "sci": "Quelea quelea",
+   "codes": [],
+   "pei": false,
+   "inat": 14005,
+   "inatSci": "Quelea quelea"
+  },
+  {
+   "names": [
+    "Double-banded Sandgrouse"
+   ],
+   "sci": "Pterocles bicinctus",
+   "codes": [],
+   "pei": false,
+   "inat": 117079,
+   "inatSci": "Pterocles bicinctus"
+  },
+  {
+   "names": [
+    "Namaqua Sandgrouse"
+   ],
+   "sci": "Pterocles namaqua",
+   "codes": [],
+   "pei": false,
+   "inat": 117087,
+   "inatSci": "Pterocles namaqua"
+  },
+  {
+   "names": [
+    "Cape Shoveler"
+   ],
+   "sci": "Spatula smithii",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 558436,
+   "inatSci": "Spatula smithii"
+  },
+  {
+   "names": [
+    "Yellow-throated Sandgrouse"
+   ],
+   "sci": "Pterocles gutturalis",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 117084,
+   "inatSci": "Pterocles gutturalis"
+  },
+  {
+   "names": [
+    "Crimson-breasted Shrike"
+   ],
+   "sci": "Laniarius atrococcineus",
+   "codes": [],
+   "pei": false,
+   "inat": 8211,
+   "inatSci": "Laniarius atrococcineus"
+  },
+  {
+   "names": [
+    "Baird's Sandpiper"
+   ],
+   "sci": "Calidris bairdii",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 3851,
+   "inatSci": "Calidris bairdii"
+  },
+  {
+   "names": [
+    "Lesser Grey Shrike"
+   ],
+   "sci": "Lanius minor",
+   "codes": [],
+   "pei": false,
+   "inat": 12054,
+   "inatSci": "Lanius minor"
+  },
+  {
+   "names": [
+    "Broad-billed Sandpiper"
+   ],
+   "sci": "Calidris falcinellus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 339594,
+   "inatSci": "Calidris falcinellus"
+  },
+  {
+   "names": [
+    "Magpie Shrike"
+   ],
+   "sci": "Urolestes melanoleucus",
+   "codes": [],
+   "pei": false,
+   "inat": 72762,
+   "inatSci": "Urolestes melanoleucus"
+  },
+  {
+   "names": [
+    "Buff-breasted Sandpiper"
+   ],
+   "sci": "Calidris subruficollis",
+   "codes": [
+    "LC",
+    "NT",
+    "V"
+   ],
+   "pei": false,
+   "inat": 339596,
+   "inatSci": "Calidris subruficollis"
+  },
+  {
+   "names": [
+    "Red-backed Shrike"
+   ],
+   "sci": "Lanius collurio",
+   "codes": [],
+   "pei": false,
+   "inat": 12038,
+   "inatSci": "Lanius collurio"
+  },
+  {
+   "names": [
+    "Common Sandpiper"
+   ],
+   "sci": "Actitis hypoleucos",
+   "codes": [],
+   "pei": false,
+   "inat": 3978,
+   "inatSci": "Actitis hypoleucos"
+  },
+  {
+   "names": [
+    "Red-tailed Shrike"
+   ],
+   "sci": "Lanius phoenicuroides",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 339680,
+   "inatSci": "Lanius phoenicuroides"
+  },
+  {
+   "names": [
+    "Curlew Sandpiper"
+   ],
+   "sci": "Calidris ferruginea",
+   "codes": [
+    "VU",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 3863,
+   "inatSci": "Calidris ferruginea"
+  },
+  {
+   "names": [
+    "Southern White-crowned Shrike"
+   ],
+   "sci": "Eurocephalus anguitimens",
+   "codes": [],
+   "pei": false,
+   "inat": 12060,
+   "inatSci": "Eurocephalus anguitimens"
+  },
+  {
+   "names": [
+    "Green Sandpiper"
+   ],
+   "sci": "Tringa ochropus",
+   "codes": [],
+   "pei": false,
+   "inat": 3885,
+   "inatSci": "Tringa ochropus"
+  },
+  {
+   "names": [
+    "Woodchat Shrike"
+   ],
+   "sci": "Lanius senator",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 12039,
+   "inatSci": "Lanius senator"
+  },
+  {
+   "names": [
+    "Marsh Sandpiper"
+   ],
+   "sci": "Tringa stagnatilis",
+   "codes": [],
+   "pei": false,
+   "inat": 3881,
+   "inatSci": "Tringa stagnatilis"
+  },
+  {
+   "names": [
+    "Cape Siskin"
+   ],
+   "sci": "Crithagra totta",
+   "codes": [
+    "E"
+   ],
+   "pei": false,
+   "inat": 558631,
+   "inatSci": "Crithagra totta"
+  },
+  {
+   "names": [
+    "Pectoral Sandpiper"
+   ],
+   "sci": "Calidris melanotos",
+   "codes": [],
+   "pei": false,
+   "inat": 3865,
+   "inatSci": "Calidris melanotos"
+  },
+  {
+   "names": [
+    "Drakensberg Siskin"
+   ],
+   "sci": "Crithagra symonsi",
+   "codes": [
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 558632,
+   "inatSci": "Crithagra symonsi"
+  },
+  {
+   "names": [
+    "Terek Sandpiper"
+   ],
+   "sci": "Xenus cinereus",
+   "codes": [],
+   "pei": false,
+   "inat": 3969,
+   "inatSci": "Xenus cinereus"
+  },
+  {
+   "names": [
+    "African Skimmer"
+   ],
+   "sci": "Rynchops flavirostris",
+   "codes": [],
+   "pei": false,
+   "inat": 4499,
+   "inatSci": "Rynchops flavirostris"
+  },
+  {
+   "names": [
+    "White-rumped Sandpiper"
+   ],
+   "sci": "Calidris fuscicollis",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 3866,
+   "inatSci": "Calidris fuscicollis"
+  },
+  {
+   "names": [
+    "Black Skimmer"
+   ],
+   "sci": "Rynchops niger",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4496,
+   "inatSci": "Rynchops niger"
+  },
+  {
+   "names": [
+    "Wood Sandpiper"
+   ],
+   "sci": "Tringa glareola",
+   "codes": [],
+   "pei": false,
+   "inat": 3888,
+   "inatSci": "Tringa glareola"
+  },
+  {
+   "names": [
+    "Brown Skua",
+    "Subantarctic Skua"
+   ],
+   "sci": "Stercorarius antarcticus",
+   "codes": [
+    "EN",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 339921,
+   "inatSci": "Stercorarius antarcticus"
+  },
+  {
+   "names": [
+    "Black Saw-wing"
+   ],
+   "sci": "Psalidoprocne pristoptera",
+   "codes": [],
+   "pei": false,
+   "inat": 11953,
+   "inatSci": "Psalidoprocne pristoptera"
+  },
+  {
+   "names": [
+    "South Polar Skua"
+   ],
+   "sci": "Stercorarius maccormicki",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 144296,
+   "inatSci": "Stercorarius maccormicki"
+  },
+  {
+   "names": [
+    "Common Scimitarbill"
+   ],
+   "sci": "Rhinopomastus cyanomelas",
+   "codes": [],
+   "pei": false,
+   "inat": 20964,
+   "inatSci": "Rhinopomastus cyanomelas"
+  },
+  {
+   "names": [
+    "African Snipe"
+   ],
+   "sci": "Gallinago nigripennis",
+   "codes": [],
+   "pei": false,
+   "inat": 3924,
+   "inatSci": "Gallinago nigripennis"
+  },
+  {
+   "names": [
+    "Secretarybird"
+   ],
+   "sci": "Sagittarius serpentarius",
+   "codes": [
+    "VU",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 117214,
+   "inatSci": "Sagittarius serpentarius"
+  },
+  {
+   "names": [
+    "Great Snipe"
+   ],
+   "sci": "Gallinago media",
+   "codes": [
+    "NA",
+    "NT",
+    "V"
+   ],
+   "pei": false,
+   "inat": 3919,
+   "inatSci": "Gallinago media"
+  },
+  {
+   "names": [
+    "Streaky-headed Seedeater"
+   ],
+   "sci": "Crithagra gularis",
+   "codes": [],
+   "pei": false,
+   "inat": 979671,
+   "inatSci": "Crithagra gularis"
+  },
+  {
+   "names": [
+    "Cape Sparrow"
+   ],
+   "sci": "Passer melanurus",
+   "codes": [],
+   "pei": false,
+   "inat": 13853,
+   "inatSci": "Passer melanurus"
+  },
+  {
+   "names": [
+    "Cory's Shearwater"
+   ],
+   "sci": "Calonectris borealis",
+   "codes": [],
+   "pei": false,
+   "inat": 320711,
+   "inatSci": "Calonectris borealis"
+  },
+  {
+   "names": [
+    "Great Sparrow"
+   ],
+   "sci": "Passer motitensis",
+   "codes": [],
+   "pei": false,
+   "inat": 13867,
+   "inatSci": "Passer motitensis"
+  },
+  {
+   "names": [
+    "Flesh-footed Shearwater"
+   ],
+   "sci": "Ardenna carneipes",
+   "codes": [
+    "LC",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 475119,
+   "inatSci": "Ardenna carneipes"
+  },
+  {
+   "names": [
+    "House Sparrow"
+   ],
+   "sci": "Passer domesticus",
+   "codes": [
+    "I"
+   ],
+   "pei": false,
+   "inat": 13858,
+   "inatSci": "Passer domesticus"
+  },
+  {
+   "names": [
+    "Great Shearwater"
+   ],
+   "sci": "Ardenna gravis",
+   "codes": [],
+   "pei": false,
+   "inat": 475120,
+   "inatSci": "Ardenna gravis"
+  },
+  {
+   "names": [
+    "Southern Grey-headed Sparrow"
+   ],
+   "sci": "Passer diffusus",
+   "codes": [],
+   "pei": false,
+   "inat": 73152,
+   "inatSci": "Passer diffusus"
+  },
+  {
+   "names": [
+    "Little Shearwater"
+   ],
+   "sci": "Puffinus assimilis",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 979929,
+   "inatSci": "Puffinus assimilis"
+  },
+  {
+   "names": [
+    "Black Sparrowhawk"
+   ],
+   "sci": "Astur melanoleucus",
+   "codes": [],
+   "pei": false,
+   "inat": 1578999,
+   "inatSci": "Astur melanoleucus"
+  },
+  {
+   "names": [
+    "Manx Shearwater"
+   ],
+   "sci": "Puffinus puffinus",
+   "codes": [],
+   "pei": false,
+   "inat": 4093,
+   "inatSci": "Puffinus puffinus"
+  },
+  {
+   "names": [
+    "Little Sparrowhawk"
+   ],
+   "sci": "Tachyspiza minulla",
+   "codes": [],
+   "pei": false,
+   "inat": 1582755,
+   "inatSci": "Tachyspiza minulla"
+  },
+  {
+   "names": [
+    "Sooty Shearwater"
+   ],
+   "sci": "Ardenna grisea",
+   "codes": [
+    "NT",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 502899,
+   "inatSci": "Ardenna grisea"
+  },
+  {
+   "names": [
+    "Ovambo Sparrowhawk"
+   ],
+   "sci": "Accipiter ovampensis",
+   "codes": [],
+   "pei": false,
+   "inat": 5133,
+   "inatSci": "Accipiter ovampensis"
+  },
+  {
+   "names": [
+    "Streaked Shearwater"
+   ],
+   "sci": "Calonectris leucomelas",
+   "codes": [
+    "NA",
+    "NT",
+    "V"
+   ],
+   "pei": false,
+   "inat": 4189,
+   "inatSci": "Calonectris leucomelas"
+  },
+  {
+   "names": [
+    "Rufous-breasted Sparrowhawk"
+   ],
+   "sci": "Accipiter rufiventris",
+   "codes": [],
+   "pei": false,
+   "inat": 5141,
+   "inatSci": "Accipiter rufiventris"
+  },
+  {
+   "names": [
+    "Subantarctic Shearwater"
+   ],
+   "sci": "Puffinus elegans",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 979930,
+   "inatSci": "Puffinus elegans"
+  },
+  {
+   "names": [
+    "White-browed Sparrow-weaver"
+   ],
+   "sci": "Plocepasser mahali",
+   "codes": [],
+   "pei": false,
+   "inat": 14115,
+   "inatSci": "Plocepasser mahali"
+  },
+  {
+   "names": [
+    "Tropical Shearwater"
+   ],
+   "sci": "Puffinus bailloni",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 979927,
+   "inatSci": "Puffinus bailloni"
+  },
+  {
+   "names": [
+    "Böhm's Spinetail"
+   ],
+   "sci": "Neafrapus boehmi",
+   "codes": [],
+   "pei": false,
+   "inat": 6692,
+   "inatSci": "Neafrapus boehmi"
+  },
+  {
+   "names": [
+    "Wedge-tailed Shearwater"
+   ],
+   "sci": "Ardenna pacifica",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 475125,
+   "inatSci": "Ardenna pacifica"
+  },
+  {
+   "names": [
+    "Mottled Spinetail"
+   ],
+   "sci": "Telacanthura ussheri",
+   "codes": [],
+   "pei": false,
+   "inat": 6880,
+   "inatSci": "Telacanthura ussheri"
+  },
+  {
+   "names": [
+    "Snowy Sheathbill",
+    "Greater Sheathbill"
+   ],
+   "sci": "Chionis albus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 72660,
+   "inatSci": "Chionis albus"
+  },
+  {
+   "names": [
+    "African Spoonbill"
+   ],
+   "sci": "Platalea alba",
+   "codes": [],
+   "pei": false,
+   "inat": 3734,
+   "inatSci": "Platalea alba"
+  },
+  {
+   "names": [
+    "South African Shelduck"
+   ],
+   "sci": "Tadorna cana",
+   "codes": [],
+   "pei": false,
+   "inat": 7071,
+   "inatSci": "Tadorna cana"
+  },
+  {
+   "names": [
+    "Cape Spurfowl"
+   ],
+   "sci": "Pternistis capensis",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 343746,
+   "inatSci": "Pternistis capensis"
+  },
+  {
+   "names": [
+    "Shikra"
+   ],
+   "sci": "Tachyspiza badia",
+   "codes": [],
+   "pei": false,
+   "inat": 1583224,
+   "inatSci": "Tachyspiza badia"
+  },
+  {
+   "names": [
+    "Natal Spurfowl"
+   ],
+   "sci": "Pternistis natalensis",
+   "codes": [],
+   "pei": false,
+   "inat": 495975,
+   "inatSci": "Pternistis natalensis"
+  },
+  {
+   "names": [
+    "Red-billed Spurfowl"
+   ],
+   "sci": "Pternistis adspersus",
+   "codes": [],
+   "pei": false,
+   "inat": 495974,
+   "inatSci": "Pternistis adspersus"
+  },
+  {
+   "names": [
+    "Gurney's Sugarbird"
+   ],
+   "sci": "Promerops gurneyi",
+   "codes": [
+    "LC",
+    "NT",
+    "NE"
+   ],
+   "pei": false,
+   "inat": 13443,
+   "inatSci": "Promerops gurneyi"
+  },
+  {
+   "names": [
+    "Red-necked Spurfowl"
+   ],
+   "sci": "Pternistis afer",
+   "codes": [],
+   "pei": false,
+   "inat": 495994,
+   "inatSci": "Pternistis afer"
+  },
+  {
+   "names": [
+    "Amethyst Sunbird"
+   ],
+   "sci": "Chalcomitra amethystina",
+   "codes": [],
+   "pei": false,
+   "inat": 145142,
+   "inatSci": "Chalcomitra amethystina"
+  },
+  {
+   "names": [
+    "Swainson's Spurfowl"
+   ],
+   "sci": "Pternistis swainsonii",
+   "codes": [],
+   "pei": false,
+   "inat": 495984,
+   "inatSci": "Pternistis swainsonii"
+  },
+  {
+   "names": [
+    "Collared Sunbird"
+   ],
+   "sci": "Hedydipna collaris",
+   "codes": [],
+   "pei": false,
+   "inat": 145122,
+   "inatSci": "Hedydipna collaris"
+  },
+  {
+   "names": [
+    "Black-bellied Starling"
+   ],
+   "sci": "Notopholia corusca",
+   "codes": [],
+   "pei": false,
+   "inat": 979832,
+   "inatSci": "Notopholia corusca"
+  },
+  {
+   "names": [
+    "Dusky Sunbird"
+   ],
+   "sci": "Cinnyris fuscus",
+   "codes": [],
+   "pei": false,
+   "inat": 145189,
+   "inatSci": "Cinnyris fuscus"
+  },
+  {
+   "names": [
+    "Burchell's Starling"
+   ],
+   "sci": "Lamprotornis australis",
+   "codes": [],
+   "pei": false,
+   "inat": 14931,
+   "inatSci": "Lamprotornis australis"
+  },
+  {
+   "names": [
+    "Greater Double-collared Sunbird"
+   ],
+   "sci": "Cinnyris afer",
+   "codes": [
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 145163,
+   "inatSci": "Cinnyris afer"
+  },
+  {
+   "names": [
+    "Cape Glossy Starling",
+    "Cape Starling"
+   ],
+   "sci": "Lamprotornis nitens",
+   "codes": [],
+   "pei": false,
+   "inat": 14930,
+   "inatSci": "Lamprotornis nitens"
+  },
+  {
+   "names": [
+    "Grey Sunbird"
+   ],
+   "sci": "Cyanomitra veroxii",
+   "codes": [],
+   "pei": false,
+   "inat": 145138,
+   "inatSci": "Cyanomitra veroxii"
+  },
+  {
+   "names": [
+    "Common Starling"
+   ],
+   "sci": "Sturnus vulgaris",
+   "codes": [
+    "I"
+   ],
+   "pei": false,
+   "inat": 14850,
+   "inatSci": "Sturnus vulgaris"
+  },
+  {
+   "names": [
+    "Malachite Sunbird"
+   ],
+   "sci": "Nectarinia famosa",
+   "codes": [],
+   "pei": false,
+   "inat": 13300,
+   "inatSci": "Nectarinia famosa"
+  },
+  {
+   "names": [
+    "Greater Blue-eared Starling"
+   ],
+   "sci": "Lamprotornis chalybaeus",
+   "codes": [],
+   "pei": false,
+   "inat": 14923,
+   "inatSci": "Lamprotornis chalybaeus"
+  },
+  {
+   "names": [
+    "Marico Sunbird"
+   ],
+   "sci": "Cinnyris mariquensis",
+   "codes": [],
+   "pei": false,
+   "inat": 145170,
+   "inatSci": "Cinnyris mariquensis"
+  },
+  {
+   "names": [
+    "Lesser Blue-eared Starling",
+    "Miombo Blue-eared Starling"
+   ],
+   "sci": "Lamprotornis chloropterus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 547211,
+   "inatSci": "Lamprotornis chloropterus"
+  },
+  {
+   "names": [
+    "Neergaard's Sunbird"
+   ],
+   "sci": "Cinnyris neergaardi",
+   "codes": [
+    "VU",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 145158,
+   "inatSci": "Cinnyris neergaardi"
+  },
+  {
+   "names": [
+    "Meves's Starling"
+   ],
+   "sci": "Lamprotornis mevesii",
+   "codes": [],
+   "pei": false,
+   "inat": 14941,
+   "inatSci": "Lamprotornis mevesii"
+  },
+  {
+   "names": [
+    "Olive Sunbird"
+   ],
+   "sci": "Cyanomitra olivacea",
+   "codes": [],
+   "pei": false,
+   "inat": 145136,
+   "inatSci": "Cyanomitra olivacea"
+  },
+  {
+   "names": [
+    "Pale-winged Starling"
+   ],
+   "sci": "Onychognathus nabouroup",
+   "codes": [],
+   "pei": false,
+   "inat": 14969,
+   "inatSci": "Onychognathus nabouroup"
+  },
+  {
+   "names": [
+    "Orange-breasted Sunbird"
+   ],
+   "sci": "Anthobaphes violacea",
+   "codes": [
+    "E"
+   ],
+   "pei": false,
+   "inat": 145130,
+   "inatSci": "Anthobaphes violacea"
+  },
+  {
+   "names": [
+    "Pied Starling"
+   ],
+   "sci": "Lamprotornis bicolor",
+   "codes": [
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 517007,
+   "inatSci": "Lamprotornis bicolor"
+  },
+  {
+   "names": [
+    "Plain-backed Sunbird"
+   ],
+   "sci": "Anthreptes reichenowi",
+   "codes": [],
+   "pei": false,
+   "inat": 13365,
+   "inatSci": "Anthreptes reichenowi"
+  },
+  {
+   "names": [
+    "Red-winged Starling"
+   ],
+   "sci": "Onychognathus morio",
+   "codes": [],
+   "pei": false,
+   "inat": 204554,
+   "inatSci": "Onychognathus morio"
+  },
+  {
+   "names": [
+    "Purple-banded Sunbird"
+   ],
+   "sci": "Cinnyris bifasciatus",
+   "codes": [],
+   "pei": false,
+   "inat": 145175,
+   "inatSci": "Cinnyris bifasciatus"
+  },
+  {
+   "names": [
+    "Rosy Starling"
+   ],
+   "sci": "Pastor roseus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 145108,
+   "inatSci": "Pastor roseus"
+  },
+  {
+   "names": [
+    "Scarlet-chested Sunbird"
+   ],
+   "sci": "Chalcomitra senegalensis",
+   "codes": [],
+   "pei": false,
+   "inat": 145143,
+   "inatSci": "Chalcomitra senegalensis"
+  },
+  {
+   "names": [
+    "Violet-backed Starling"
+   ],
+   "sci": "Cinnyricinclus leucogaster",
+   "codes": [],
+   "pei": false,
+   "inat": 15030,
+   "inatSci": "Cinnyricinclus leucogaster"
+  },
+  {
+   "names": [
+    "Southern Double-collared Sunbird"
+   ],
+   "sci": "Cinnyris chalybeus",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 145157,
+   "inatSci": "Cinnyris chalybeus"
+  },
+  {
+   "names": [
+    "Wattled Starling"
+   ],
+   "sci": "Creatophora cinerea",
+   "codes": [],
+   "pei": false,
+   "inat": 15032,
+   "inatSci": "Creatophora cinerea"
+  },
+  {
+   "names": [
+    "Variable Sunbird"
+   ],
+   "sci": "Cinnyris venustus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 145188,
+   "inatSci": "Cinnyris venustus"
+  },
+  {
+   "names": [
+    "Black-winged Stilt"
+   ],
+   "sci": "Himantopus himantopus",
+   "codes": [],
+   "pei": false,
+   "inat": 4835,
+   "inatSci": "Himantopus himantopus"
+  },
+  {
+   "names": [
+    "White-bellied Sunbird"
+   ],
+   "sci": "Cinnyris talatala",
+   "codes": [],
+   "pei": false,
+   "inat": 145187,
+   "inatSci": "Cinnyris talatala"
+  },
+  {
+   "names": [
+    "Little Stint"
+   ],
+   "sci": "Calidris minuta",
+   "codes": [],
+   "pei": false,
+   "inat": 3838,
+   "inatSci": "Calidris minuta"
+  },
+  {
+   "names": [
+    "Barn Swallow"
+   ],
+   "sci": "Hirundo rustica",
+   "codes": [],
+   "pei": false,
+   "inat": 11901,
+   "inatSci": "Hirundo rustica"
+  },
+  {
+   "names": [
+    "Long-toed Stint"
+   ],
+   "sci": "Calidris subminuta",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 3848,
+   "inatSci": "Calidris subminuta"
+  },
+  {
+   "names": [
+    "Blue Swallow"
+   ],
+   "sci": "Hirundo atrocaerulea",
+   "codes": [
+    "CR",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 11897,
+   "inatSci": "Hirundo atrocaerulea"
+  },
+  {
+   "names": [
+    "Red-necked Stint"
+   ],
+   "sci": "Calidris ruficollis",
+   "codes": [
+    "NA",
+    "NT",
+    "V"
+   ],
+   "pei": false,
+   "inat": 3854,
+   "inatSci": "Calidris ruficollis"
+  },
+  {
+   "names": [
+    "European Red-rumped Swallow"
+   ],
+   "sci": "Cecropis rufula",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 1584768,
+   "inatSci": "Cecropis rufula"
+  },
+  {
+   "names": [
+    "Temminck's Stint"
+   ],
+   "sci": "Calidris temminckii",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 3837,
+   "inatSci": "Calidris temminckii"
+  },
+  {
+   "names": [
+    "Greater Striped Swallow"
+   ],
+   "sci": "Cecropis cucullata",
+   "codes": [],
+   "pei": false,
+   "inat": 144791,
+   "inatSci": "Cecropis cucullata"
+  },
+  {
+   "names": [
+    "African Stonechat"
+   ],
+   "sci": "Saxicola torquatus",
+   "codes": [],
+   "pei": false,
+   "inat": 55371,
+   "inatSci": "Saxicola torquatus"
+  },
+  {
+   "names": [
+    "Grey-rumped Swallow"
+   ],
+   "sci": "Pseudhirundo griseopyga",
+   "codes": [],
+   "pei": false,
+   "inat": 73291,
+   "inatSci": "Pseudhirundo griseopyga"
+  },
+  {
+   "names": [
+    "Abdim's Stork"
+   ],
+   "sci": "Ciconia abdimii",
+   "codes": [
+    "LC",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4732,
+   "inatSci": "Ciconia abdimii"
+  },
+  {
+   "names": [
+    "Lesser Striped Swallow"
+   ],
+   "sci": "Cecropis abyssinica",
+   "codes": [],
+   "pei": false,
+   "inat": 144795,
+   "inatSci": "Cecropis abyssinica"
+  },
+  {
+   "names": [
+    "African Woolly-necked Stork"
+   ],
+   "sci": "Ciconia microscelis",
+   "codes": [],
+   "pei": false,
+   "inat": 1429237,
+   "inatSci": "Ciconia microscelis"
+  },
+  {
+   "names": [
+    "Mosque Swallow"
+   ],
+   "sci": "Cecropis senegalensis",
+   "codes": [],
+   "pei": false,
+   "inat": 144797,
+   "inatSci": "Cecropis senegalensis"
+  },
+  {
+   "names": [
+    "Black Stork"
+   ],
+   "sci": "Ciconia nigra",
+   "codes": [
+    "EN",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4736,
+   "inatSci": "Ciconia nigra"
+  },
+  {
+   "names": [
+    "Pearl-breasted Swallow"
+   ],
+   "sci": "Hirundo dimidiata",
+   "codes": [],
+   "pei": false,
+   "inat": 11905,
+   "inatSci": "Hirundo dimidiata"
+  },
+  {
+   "names": [
+    "Marabou Stork"
+   ],
+   "sci": "Leptoptilos crumenifer",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 201031,
+   "inatSci": "Leptoptilos crumenifer"
+  },
+  {
+   "names": [
+    "Red-breasted Swallow"
+   ],
+   "sci": "Cecropis semirufa",
+   "codes": [],
+   "pei": false,
+   "inat": 144796,
+   "inatSci": "Cecropis semirufa"
+  },
+  {
+   "names": [
+    "Saddle-billed Stork"
+   ],
+   "sci": "Ephippiorhynchus senegalensis",
+   "codes": [
+    "EN",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4754,
+   "inatSci": "Ephippiorhynchus senegalensis"
+  },
+  {
+   "names": [
+    "South African Cliff Swallow"
+   ],
+   "sci": "Petrochelidon spilodera",
+   "codes": [
+    "BNE"
+   ],
+   "pei": false,
+   "inat": 144802,
+   "inatSci": "Petrochelidon spilodera"
+  },
+  {
+   "names": [
+    "White Stork"
+   ],
+   "sci": "Ciconia ciconia",
+   "codes": [],
+   "pei": false,
+   "inat": 4733,
+   "inatSci": "Ciconia ciconia"
+  },
+  {
+   "names": [
+    "White-throated Swallow"
+   ],
+   "sci": "Hirundo albigularis",
+   "codes": [],
+   "pei": false,
+   "inat": 11920,
+   "inatSci": "Hirundo albigularis"
+  },
+  {
+   "names": [
+    "Yellow-billed Stork"
+   ],
+   "sci": "Mycteria ibis",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4744,
+   "inatSci": "Mycteria ibis"
+  },
+  {
+   "names": [
+    "Wire-tailed Swallow"
+   ],
+   "sci": "Hirundo smithii",
+   "codes": [],
+   "pei": false,
+   "inat": 11896,
+   "inatSci": "Hirundo smithii"
+  },
+  {
+   "names": [
+    "Cape Sugarbird"
+   ],
+   "sci": "Promerops cafer",
+   "codes": [
+    "E"
+   ],
+   "pei": false,
+   "inat": 13442,
+   "inatSci": "Promerops cafer"
+  },
+  {
+   "names": [
+    "African Swamphen",
+    "Purple Swamphen"
+   ],
+   "sci": "Porphyrio madagascariensis",
+   "codes": [],
+   "pei": false,
+   "inat": 474333,
+   "inatSci": "Porphyrio madagascariensis"
+  },
+  {
+   "names": [
+    "Mute Swan"
+   ],
+   "sci": "Cygnus olor",
+   "codes": [
+    "I",
+    "EX"
+   ],
+   "pei": false,
+   "inat": 6921,
+   "inatSci": "Cygnus olor"
+  },
+  {
+   "names": [
+    "Saunders's Tern"
+   ],
+   "sci": "Sternula saundersi",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 144534,
+   "inatSci": "Sternula saundersi"
+  },
+  {
+   "names": [
+    "African Black Swift"
+   ],
+   "sci": "Apus barbatus",
+   "codes": [],
+   "pei": false,
+   "inat": 339935,
+   "inatSci": "Apus barbatus"
+  },
+  {
+   "names": [
+    "Sooty Tern"
+   ],
+   "sci": "Onychoprion fuscatus",
+   "codes": [],
+   "pei": false,
+   "inat": 144525,
+   "inatSci": "Onychoprion fuscatus"
+  },
+  {
+   "names": [
+    "African Palm Swift"
+   ],
+   "sci": "Cypsiurus parvus",
+   "codes": [],
+   "pei": false,
+   "inat": 6681,
+   "inatSci": "Cypsiurus parvus"
+  },
+  {
+   "names": [
+    "Whiskered Tern"
+   ],
+   "sci": "Chlidonias hybrida",
+   "codes": [],
+   "pei": false,
+   "inat": 62148,
+   "inatSci": "Chlidonias hybrida"
+  },
+  {
+   "names": [
+    "Alpine Swift"
+   ],
+   "sci": "Tachymarptis melba",
+   "codes": [],
+   "pei": false,
+   "inat": 72516,
+   "inatSci": "Tachymarptis melba"
+  },
+  {
+   "names": [
+    "White Tern"
+   ],
+   "sci": "Gygis alba",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4566,
+   "inatSci": "Gygis alba"
+  },
+  {
+   "names": [
+    "Bradfield's Swift"
+   ],
+   "sci": "Apus bradfieldi",
+   "codes": [],
+   "pei": false,
+   "inat": 6650,
+   "inatSci": "Apus bradfieldi"
+  },
+  {
+   "names": [
+    "White-cheeked Tern"
+   ],
+   "sci": "Sterna repressa",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4464,
+   "inatSci": "Sterna repressa"
+  },
+  {
+   "names": [
+    "Common Swift"
+   ],
+   "sci": "Apus apus",
+   "codes": [],
+   "pei": false,
+   "inat": 6638,
+   "inatSci": "Apus apus"
+  },
+  {
+   "names": [
+    "White-winged Tern"
+   ],
+   "sci": "Chlidonias leucopterus",
+   "codes": [],
+   "pei": false,
+   "inat": 4514,
+   "inatSci": "Chlidonias leucopterus"
+  },
+  {
+   "names": [
+    "Horus Swift"
+   ],
+   "sci": "Apus horus",
+   "codes": [],
+   "pei": false,
+   "inat": 144253,
+   "inatSci": "Apus horus"
+  },
+  {
+   "names": [
+    "Spotted Thick-knee"
+   ],
+   "sci": "Burhinus capensis",
+   "codes": [],
+   "pei": false,
+   "inat": 4922,
+   "inatSci": "Burhinus capensis"
+  },
+  {
+   "names": [
+    "Little Swift"
+   ],
+   "sci": "Apus affinis",
+   "codes": [],
+   "pei": false,
+   "inat": 6612,
+   "inatSci": "Apus affinis"
+  },
+  {
+   "names": [
+    "Water Thick-knee"
+   ],
+   "sci": "Burhinus vermiculatus",
+   "codes": [],
+   "pei": false,
+   "inat": 4926,
+   "inatSci": "Burhinus vermiculatus"
+  },
+  {
+   "names": [
+    "White-rumped Swift"
+   ],
+   "sci": "Apus caffer",
+   "codes": [],
+   "pei": false,
+   "inat": 6619,
+   "inatSci": "Apus caffer"
+  },
+  {
+   "names": [
+    "Cape Rock Thrush"
+   ],
+   "sci": "Monticola rupestris",
+   "codes": [
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 13147,
+   "inatSci": "Monticola rupestris"
+  },
+  {
+   "names": [
+    "Black-crowned Tchagra"
+   ],
+   "sci": "Tchagra senegalus",
+   "codes": [],
+   "pei": false,
+   "inat": 73475,
+   "inatSci": "Tchagra senegalus"
+  },
+  {
+   "names": [
+    "Collared Palm Thrush"
+   ],
+   "sci": "Cichladusa arquata",
+   "codes": [],
+   "pei": false,
+   "inat": 13082,
+   "inatSci": "Cichladusa arquata"
+  },
+  {
+   "names": [
+    "Brown-crowned Tchagra"
+   ],
+   "sci": "Tchagra australis",
+   "codes": [],
+   "pei": false,
+   "inat": 8446,
+   "inatSci": "Tchagra australis"
+  },
+  {
+   "names": [
+    "Groundscraper Thrush"
+   ],
+   "sci": "Turdus litsitsirupa",
+   "codes": [],
+   "pei": false,
+   "inat": 1423667,
+   "inatSci": "Turdus litsitsirupa"
+  },
+  {
+   "names": [
+    "Southern Tchagra"
+   ],
+   "sci": "Tchagra tchagra",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 8451,
+   "inatSci": "Tchagra tchagra"
+  },
+  {
+   "names": [
+    "Karoo Thrush"
+   ],
+   "sci": "Turdus smithi",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 145083,
+   "inatSci": "Turdus smithi"
+  },
+  {
+   "names": [
+    "Blue-billed Teal"
+   ],
+   "sci": "Spatula hottentota",
+   "codes": [],
+   "pei": false,
+   "inat": 558430,
+   "inatSci": "Spatula hottentota"
+  },
+  {
+   "names": [
+    "Kurrichane Thrush"
+   ],
+   "sci": "Turdus libonyana",
+   "codes": [],
+   "pei": false,
+   "inat": 201216,
+   "inatSci": "Turdus libonyana"
+  },
+  {
+   "names": [
+    "Cape Teal"
+   ],
+   "sci": "Anas capensis",
+   "codes": [],
+   "pei": false,
+   "inat": 6986,
+   "inatSci": "Anas capensis"
+  },
+  {
+   "names": [
+    "Olive Thrush"
+   ],
+   "sci": "Turdus olivaceus",
+   "codes": [],
+   "pei": false,
+   "inat": 203815,
+   "inatSci": "Turdus olivaceus"
+  },
+  {
+   "names": [
+    "Red-billed Teal"
+   ],
+   "sci": "Anas erythrorhyncha",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 6984,
+   "inatSci": "Anas erythrorhyncha"
+  },
+  {
+   "names": [
+    "Orange Ground Thrush"
+   ],
+   "sci": "Geokichla gurneyi",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 201203,
+   "inatSci": "Geokichla gurneyi"
+  },
+  {
+   "names": [
+    "Antarctic Tern"
+   ],
+   "sci": "Sterna vittata",
+   "codes": [
+    "LC",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4470,
+   "inatSci": "Sterna vittata"
+  },
+  {
+   "names": [
+    "Sentinel Rock Thrush"
+   ],
+   "sci": "Monticola explorator",
+   "codes": [
+    "LC",
+    "NT",
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 13148,
+   "inatSci": "Monticola explorator"
+  },
+  {
+   "names": [
+    "Arctic Tern"
+   ],
+   "sci": "Sterna paradisaea",
+   "codes": [],
+   "pei": false,
+   "inat": 4449,
+   "inatSci": "Sterna paradisaea"
+  },
+  {
+   "names": [
+    "Short-toed Rock Thrush"
+   ],
+   "sci": "Monticola brevipes",
+   "codes": [],
+   "pei": false,
+   "inat": 13139,
+   "inatSci": "Monticola brevipes"
+  },
+  {
+   "names": [
+    "Black Tern"
+   ],
+   "sci": "Chlidonias niger",
+   "codes": [],
+   "pei": false,
+   "inat": 4512,
+   "inatSci": "Chlidonias niger"
+  },
+  {
+   "names": [
+    "Spotted Ground Thrush"
+   ],
+   "sci": "Geokichla guttata",
+   "codes": [
+    "EN",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 201196,
+   "inatSci": "Geokichla guttata"
+  },
+  {
+   "names": [
+    "Black-naped Tern"
+   ],
+   "sci": "Sterna sumatrana",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4453,
+   "inatSci": "Sterna sumatrana"
+  },
+  {
+   "names": [
+    "Southern Red-fronted Tinkerbird"
+   ],
+   "sci": "Pogoniulus pusillus",
+   "codes": [],
+   "pei": false,
+   "inat": 117065,
+   "inatSci": "Pogoniulus pusillus"
+  },
+  {
+   "names": [
+    "Bridled Tern"
+   ],
+   "sci": "Onychoprion anaethetus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 144527,
+   "inatSci": "Onychoprion anaethetus"
+  },
+  {
+   "names": [
+    "Yellow-fronted Tinkerbird"
+   ],
+   "sci": "Pogoniulus chrysoconus",
+   "codes": [],
+   "pei": false,
+   "inat": 117062,
+   "inatSci": "Pogoniulus chrysoconus"
+  },
+  {
+   "names": [
+    "Caspian Tern"
+   ],
+   "sci": "Hydroprogne caspia",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 144537,
+   "inatSci": "Hydroprogne caspia"
+  },
+  {
+   "names": [
+    "Yellow-rumped Tinkerbird"
+   ],
+   "sci": "Pogoniulus bilineatus",
+   "codes": [],
+   "pei": false,
+   "inat": 793461,
+   "inatSci": "Pogoniulus bilineatus"
+  },
+  {
+   "names": [
+    "Common Tern"
+   ],
+   "sci": "Sterna hirundo",
+   "codes": [],
+   "pei": false,
+   "inat": 4450,
+   "inatSci": "Sterna hirundo"
+  },
+  {
+   "names": [
+    "Ashy Tit"
+   ],
+   "sci": "Melaniparus cinerascens",
+   "codes": [],
+   "pei": false,
+   "inat": 144844,
+   "inatSci": "Melaniparus cinerascens"
+  },
+  {
+   "names": [
+    "Damara Tern"
+   ],
+   "sci": "Sternula balaenarum",
+   "codes": [
+    "EN",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 144535,
+   "inatSci": "Sternula balaenarum"
+  },
+  {
+   "names": [
+    "Grey Tit"
+   ],
+   "sci": "Melaniparus afer",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 144845,
+   "inatSci": "Melaniparus afer"
+  },
+  {
+   "names": [
+    "Elegant Tern"
+   ],
+   "sci": "Thalasseus elegans",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 144542,
+   "inatSci": "Thalasseus elegans"
+  },
+  {
+   "names": [
+    "Southern Black Tit"
+   ],
+   "sci": "Melaniparus niger",
+   "codes": [],
+   "pei": false,
+   "inat": 144834,
+   "inatSci": "Melaniparus niger"
+  },
+  {
+   "names": [
+    "Greater Crested Tern",
+    "Swift Tern"
+   ],
+   "sci": "Thalasseus bergii",
+   "codes": [],
+   "pei": false,
+   "inat": 144540,
+   "inatSci": "Thalasseus bergii"
+  },
+  {
+   "names": [
+    "Chestnut-vented Tit-babbler",
+    "Chestnut-vented Warbler"
+   ],
+   "sci": "Curruca subcoerulea",
+   "codes": [],
+   "pei": false,
+   "inat": 1289485,
+   "inatSci": "Curruca subcoerulea"
+  },
+  {
+   "names": [
+    "Gull-billed Tern"
+   ],
+   "sci": "Gelochelidon nilotica",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 144536,
+   "inatSci": "Gelochelidon nilotica"
+  },
+  {
+   "names": [
+    "Layard's Tit-babbler",
+    "Layard's Warbler"
+   ],
+   "sci": "Curruca layardi",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 1289487,
+   "inatSci": "Curruca layardi"
+  },
+  {
+   "names": [
+    "Lesser Crested Tern"
+   ],
+   "sci": "Thalasseus bengalensis",
+   "codes": [],
+   "pei": false,
+   "inat": 144543,
+   "inatSci": "Thalasseus bengalensis"
+  },
+  {
+   "names": [
+    "Narina Trogon"
+   ],
+   "sci": "Apaloderma narina",
+   "codes": [],
+   "pei": false,
+   "inat": 20836,
+   "inatSci": "Apaloderma narina"
+  },
+  {
+   "names": [
+    "Little Tern"
+   ],
+   "sci": "Sternula albifrons",
+   "codes": [],
+   "pei": false,
+   "inat": 144529,
+   "inatSci": "Sternula albifrons"
+  },
+  {
+   "names": [
+    "Red-billed Tropicbird"
+   ],
+   "sci": "Phaethon aethereus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4317,
+   "inatSci": "Phaethon aethereus"
+  },
+  {
+   "names": [
+    "Roseate Tern"
+   ],
+   "sci": "Sterna dougallii",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": false,
+   "inat": 4436,
+   "inatSci": "Sterna dougallii"
+  },
+  {
+   "names": [
+    "Red-tailed Tropicbird"
+   ],
+   "sci": "Phaethon rubricauda",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4320,
+   "inatSci": "Phaethon rubricauda"
+  },
+  {
+   "names": [
+    "Sandwich Tern"
+   ],
+   "sci": "Thalasseus sandvicensis",
+   "codes": [],
+   "pei": false,
+   "inat": 144541,
+   "inatSci": "Thalasseus sandvicensis"
+  },
+  {
+   "names": [
+    "White-tailed Tropicbird"
+   ],
+   "sci": "Phaethon lepturus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 4314,
+   "inatSci": "Phaethon lepturus"
+  },
+  {
+   "names": [
+    "Knysna Turaco"
+   ],
+   "sci": "Tauraco corythaix",
+   "codes": [
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 7205,
+   "inatSci": "Tauraco corythaix"
+  },
+  {
+   "names": [
+    "Garden Warbler"
+   ],
+   "sci": "Sylvia borin",
+   "codes": [],
+   "pei": false,
+   "inat": 15302,
+   "inatSci": "Sylvia borin"
+  },
+  {
+   "names": [
+    "Livingstone's Turaco"
+   ],
+   "sci": "Tauraco livingstonii",
+   "codes": [],
+   "pei": false,
+   "inat": 7196,
+   "inatSci": "Tauraco livingstonii"
+  },
+  {
+   "names": [
+    "Great Reed Warbler"
+   ],
+   "sci": "Acrocephalus arundinaceus",
+   "codes": [],
+   "pei": false,
+   "inat": 204456,
+   "inatSci": "Acrocephalus arundinaceus"
+  },
+  {
+   "names": [
+    "Purple-crested Turaco"
+   ],
+   "sci": "Gallirex porphyreolophus",
+   "codes": [],
+   "pei": false,
+   "inat": 1505988,
+   "inatSci": "Gallirex porphyreolophus"
+  },
+  {
+   "names": [
+    "Icterine Warbler"
+   ],
+   "sci": "Hippolais icterina",
+   "codes": [],
+   "pei": false,
+   "inat": 116918,
+   "inatSci": "Hippolais icterina"
+  },
+  {
+   "names": [
+    "Ruddy Turnstone"
+   ],
+   "sci": "Arenaria interpres",
+   "codes": [
+    "NT",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 3938,
+   "inatSci": "Arenaria interpres"
+  },
+  {
+   "names": [
+    "Knysna Warbler"
+   ],
+   "sci": "Bradypterus sylvaticus",
+   "codes": [
+    "NT",
+    "VU",
+    "E"
+   ],
+   "pei": false,
+   "inat": 117190,
+   "inatSci": "Bradypterus sylvaticus"
+  },
+  {
+   "names": [
+    "Green Twinspot"
+   ],
+   "sci": "Mandingoa nitidula",
+   "codes": [],
+   "pei": false,
+   "inat": 14132,
+   "inatSci": "Mandingoa nitidula"
+  },
+  {
+   "names": [
+    "Lesser Swamp Warbler"
+   ],
+   "sci": "Acrocephalus gracilirostris",
+   "codes": [],
+   "pei": false,
+   "inat": 116798,
+   "inatSci": "Acrocephalus gracilirostris"
+  },
+  {
+   "names": [
+    "Pink-throated Twinspot"
+   ],
+   "sci": "Hypargos margaritatus",
+   "codes": [],
+   "pei": false,
+   "inat": 14045,
+   "inatSci": "Hypargos margaritatus"
+  },
+  {
+   "names": [
+    "Little Rush Warbler"
+   ],
+   "sci": "Bradypterus baboecala",
+   "codes": [],
+   "pei": false,
+   "inat": 116814,
+   "inatSci": "Bradypterus baboecala"
+  },
+  {
+   "names": [
+    "Red-throated Twinspot"
+   ],
+   "sci": "Hypargos niveoguttatus",
+   "codes": [],
+   "pei": false,
+   "inat": 14044,
+   "inatSci": "Hypargos niveoguttatus"
+  },
+  {
+   "names": [
+    "Marsh Warbler"
+   ],
+   "sci": "Acrocephalus palustris",
+   "codes": [],
+   "pei": false,
+   "inat": 116802,
+   "inatSci": "Acrocephalus palustris"
+  },
+  {
+   "names": [
+    "Bearded Vulture"
+   ],
+   "sci": "Gypaetus barbatus",
+   "codes": [
+    "CR",
+    "NT"
+   ],
+   "pei": false,
+   "inat": 5379,
+   "inatSci": "Gypaetus barbatus"
+  },
+  {
+   "names": [
+    "Namaqua Warbler"
+   ],
+   "sci": "Phragmacia substriata",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 73280,
+   "inatSci": "Phragmacia substriata"
+  },
+  {
+   "names": [
+    "Cape Vulture"
+   ],
+   "sci": "Gyps coprotheres",
+   "codes": [
+    "VU",
+    "VU"
+   ],
+   "pei": false,
+   "inat": 5365,
+   "inatSci": "Gyps coprotheres"
+  },
+  {
+   "names": [
+    "Olive-tree Warbler"
+   ],
+   "sci": "Hippolais olivetorum",
+   "codes": [],
+   "pei": false,
+   "inat": 116920,
+   "inatSci": "Hippolais olivetorum"
+  },
+  {
+   "names": [
+    "Egyptian Vulture"
+   ],
+   "sci": "Neophron percnopterus",
+   "codes": [
+    "NA",
+    "EN",
+    "V"
+   ],
+   "pei": false,
+   "inat": 5361,
+   "inatSci": "Neophron percnopterus"
+  },
+  {
+   "names": [
+    "River Warbler"
+   ],
+   "sci": "Locustella fluviatilis",
+   "codes": [],
+   "pei": false,
+   "inat": 116938,
+   "inatSci": "Locustella fluviatilis"
+  },
+  {
+   "names": [
+    "Hooded Vulture"
+   ],
+   "sci": "Necrosyrtes monachus",
+   "codes": [
+    "CR",
+    "CR"
+   ],
+   "pei": false,
+   "inat": 5426,
+   "inatSci": "Necrosyrtes monachus"
+  },
+  {
+   "names": [
+    "Rufous-eared Warbler"
+   ],
+   "sci": "Malcorus pectoralis",
+   "codes": [],
+   "pei": false,
+   "inat": 7703,
+   "inatSci": "Malcorus pectoralis"
+  },
+  {
+   "names": [
+    "Lappet-faced Vulture"
+   ],
+   "sci": "Torgos tracheliotos",
+   "codes": [
+    "CR",
+    "EN"
+   ],
+   "pei": false,
+   "inat": 5401,
+   "inatSci": "Torgos tracheliotos"
+  },
+  {
+   "names": [
+    "Sedge Warbler"
+   ],
+   "sci": "Acrocephalus schoenobaenus",
+   "codes": [],
+   "pei": false,
+   "inat": 116804,
+   "inatSci": "Acrocephalus schoenobaenus"
+  },
+  {
+   "names": [
+    "Palm-nut Vulture"
+   ],
+   "sci": "Gypohierax angolensis",
+   "codes": [],
+   "pei": false,
+   "inat": 5418,
+   "inatSci": "Gypohierax angolensis"
+  },
+  {
+   "names": [
+    "Stierling's Wren- Warbler"
+   ],
+   "sci": "Calamonastes stierlingi",
+   "codes": [],
+   "pei": false,
+   "inat": 467251,
+   "inatSci": "Calamonastes stierlingi"
+  },
+  {
+   "names": [
+    "Rüppell's Vulture"
+   ],
+   "sci": "Gyps rueppelli",
+   "codes": [
+    "NA",
+    "CR",
+    "V"
+   ],
+   "pei": false,
+   "inat": 327608,
+   "inatSci": "Gyps rueppelli"
+  },
+  {
+   "names": [
+    "Upcher's Warbler"
+   ],
+   "sci": "Hippolais languida",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 116919,
+   "inatSci": "Hippolais languida"
+  },
+  {
+   "names": [
+    "White-backed Vulture"
+   ],
+   "sci": "Gyps africanus",
+   "codes": [
+    "CR",
+    "CR"
+   ],
+   "pei": false,
+   "inat": 5363,
+   "inatSci": "Gyps africanus"
+  },
+  {
+   "names": [
+    "Victorin's Warbler"
+   ],
+   "sci": "Cryptillas victorini",
+   "codes": [
+    "E"
+   ],
+   "pei": false,
+   "inat": 144920,
+   "inatSci": "Cryptillas victorini"
+  },
+  {
+   "names": [
+    "White-headed Vulture"
+   ],
+   "sci": "Trigonoceps occipitalis",
+   "codes": [
+    "CR",
+    "CR"
+   ],
+   "pei": false,
+   "inat": 5392,
+   "inatSci": "Trigonoceps occipitalis"
+  },
+  {
+   "names": [
+    "Willow Warbler"
+   ],
+   "sci": "Phylloscopus trochilus",
+   "codes": [],
+   "pei": false,
+   "inat": 117055,
+   "inatSci": "Phylloscopus trochilus"
+  },
+  {
+   "names": [
+    "African Pied Wagtail"
+   ],
+   "sci": "Motacilla aguimp",
+   "codes": [],
+   "pei": false,
+   "inat": 13701,
+   "inatSci": "Motacilla aguimp"
+  },
+  {
+   "names": [
+    "Wood Warbler"
+   ],
+   "sci": "Phylloscopus sibilatrix",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 117048,
+   "inatSci": "Phylloscopus sibilatrix"
+  },
+  {
+   "names": [
+    "Cape Wagtail"
+   ],
+   "sci": "Motacilla capensis",
+   "codes": [],
+   "pei": false,
+   "inat": 13699,
+   "inatSci": "Motacilla capensis"
+  },
+  {
+   "names": [
+    "Yellow-throated Woodland Warbler"
+   ],
+   "sci": "Phylloscopus ruficapilla",
+   "codes": [],
+   "pei": false,
+   "inat": 117045,
+   "inatSci": "Phylloscopus ruficapilla"
+  },
+  {
+   "names": [
+    "Citrine Wagtail"
+   ],
+   "sci": "Motacilla citreola",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 13687,
+   "inatSci": "Motacilla citreola"
+  },
+  {
+   "names": [
+    "Black-throated Wattle-eye"
+   ],
+   "sci": "Platysteira peltata",
+   "codes": [],
+   "pei": false,
+   "inat": 8453,
+   "inatSci": "Platysteira peltata"
+  },
+  {
+   "names": [
+    "Grey Wagtail"
+   ],
+   "sci": "Motacilla cinerea",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 13688,
+   "inatSci": "Motacilla cinerea"
+  },
+  {
+   "names": [
+    "Black-faced Waxbill"
+   ],
+   "sci": "Brunhilda erythronotos",
+   "codes": [],
+   "pei": false,
+   "inat": 1289377,
+   "inatSci": "Brunhilda erythronotos"
+  },
+  {
+   "names": [
+    "Mountain Wagtail"
+   ],
+   "sci": "Motacilla clara",
+   "codes": [],
+   "pei": false,
+   "inat": 13704,
+   "inatSci": "Motacilla clara"
+  },
+  {
+   "names": [
+    "Blue Waxbill"
+   ],
+   "sci": "Uraeginthus angolensis",
+   "codes": [],
+   "pei": false,
+   "inat": 14026,
+   "inatSci": "Uraeginthus angolensis"
+  },
+  {
+   "names": [
+    "Western Yellow Wagtail"
+   ],
+   "sci": "Motacilla flava",
+   "codes": [],
+   "pei": false,
+   "inat": 204545,
+   "inatSci": "Motacilla flava"
+  },
+  {
+   "names": [
+    "Common Waxbill"
+   ],
+   "sci": "Estrilda astrild",
+   "codes": [],
+   "pei": false,
+   "inat": 13770,
+   "inatSci": "Estrilda astrild"
+  },
+  {
+   "names": [
+    "White Wagtail"
+   ],
+   "sci": "Motacilla alba",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 13695,
+   "inatSci": "Motacilla alba"
+  },
+  {
+   "names": [
+    "Grey Waxbill"
+   ],
+   "sci": "Glaucestrilda perreini",
+   "codes": [],
+   "pei": false,
+   "inat": 1289374,
+   "inatSci": "Glaucestrilda perreini"
+  },
+  {
+   "names": [
+    "Barratt's Warbler"
+   ],
+   "sci": "Bradypterus barratti",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 116815,
+   "inatSci": "Bradypterus barratti"
+  },
+  {
+   "names": [
+    "Orange-breasted Waxbill"
+   ],
+   "sci": "Amandava subflava",
+   "codes": [],
+   "pei": false,
+   "inat": 1289371,
+   "inatSci": "Amandava subflava"
+  },
+  {
+   "names": [
+    "Barred Wren- Warbler"
+   ],
+   "sci": "Calamonastes fasciolatus",
+   "codes": [],
+   "pei": false,
+   "inat": 144947,
+   "inatSci": "Calamonastes fasciolatus"
+  },
+  {
+   "names": [
+    "Swee Waxbill"
+   ],
+   "sci": "Coccopygia melanotis",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 979663,
+   "inatSci": "Coccopygia melanotis"
+  },
+  {
+   "names": [
+    "Basra Reed Warbler"
+   ],
+   "sci": "Acrocephalus griseldis",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 116768,
+   "inatSci": "Acrocephalus griseldis"
+  },
+  {
+   "names": [
+    "Violet-eared Waxbill"
+   ],
+   "sci": "Granatina granatina",
+   "codes": [],
+   "pei": false,
+   "inat": 145338,
+   "inatSci": "Granatina granatina"
+  },
+  {
+   "names": [
+    "Broad-tailed Warbler",
+    "Fan-tailed Grassbird"
+   ],
+   "sci": "Catriscus brevirostris",
+   "codes": [],
+   "pei": false,
+   "inat": 1289493,
+   "inatSci": "Catriscus brevirostris"
+  },
+  {
+   "names": [
+    "African Golden Weaver",
+    "Holub's Golden Weaver"
+   ],
+   "sci": "Ploceus xanthops",
+   "codes": [],
+   "pei": false,
+   "inat": 13820,
+   "inatSci": "Ploceus xanthops"
+  },
+  {
+   "names": [
+    "Cinnamon-breasted Warbler"
+   ],
+   "sci": "Euryptila subcinnamomea",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 7782,
+   "inatSci": "Euryptila subcinnamomea"
+  },
+  {
+   "names": [
+    "Cape Weaver"
+   ],
+   "sci": "Ploceus capensis",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 13801,
+   "inatSci": "Ploceus capensis"
+  },
+  {
+   "names": [
+    "Common Reed Warbler"
+   ],
+   "sci": "Acrocephalus baeticatus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 204455,
+   "inatSci": "Acrocephalus scirpaceus"
+  },
+  {
+   "names": [
+    "Chestnut Weaver"
+   ],
+   "sci": "Ploceus rubiginosus",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 13786,
+   "inatSci": "Ploceus rubiginosus"
+  },
+  {
+   "names": [
+    "Dark-capped Yellow Warbler",
+    "African Yellow Warbler"
+   ],
+   "sci": "Iduna natalensis",
+   "codes": [],
+   "pei": false,
+   "inat": 201182,
+   "inatSci": "Iduna natalensis"
+  },
+  {
+   "names": [
+    "Dark-backed Weaver"
+   ],
+   "sci": "Ploceus bicolor",
+   "codes": [],
+   "pei": false,
+   "inat": 13788,
+   "inatSci": "Ploceus bicolor"
+  },
+  {
+   "names": [
+    "Lesser Masked Weaver"
+   ],
+   "sci": "Ploceus intermedius",
+   "codes": [],
+   "pei": false,
+   "inat": 13842,
+   "inatSci": "Ploceus intermedius"
+  },
+  {
+   "names": [
+    "Bearded Woodpecker"
+   ],
+   "sci": "Chloropicus namaquus",
+   "codes": [],
+   "pei": false,
+   "inat": 792926,
+   "inatSci": "Chloropicus namaquus"
+  },
+  {
+   "names": [
+    "Red-billed Buffalo Weaver"
+   ],
+   "sci": "Bubalornis niger",
+   "codes": [],
+   "pei": false,
+   "inat": 14143,
+   "inatSci": "Bubalornis niger"
+  },
+  {
+   "names": [
+    "Bennett's Woodpecker"
+   ],
+   "sci": "Campethera bennettii",
+   "codes": [],
+   "pei": false,
+   "inat": 204475,
+   "inatSci": "Campethera bennettii"
+  },
+  {
+   "names": [
+    "Red-headed Weaver"
+   ],
+   "sci": "Anaplectes rubriceps",
+   "codes": [],
+   "pei": false,
+   "inat": 14148,
+   "inatSci": "Anaplectes rubriceps"
+  },
+  {
+   "names": [
+    "Cardinal Woodpecker"
+   ],
+   "sci": "Dendropicos fuscescens",
+   "codes": [],
+   "pei": false,
+   "inat": 1506260,
+   "inatSci": "Dendropicos fuscescens"
+  },
+  {
+   "names": [
+    "Sociable Weaver"
+   ],
+   "sci": "Philetairus socius",
+   "codes": [],
+   "pei": false,
+   "inat": 13956,
+   "inatSci": "Philetairus socius"
+  },
+  {
+   "names": [
+    "Golden-tailed Woodpecker"
+   ],
+   "sci": "Campethera abingoni",
+   "codes": [],
+   "pei": false,
+   "inat": 17619,
+   "inatSci": "Campethera abingoni"
+  },
+  {
+   "names": [
+    "Southern Brown-throated Weaver"
+   ],
+   "sci": "Ploceus xanthopterus",
+   "codes": [],
+   "pei": false,
+   "inat": 13817,
+   "inatSci": "Ploceus xanthopterus"
+  },
+  {
+   "names": [
+    "Ground Woodpecker"
+   ],
+   "sci": "Geocolaptes olivaceus",
+   "codes": [
+    "NT",
+    "NT",
+    "SLE"
+   ],
+   "pei": false,
+   "inat": 18469,
+   "inatSci": "Geocolaptes olivaceus"
+  },
+  {
+   "names": [
+    "Southern Masked Weaver"
+   ],
+   "sci": "Ploceus velatus",
+   "codes": [],
+   "pei": false,
+   "inat": 13804,
+   "inatSci": "Ploceus velatus"
+  },
+  {
+   "names": [
+    "Knysna Woodpecker"
+   ],
+   "sci": "Campethera notata",
+   "codes": [
+    "LC",
+    "NT",
+    "E"
+   ],
+   "pei": false,
+   "inat": 17605,
+   "inatSci": "Campethera notata"
+  },
+  {
+   "names": [
+    "Spectacled Weaver"
+   ],
+   "sci": "Ploceus ocularis",
+   "codes": [],
+   "pei": false,
+   "inat": 13837,
+   "inatSci": "Ploceus ocularis"
+  },
+  {
+   "names": [
+    "Olive Woodpecker"
+   ],
+   "sci": "Dendropicos griseocephalus",
+   "codes": [],
+   "pei": false,
+   "inat": 1506403,
+   "inatSci": "Dendropicos griseocephalus"
+  },
+  {
+   "names": [
+    "Thick-billed Weaver"
+   ],
+   "sci": "Amblyospiza albifrons",
+   "codes": [],
+   "pei": false,
+   "inat": 14064,
+   "inatSci": "Amblyospiza albifrons"
+  },
+  {
+   "names": [
+    "Red-throated Wryneck"
+   ],
+   "sci": "Jynx ruficollis",
+   "codes": [],
+   "pei": false,
+   "inat": 18455,
+   "inatSci": "Jynx ruficollis"
+  },
+  {
+   "names": [
+    "Village Weaver"
+   ],
+   "sci": "Ploceus cucullatus",
+   "codes": [],
+   "pei": false,
+   "inat": 13796,
+   "inatSci": "Ploceus cucullatus"
+  },
+  {
+   "names": [
+    "Lesser Yellowlegs"
+   ],
+   "sci": "Tringa flavipes",
+   "codes": [
+    "NA",
+    "VU",
+    "V"
+   ],
+   "pei": false,
+   "inat": 3893,
+   "inatSci": "Tringa flavipes"
+  },
+  {
+   "names": [
+    "Yellow Weaver",
+    "Eastern Golden Weaver"
+   ],
+   "sci": "Ploceus subaureus",
+   "codes": [],
+   "pei": false,
+   "inat": 13836,
+   "inatSci": "Ploceus subaureus"
+  },
+  {
+   "names": [
+    "Capped Wheatear"
+   ],
+   "sci": "Oenanthe pileata",
+   "codes": [],
+   "pei": false,
+   "inat": 12839,
+   "inatSci": "Oenanthe pileata"
+  },
+  {
+   "names": [
+    "Mountain Wheatear"
+   ],
+   "sci": "Myrmecocichla monticola",
+   "codes": [],
+   "pei": false,
+   "inat": 980202,
+   "inatSci": "Myrmecocichla monticola"
+  },
+  {
+   "names": [
+    "Chinstrap Penguin"
+   ],
+   "sci": "Pygoscelis antarcticus",
+   "codes": [
+    "V"
+   ],
+   "pei": true,
+   "inat": 54549,
+   "inatSci": "Pygoscelis antarcticus"
+  },
+  {
+   "names": [
+    "Northern Wheatear"
+   ],
+   "sci": "Oenanthe oenanthe",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 12822,
+   "inatSci": "Oenanthe oenanthe"
+  },
+  {
+   "names": [
+    "Gentoo Penguin"
+   ],
+   "sci": "Pygoscelis papua",
+   "codes": [
+    "EN",
+    "LC"
+   ],
+   "pei": true,
+   "inat": 3808,
+   "inatSci": "Pygoscelis papua"
+  },
+  {
+   "names": [
+    "Pied Wheatear"
+   ],
+   "sci": "Oenanthe pleschanka",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 12830,
+   "inatSci": "Oenanthe pleschanka"
+  },
+  {
+   "names": [
+    "South Georgia Diving Petrel"
+   ],
+   "sci": "Pelecanoides georgicus",
+   "codes": [
+    "NT",
+    "LC"
+   ],
+   "pei": true,
+   "inat": 4129,
+   "inatSci": "Pelecanoides georgicus"
+  },
+  {
+   "names": [
+    "Eurasian Whimbrel"
+   ],
+   "sci": "Numenius phaeopus",
+   "codes": [],
+   "pei": false,
+   "inat": 3901,
+   "inatSci": "Numenius phaeopus"
+  },
+  {
+   "names": [
+    "Eaton's Pintail"
+   ],
+   "sci": "Anas eatoni",
+   "codes": [
+    "NA",
+    "VU",
+    "V"
+   ],
+   "pei": true,
+   "inat": 6963,
+   "inatSci": "Anas eatoni"
+  },
+  {
+   "names": [
+    "Whinchat"
+   ],
+   "sci": "Saxicola rubetra",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 12908,
+   "inatSci": "Saxicola rubetra"
+  },
+  {
+   "names": [
+    "Crozet Shag"
+   ],
+   "sci": "Leucocarbo melanogenis",
+   "codes": [
+    "EN",
+    "NR"
+   ],
+   "pei": true,
+   "inat": 1649842,
+   "inatSci": "Leucocarbo atriceps melanogenis"
+  },
+  {
+   "names": [
+    "Cape White-eye"
+   ],
+   "sci": "Zosterops virens",
+   "codes": [
+    "NE"
+   ],
+   "pei": false,
+   "inat": 472770,
+   "inatSci": "Zosterops virens"
+  },
+  {
+   "names": [
+    "Black-faced Sheathbill",
+    "Lesser Sheathbill"
+   ],
+   "sci": "Chionis minor",
+   "codes": [
+    "VU",
+    "LC"
+   ],
+   "pei": true,
+   "inat": 4781,
+   "inatSci": "Chionis minor"
+  },
+  {
+   "names": [
+    "Orange River White-eye"
+   ],
+   "sci": "Zosterops pallidus",
+   "codes": [],
+   "pei": false,
+   "inat": 472771,
+   "inatSci": "Zosterops pallidus"
+  },
+  {
+   "names": [
+    "Kerguelen Tern"
+   ],
+   "sci": "Sterna virgata",
+   "codes": [
+    "EN",
+    "NT"
+   ],
+   "pei": true,
+   "inat": 4466,
+   "inatSci": "Sterna virgata"
+  },
+  {
+   "names": [
+    "Southern Yellow White-eye"
+   ],
+   "sci": "Zosterops anderssoni",
+   "codes": [],
+   "pei": false,
+   "inat": 1286815,
+   "inatSci": "Zosterops anderssoni"
+  },
+  {
+   "names": [
+    "Common Whitethroat"
+   ],
+   "sci": "Curruca communis",
+   "codes": [],
+   "pei": false,
+   "inat": 1289470,
+   "inatSci": "Curruca communis"
+  },
+  {
+   "names": [
+    "Lesser Whitethroat"
+   ],
+   "sci": "Curruca curruca",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 1289484,
+   "inatSci": "Curruca curruca"
+  },
+  {
+   "names": [
+    "Broad-tailed Paradise Whydah"
+   ],
+   "sci": "Vidua obtusa",
+   "codes": [
+    "V"
+   ],
+   "pei": false,
+   "inat": 14016,
+   "inatSci": "Vidua obtusa"
+  },
+  {
+   "names": [
+    "Long-tailed Paradise Whydah"
+   ],
+   "sci": "Vidua paradisaea",
+   "codes": [],
+   "pei": false,
+   "inat": 204449,
+   "inatSci": "Vidua paradisaea"
+  },
+  {
+   "names": [
+    "Pin-tailed Whydah"
+   ],
+   "sci": "Vidua macroura",
+   "codes": [],
+   "pei": false,
+   "inat": 14011,
+   "inatSci": "Vidua macroura"
+  },
+  {
+   "names": [
+    "Shaft-tailed Whydah"
+   ],
+   "sci": "Vidua regia",
+   "codes": [],
+   "pei": false,
+   "inat": 14012,
+   "inatSci": "Vidua regia"
+  },
+  {
+   "names": [
+    "Fan-tailed Widowbird"
+   ],
+   "sci": "Euplectes axillaris",
+   "codes": [],
+   "pei": false,
+   "inat": 13970,
+   "inatSci": "Euplectes axillaris"
+  },
+  {
+   "names": [
+    "Long-tailed Widowbird"
+   ],
+   "sci": "Euplectes progne",
+   "codes": [],
+   "pei": false,
+   "inat": 13977,
+   "inatSci": "Euplectes progne"
+  },
+  {
+   "names": [
+    "Red-collared Widowbird"
+   ],
+   "sci": "Euplectes ardens",
+   "codes": [],
+   "pei": false,
+   "inat": 13978,
+   "inatSci": "Euplectes ardens"
+  },
+  {
+   "names": [
+    "White-winged Widowbird"
+   ],
+   "sci": "Euplectes albonotatus",
+   "codes": [],
+   "pei": false,
+   "inat": 13965,
+   "inatSci": "Euplectes albonotatus"
+  },
+  {
+   "names": [
+    "Green Wood-hoopoe"
+   ],
+   "sci": "Phoeniculus purpureus",
+   "codes": [],
+   "pei": false,
+   "inat": 20934,
+   "inatSci": "Phoeniculus purpureus"
+  }
+ ]
+}
