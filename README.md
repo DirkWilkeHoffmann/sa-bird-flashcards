@@ -43,9 +43,11 @@ It is a Progressive Web App: no App Store needed.
 - **📊 Progress**: Mastered / Learning / To be seen in your area, by group and by family. Tap a
   number, group or family to see its birds (Mastered, then Learning, then To be seen, then the
   same for other areas), and tap a bird to see its photos, call, range and description.
-- **Study one family**: *Study only these birds* on a family's list studies that family
-  across all areas. When everything in the area or family is mastered, the app says so and points
-  to the settings. The Dev
+- **Practise one family**: *Practise only these birds* on a family's list goes round that family's
+  birds (all areas) as practice only: no weights, momentum, counts, daily goal or stickers change,
+  just the green tick. A missed bird comes back after 3–5 cards; once all are named the app says
+  well done and offers the way back to the area. When everything in the area is mastered, the app
+  says so and points to the settings. The Dev
   build also shows momentum, the learning group and every pool bird's weight on the progress screen.
 - **Offline**: ⚙ → *Download this set for offline use* saves the chosen study set (1, 3 or all
   photos per bird, optionally a call, range data and Wikipedia text). Without signal the app shows
@@ -56,7 +58,8 @@ It is a Progressive Web App: no App Store needed.
   Rounds are open for 24 hours, nothing is public, and quizzes don't change learning progress. Needs Google
   sign-in. Notifications for invites and results are web push (`quiz.js`, `sw.js`, Edge Function `quiz-push`).
 - **Sign in with Google** (📊 screen): progress is saved to your account and follows you to any
-  device you sign in on. Without an account, a private sync code (same screen) does the same job.
+  device you sign in on. (Each phone still has a private sync code behind the scenes, which the account
+  links to; since 21 Nov it isn't shown, and Google is the only way to share progress between devices.)
 
 ## Data
 

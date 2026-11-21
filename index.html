@@ -153,7 +153,7 @@
         <legend>Area</legend>
         <select class="select" id="areaSelect" name="area" aria-label="Area"></select>
       </fieldset>
-      <p class="note family-now" id="familyNow" hidden>Studying <b id="familyNowName"></b> in all areas.
+      <p class="note family-now" id="familyNow" hidden>Practising <b id="familyNowName"></b> in all areas (practice doesn't change your progress).
         Pick an area, or <button class="link-btn" id="familyStop" type="button">go back to the area</button>.</p>
       <fieldset>
         <legend>Bird names</legend>
@@ -270,17 +270,6 @@
         <p class="privacy-line"><a href="privacy.html" target="_blank" rel="noopener">How your data is used</a></p>
       </div>
       <div id="progressBody"></div>
-      <h2 class="sync-title">Other devices without an account</h2>
-      <details class="sync-details">
-        <summary>Sync code (without signing in)</summary>
-      <p class="note">Your progress is also saved online under this private code. Enter the same code on another
-        device to share progress without an account. Keep it to yourself, like a password.</p>
-      <p class="sync-code"><code id="syncCode"></code> <button class="btn ghost small" id="copyCode" type="button">Copy</button></p>
-      <p class="sync-use">
-        <input class="select" id="otherCode" placeholder="Code from another device" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button class="btn ghost small" id="useCode" type="button">Use this code</button>
-      </p>
-      </details>
       <p class="note" id="syncStatus"></p>
     </form>
   </dialog>
@@ -369,7 +358,7 @@
       <span class="cmp-count" id="qpCount"></span>
     </div>
     <form class="qp-form" id="qpForm" autocomplete="off">
-      <input class="select qp-input" id="qpInput" type="text" placeholder="Type the bird's name" aria-label="The bird's name"
+      <input class="select qp-input" id="qpInput" type="text" placeholder="Which bird is this?" aria-label="Your answer"
         autocomplete="off" autocorrect="off" autocapitalize="words" spellcheck="false" enterkeyhint="done" maxlength="60">
       <div class="actions">
         <button class="btn ghost" id="qpDontKnow" type="button">Don't know</button>

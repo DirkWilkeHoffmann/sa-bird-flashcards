@@ -99,16 +99,14 @@ function renderQuiz(problem = "") {
   const body = $("quizBody");
   body.replaceChildren();
   if (!authClient) {
-    body.append(qel("p", "note", "Quizzes need a connection. Try again when you have signal."));
+    body.append(qel("p", "note", "Quizzes need a connection."));
     return;
   }
   if (!account) {
-    body.append(
-      qel("p", "quiz-lead", "Send your friends 10 birds. Everyone types the names, with a minute for each bird, and then you see how everyone did."),
-      qel("p", "note", "Quizzes are between friends only: nothing is public. Sign in so your friends can find you."),
-      qbutton("Sign in with Google", "btn google", () => signInFrom("quiz")),
-    );
-    body.querySelector(".btn.google").innerHTML = `<span aria-hidden="true">G</span> Sign in with Google`;
+    body.append(qel("p", "quiz-lead", "Send friends 10 birds and see who names the most."));
+    const b = qbutton("", "btn google", () => signInFrom("quiz"));
+    b.innerHTML = `<span aria-hidden="true">G</span> Sign in with Google`;
+    body.append(b);
     return;
   }
   if (problem) body.append(qel("p", "note quiz-problem", problem));
@@ -117,63 +115,53 @@ function renderQuiz(problem = "") {
     return;
   }
 
-  // Rounds waiting for me
-  const mineToPlay = quizRounds.filter(waitingForMe);
-  if (mineToPlay.length) {
-    body.append(qel("h3", "quiz-h", "To play"));
-    for (const r of mineToPlay) body.append(roundCard(r, true));
-  }
+  const toPlay = quizRounds.filter(waitingForMe);
+  for (const r of toPlay) body.append(roundCard(r, true));
 
-  // No friends yet: adding one comes first.
-  if (!quizFriends.length) {
-    body.append(qel("p", "quiz-lead", "Send your friends 10 birds. Everyone types the names, with a minute for each bird, and then you see how everyone did."));
-    body.append(friendsSection());
+  if (quizFriends.length) {
+    body.append(qbutton("New quiz", `btn ${toPlay.length ? "ghost" : "primary"} quiz-new`, openNewQuiz));
   } else {
-    body.append(qbutton("New quiz", "btn primary quiz-new", openNewQuiz));
+    body.append(qel("p", "quiz-lead", "Send friends 10 birds and see who names the most. Start by adding a friend."));
   }
 
-  // Rounds I've played that are still open (waiting for others)
-  const waiting = quizRounds.filter((r) => roundOpen(r) && r.my_status === "done" && r.players.some((p) => p.status === "invited" || p.status === "playing"));
-  if (waiting.length) {
-    body.append(qel("h3", "quiz-h", "Waiting for friends"));
-    for (const r of waiting) body.append(roundCard(r));
+  const rest = quizRounds.filter((r) => !waitingForMe(r));
+  if (rest.length) {
+    body.append(qel("h3", "quiz-h", "Your quizzes"));
+    for (const r of rest) body.append(roundCard(r));
   }
 
-  if (quizFriends.length) body.append(friendsSection());
-  body.append(pushSection());
-
-  const past = quizRounds.filter((r) => !waitingForMe(r) && !waiting.includes(r));
-  if (past.length) {
-    body.append(qel("h3", "quiz-h", "Past quizzes"));
-    for (const r of past) body.append(roundCard(r));
-  }
+  body.append(friendsSection());
+  const push = pushButton();
+  if (push) body.append(push);
 }
 
+// "You 8 · Dirk H. 7", or how far each player is while the quiz is on.
 function playerLine(r) {
+  const open = roundOpen(r);
   return r.players.map((p) => {
     const who = p.me ? "You" : p.name;
     if (p.status === "done") return p.score != null ? `${who} ${p.score}` : `${who} ✓`;
-    if (p.status === "declined") return `${who} (no thanks)`;
-    if (!roundOpen(r)) return `${who} (didn't play)`;
-    if (p.status === "playing") return `${who} (playing)`;
-    return `${who} (to play)`;
+    if (p.status === "declined") return `${who} –`;
+    return open ? `${who} …` : `${who} –`;
   }).join(" · ");
 }
 
 function roundCard(r, toPlay = false) {
-  const card = qel("div", "quiz-card");
-  const title = r.mine ? "Your quiz" : `${r.by} invited you`;
+  const card = qel("div", `quiz-card${toPlay ? " to-play" : ""}`);
   const head = qel("div", "quiz-card-head");
   const settled = !r.players.some((p) => p.status === "invited" || p.status === "playing");
-  head.append(qel("b", null, title), qel("span", "quiz-when", roundOpen(r) && !settled ? timeLeft(r) : shortDate(r.created_at)));
-  card.append(head, qel("p", "quiz-meta", `${r.area_name} · ${levelName(r.level)} · 10 birds`), qel("p", "quiz-players", playerLine(r)));
+  head.append(qel("b", null, `${r.area_name} · ${levelName(r.level)}`),
+    qel("span", "quiz-when", roundOpen(r) && !settled ? timeLeft(r) : shortDate(r.created_at)));
+  card.append(head);
   if (toPlay) {
+    card.append(qel("p", "quiz-meta", r.mine ? "Your quiz" : `From ${r.by}`));
     const row = qel("div", "quiz-card-actions");
-    const resume = r.my_status === "playing" && (r.my_answers?.length || 0) > 0;
-    row.append(qbutton(resume ? `Carry on (${r.my_answers.length}/10)` : "Play", "btn primary small", () => startRound(r.id)));
+    const done = r.my_answers?.length || 0;
+    row.append(qbutton(r.my_status === "playing" && done ? `Carry on (${done}/10)` : "Play", "btn primary small", () => startRound(r.id)));
     if (!r.mine && r.my_status === "invited") row.append(qbutton("No thanks", "btn ghost small", () => declineRound(r)));
     card.append(row);
   } else {
+    card.append(qel("p", "quiz-players", playerLine(r)));
     card.classList.add("tap");
     card.tabIndex = 0;
     card.setAttribute("role", "button");
@@ -201,18 +189,22 @@ function friendsSection() {
   const box = qel("section", "quiz-friends");
   box.append(qel("h3", "quiz-h", "Friends"));
 
-  const code = qel("div", "quiz-code");
-  const codeText = qel("code", null, quizMe.code);
-  code.append(qel("span", "note", "Your friend code"), codeText,
-    qbutton("Copy", "btn ghost small", async () => {
-      try { await navigator.clipboard.writeText(quizMe.code); showToast("Friend code copied", { ms: 2000 }); }
-      catch { showToast(`Your friend code is ${quizMe.code}`, { ms: 4000 }); }
-    }));
-  box.append(code, qel("p", "note", "Give your code to a friend. When they type it in, you're friends and can send each other quizzes."));
+  for (const f of quizFriends) {
+    const row = qel("div", "quiz-friend");
+    const remove = qbutton("", "quiz-remove", async () => {
+      if (!confirm(`Remove ${f.name} from your friends?`)) return;
+      try { await qrpc("quiz_remove_friend", { p_id: f.id }); await loadQuiz(true); renderQuiz(); }
+      catch { showToast("Couldn't remove them. Check your signal.", { ms: 3500 }); }
+    });
+    remove.innerHTML = icon("xmark");
+    remove.setAttribute("aria-label", `Remove ${f.name}`);
+    row.append(qel("span", null, f.name), remove);
+    box.append(row);
+  }
 
   const add = qel("form", "quiz-add");
   const input = qel("input", "select");
-  input.placeholder = "Friend's code, e.g. SAMK-2985";
+  input.placeholder = "Add a friend's code";
   input.autocomplete = "off";
   input.autocapitalize = "characters";
   input.spellcheck = false;
@@ -243,25 +235,14 @@ function friendsSection() {
   });
   box.append(add);
 
-  if (quizFriends.length) {
-    const list = qel("ul", "quiz-friend-list");
-    for (const f of quizFriends) {
-      const li = qel("li");
-      li.append(qel("span", null, f.name), qbutton("Remove", "link-btn quiz-remove", async () => {
-        if (!confirm(`Remove ${f.name} from your friends? You won't be able to send each other quizzes.`)) return;
-        try { await qrpc("quiz_remove_friend", { p_id: f.id }); await loadQuiz(true); renderQuiz(); }
-        catch { showToast("Couldn't remove them. Check your signal.", { ms: 3500 }); }
-      }));
-      list.append(li);
-    }
-    box.append(list);
-  }
-
-  const me = qel("p", "note quiz-me");
-  const nameB = qel("b", null, quizMe.name);
-  me.append("Friends see you as ", nameB, quizMe.name.endsWith(".") ? " " : ". ",
-    qbutton("Change name", "link-btn", changeQuizName), " · ",
-    qbutton("New code", "link-btn", newQuizCode));
+  const me = qel("p", "quiz-me");
+  me.append("Your code ", qel("b", "quiz-code", quizMe.code), " ",
+    qbutton("Copy", "link-btn", async () => {
+      try { await navigator.clipboard.writeText(quizMe.code); showToast("Code copied", { ms: 2000 }); }
+      catch { showToast(`Your code is ${quizMe.code}`, { ms: 4000 }); }
+    }),
+    qel("br"), "Friends see you as ", qel("b", null, quizMe.name), " ",
+    qbutton("Change", "link-btn", changeQuizName));
   box.append(me);
   return box;
 }
@@ -273,40 +254,19 @@ async function changeQuizName() {
   catch { showToast("Couldn't change your name. Check your signal.", { ms: 3500 }); }
 }
 
-async function newQuizCode() {
-  if (!confirm("Get a new friend code? Your old code stops working. Friends you have stay friends.")) return;
-  try { quizMe = await qrpc("quiz_new_code"); renderQuiz(); }
-  catch { showToast("Couldn't get a new code. Check your signal.", { ms: 3500 }); }
-}
-
 /* ---------- Notifications (web push) ---------- */
 
 const pushSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
-const onIPhone = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-const installedApp = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 
-function pushSection() {
-  const box = qel("section", "quiz-push");
-  box.append(qel("h3", "quiz-h", "Notifications"));
-  if (!pushSupported()) {
-    box.append(qel("p", "note", onIPhone() && !installedApp()
-      ? "To be told when a friend sends you a quiz, add SA Birds to your Home Screen and open it from there. Until then, a dot on the quiz button shows new invites."
-      : "This browser can't show notifications. A dot on the quiz button shows new invites."));
-    return box;
-  }
-  if (Notification.permission === "granted") {
-    box.append(qel("p", "note", "On: you're told when a friend sends you a quiz, and when everyone has played."));
-  } else if (Notification.permission === "denied") {
-    box.append(qel("p", "note", "Notifications are turned off for SA Birds in your phone's settings. A dot on the quiz button shows new invites."));
-  } else {
-    box.append(qel("p", "note", "Get a notification when a friend sends you a quiz, and when everyone has played."),
-      qbutton("Turn on notifications", "btn ghost", async (e) => {
-        e.currentTarget.disabled = true;
-        await enablePush(true);
-        renderQuiz();
-      }));
-  }
-  return box;
+// Only while notifications could be turned on and aren't yet: one button. (Without them, a dot on the
+// quiz button shows new invites.)
+function pushButton() {
+  if (!pushSupported() || Notification.permission !== "default") return null;
+  return qbutton("🔔 Tell me when friends send a quiz", "btn ghost quiz-push-btn", async (e) => {
+    e.currentTarget.disabled = true;
+    await enablePush(true);
+    renderQuiz();
+  });
 }
 
 function keyBytes(base64) {
@@ -396,10 +356,8 @@ function openNewQuiz() {
   if (!quizFriends.length) { showToast("Add a friend first, with their friend code.", { ms: 3000 }); return; }
   const sel = $("quizArea");
   sel.replaceChildren(...[...$("areaSelect").children].map((n) => n.cloneNode(true)));
-  // "Near me" only if this phone already knows where it is (it's the area being learned now).
-  const near = sel.querySelector('option[value="near"]');
-  if (near && !(settings.area === "near" && nearSet)) near.remove();
-  sel.value = settings.family ? "c:ZA" : settings.area;
+  sel.querySelector('option[value="near"]')?.remove();  // quizzes are for named areas only
+  sel.value = settings.family || settings.area === "near" ? "c:ZA" : settings.area;
   if (!sel.value) sel.value = "c:ZA";
   for (const r of document.querySelectorAll('input[name="quizLevel"]')) r.checked = r.value === "easy";
   const list = $("quizInvite");
@@ -573,6 +531,7 @@ async function startRound(id) {
   logEvent("quiz", null, { step: "play" });
   document.body.classList.add("quizzing");
   $("quizPlay").hidden = false;
+  fitQuizPlay();
   showQuizBird();
 }
 
@@ -704,6 +663,8 @@ function closeQuizPlay() {
   if (quizPlay) clearInterval(quizPlay.timer);
   quizPlay = null;
   $("quizPlay").hidden = true;
+  $("quizPlay").style.height = "";
+  $("quizPlay").style.transform = "";
   document.body.classList.remove("quizzing");
   $("qpInput").blur();
 }
@@ -722,6 +683,19 @@ async function leaveQuiz() {
   await loadQuiz(true).catch(() => {});
   renderQuiz();
 }
+
+// The play screen fills only what's visible above the keyboard, so the whole photo stays on screen
+// (smaller) while typing. Phones shrink the "visual viewport" for the keyboard and may scroll it.
+function fitQuizPlay() {
+  const vv = window.visualViewport;
+  const el = $("quizPlay");
+  if (!vv || el.hidden) return;
+  el.style.height = `${vv.height}px`;
+  el.classList.toggle("kb", vv.height < window.innerHeight - 120);  // the keyboard is up
+  el.style.transform = vv.offsetTop ? `translateY(${vv.offsetTop}px)` : "";
+}
+window.visualViewport?.addEventListener("resize", fitQuizPlay);
+window.visualViewport?.addEventListener("scroll", fitQuizPlay);
 
 $("qpForm").addEventListener("submit", (e) => { e.preventDefault(); if ($("qpInput").value.trim()) answerQuiz(); });
 $("qpDontKnow").addEventListener("click", () => answerQuiz({ skip: true }));

@@ -320,16 +320,6 @@ function startSync() {
   return first;  // the move to sabirds.co.za waits for it (see app.js)
 }
 
-async function useOtherCode() {
-  const code = $("otherCode").value.trim();
-  if (code.length < 20) { setSyncStatus("That code looks too short. Copy the whole code from the other device."); return; }
-  if (code === syncCode()) return;
-  // Can't be undone, so ask for a second tap; this phone's progress is added to the other code.
-  if (!confirmTap($("useCode"), "Tap again to use it")) return;
-  $("otherCode").value = "";
-  await adoptCode(code);
-}
-
 // After signing out, this phone starts over under a new private code. The account keeps
 // everything it learned and brings it back on the next sign-in, so a different account
 // starts clean instead of sharing the first one's progress.
@@ -409,7 +399,7 @@ function openBirdList(title, list, at = null, { others = [], family = null } = {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "btn primary study-family";
-    b.textContent = studying ? `Stop: back to ${areaNameOf(settings.area)}` : `Study only these birds (${list.length + others.length})`;
+    b.textContent = studying ? `Stop: back to ${areaNameOf(settings.area)}` : `Practise only these birds (${list.length + others.length})`;
     b.addEventListener("click", () => {
       closeSheet($("birdList"));
       closeSheet($("progress"));
@@ -588,15 +578,8 @@ function devProgress() {
 
 function openProgress() {
   renderProgress();
-  $("syncCode").textContent = syncCode();
   setSyncStatus(lastSync ? `Synced at ${lastSync.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.` : "");
   openSheet($("progress"));
 }
 
 $("progressBtn").addEventListener("click", openProgress);
-$("copyCode").addEventListener("click", async () => {
-  try { await navigator.clipboard.writeText(syncCode()); $("copyCode").textContent = "Copied"; }
-  catch { /* the code is selectable as a fallback */ }
-  setTimeout(() => { $("copyCode").textContent = "Copy"; }, 1500);
-});
-$("useCode").addEventListener("click", useOtherCode);
