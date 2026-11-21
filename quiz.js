@@ -229,6 +229,7 @@ function friendsSection() {
     try {
       const res = await qrpc("quiz_add_friend", { p_code: value });
       if (res.error === "self") showToast("That's your own code.", { ms: 3000 });
+      else if (res.error === "too_many") showToast("Too many wrong codes. Try again in an hour.", { ms: 4000 });
       else if (res.error) showToast("No one has that code. Check it and try again.", { ms: 3500 });
       else {
         showToast(`${res.name} is now your friend`, { ms: 3000 });

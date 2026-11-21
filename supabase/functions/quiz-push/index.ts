@@ -11,6 +11,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
 
+// Only the browsers' own push services (push_subscribe checks this too).
+const PUSH_HOSTS = /^https:\/\/(fcm\.googleapis\.com|updates\.push\.services\.mozilla\.com|[a-z0-9.-]+\.push\.apple\.com|[a-z0-9.-]+\.notify\.windows\.com)\//;
 const LEVELS: Record<string, string> = { beginner: "Beginner", easy: "Easy", medium: "Medium", hard: "Hard" };
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -50,7 +52,7 @@ async function send(userIds: string[], env: string, message: Record<string, unkn
   await keys();
   const { data: subs } = await db.from("push_subscriptions").select("*").in("user_id", userIds).eq("env", env);
   let sent = 0;
-  await Promise.all((subs || []).map(async (s) => {
+  await Promise.all((subs || []).filter((s) => PUSH_HOSTS.test(s.endpoint)).map(async (s) => {
     try {
       await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
         JSON.stringify(message), { TTL: 24 * 60 * 60, urgency: "high" });

@@ -358,3 +358,50 @@ $function$;
 
 -- The invite notification goes out once per round (quiz-push sets this).
 alter table public.quiz_rounds add column if not exists invite_sent boolean not null default false;
+
+-- After the security review (21 Nov): at most 20 wrong friend codes an hour per player, and push
+-- subscriptions only for the browsers' own push services. quiz_add_friend and push_subscribe were
+-- replaced with these versions (applied to Supabase as migration quiz_code_limit_push_hosts).
+create table if not exists public.quiz_code_tries (
+  user_id uuid not null references auth.users on delete cascade,
+  at timestamptz not null default now()
+);
+create index if not exists quiz_code_tries_user on public.quiz_code_tries (user_id, at);
+alter table public.quiz_code_tries enable row level security;
+
+create or replace function public.quiz_add_friend(p_code text)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+declare
+  me uuid := auth.uid();
+  them public.quiz_players;
+  tidy text := upper(regexp_replace(coalesce(p_code, ''), '\s', '', 'g'));
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  if (select count(*) from public.quiz_code_tries where user_id = me and at > now() - interval '1 hour') >= 20 then
+    return jsonb_build_object('error', 'too_many');
+  end if;
+  if tidy !~ '-' and tidy ~ '^[A-Z]+[0-9]{4}$' then tidy := regexp_replace(tidy, '([0-9]{4})$', '-\1'); end if;
+  select * into them from public.quiz_players where friend_code = tidy;
+  if not found then
+    insert into public.quiz_code_tries (user_id) values (me);
+    delete from public.quiz_code_tries where at < now() - interval '1 day';
+    return jsonb_build_object('error', 'not_found');
+  end if;
+  if them.user_id = me then return jsonb_build_object('error', 'self'); end if;
+  insert into public.quiz_friends (user_id, friend_id) values (me, them.user_id), (them.user_id, me)
+  on conflict do nothing;
+  return jsonb_build_object('id', them.user_id, 'name', them.name);
+end $$;
+
+create or replace function public.push_subscribe(p_env text, p_endpoint text, p_p256dh text, p_auth text)
+returns void language plpgsql security definer set search_path = '' as $$
+begin
+  if auth.uid() is null then raise exception 'not signed in'; end if;
+  if p_endpoint !~ '^https://(fcm\.googleapis\.com|updates\.push\.services\.mozilla\.com|[a-z0-9.-]+\.push\.apple\.com|[a-z0-9.-]+\.notify\.windows\.com)/' then
+    raise exception 'bad endpoint';
+  end if;
+  insert into public.push_subscriptions (endpoint, user_id, env, p256dh, auth)
+  values (left(p_endpoint, 1000), auth.uid(), case when p_env = 'dev' then 'dev' else 'main' end, left(p_p256dh, 200), left(p_auth, 100))
+  on conflict (endpoint) do update set user_id = excluded.user_id, env = excluded.env,
+    p256dh = excluded.p256dh, auth = excluded.auth;
+end $$;
