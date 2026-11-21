@@ -371,7 +371,9 @@ function fillQueue() {
 
 function devLine() {
   updateMomentum();
-  if (!IS_DEV || !species.length) return;
+  // The Dev line above the photos was taken out on 21 Nov 2026 (Dev looks like the main app now);
+  // the numbers are still on the progress screen (devProgress).
+  if (!IS_DEV || !species.length || !$("devLine")) return;
   const m = Learn.momentum(learn), parts = areaSplit();
   const w = card ? Learn.bird(learn, card.s.id).w : null;
   $("devLine").hidden = false;

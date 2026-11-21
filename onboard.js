@@ -482,10 +482,3 @@ $("onbSkip").addEventListener("click", () => {
   startPlaying({ skipped: true });
 });
 
-// Dev: run the walkthrough on command (as it is here, or as a phone's browser would show it).
-if (IS_DEV) {
-  $("devTour").hidden = false;
-  $("devTour").addEventListener("click", () => showWalkthrough({ home: true }));
-  $("devTourBrowser").hidden = false;
-  $("devTourBrowser").addEventListener("click", () => showWalkthrough({ browser: true }));
-}

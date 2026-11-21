@@ -46,11 +46,15 @@ It is a Progressive Web App: no App Store needed.
 - **Study one family**: *Study only these birds* on a family's list studies that family
   across all areas. When everything in the area or family is mastered, the app says so and points
   to the settings. The Dev
-  build also shows momentum, the learning group and every pool bird's weight (and a line under the
-  area on the home screen).
+  build also shows momentum, the learning group and every pool bird's weight on the progress screen.
 - **Offline**: ⚙ → *Download this set for offline use* saves the chosen study set (1, 3 or all
   photos per bird, optionally a call, range data and Wikipedia text). Without signal the app shows
   only downloaded birds. Delete downloads from the same screen.
+- **Quiz with friends** (Dev, the 👥 button; [docs/plan-friend-quizzes.md](docs/plan-friend-quizzes.md)): add
+  friends with a friend code, send them 10 birds from an area and level (Beginner–Hard), everyone types the
+  names with a minute per bird (typos, Afrikaans and common SA names count), then sees how everyone did.
+  Rounds are open for 24 hours, nothing is public, and quizzes don't change learning progress. Needs Google
+  sign-in. Notifications for invites and results are web push (`quiz.js`, `sw.js`, Edge Function `quiz-push`).
 - **Sign in with Google** (📊 screen): progress is saved to your account and follows you to any
   device you sign in on. Without an account, a private sync code (same screen) does the same job.
 
