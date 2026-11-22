@@ -29,6 +29,10 @@ SAME_BIRD = {
     "Grus carunculatus": "Grus carunculata",
     "Grus paradiseus": "Grus paradisea",
 }
+# Birds that take BirdLife South Africa's name instead of IOC's (Dirk's choice, 22 Nov 2026);
+# the IOC name is still accepted in quizzes.
+BLSA_NAME = {"Diomedea exulans", "Spermestes bicolor", "Myrmecocichla monticola", "Gymnoris superciliaris",
+             "Bias musicus"}
 NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 
 
@@ -87,7 +91,7 @@ def apply(species, ioc):
     for s in species:
         old = s.get("was") or s["name"]  # iNaturalist's name, also when this runs a second time
         sci = SAME_BIRD.get(s["sci"], s["sci"])
-        if sci not in ioc and s["sci"] in blsa:
+        if (sci not in ioc or s["sci"] in BLSA_NAME) and s["sci"] in blsa:
             s["name"] = blsa[s["sci"]]
             if plain(old) != plain(s["name"]):
                 s["was"] = old
@@ -108,10 +112,12 @@ def apply(species, ioc):
 
 
 def add_aka(species):
-    """BLSA's names for each bird that differ from its IOC name and former name, in "aka"."""
+    """BLSA's names for each bird that differ from its name and former name, in "aka" (and the
+    IOC name, for the birds that use BLSA's name)."""
     path = DATA.parent / "checklist.json"
     if not path.exists():
         return
+    ioc = ioc_names() if any(s["sci"] in BLSA_NAME for s in species) else {}
     by_id = {}
     for b in json.loads(path.read_text())["birds"]:
         by_id.setdefault(b.get("inat"), []).append(b)
@@ -121,7 +127,8 @@ def add_aka(species):
             entries = [b for b in entries if b["sci"] == s["sci"]]
         taken = {plain(s["name"]), plain(s.get("was", ""))}
         aka = []
-        for name in (n for b in entries for n in b["names"]):
+        extra = [ioc[s["sci"]]] if s["sci"] in BLSA_NAME and s["sci"] in ioc else []
+        for name in [n for b in entries for n in b["names"]] + extra:
             if plain(name) not in taken:
                 taken.add(plain(name))
                 aka.append(name)
