@@ -5,7 +5,8 @@
 import json, os, subprocess, csv, sys, io
 from PIL import Image
 root = '/Users/dwhoffmann/Developer/sa-bird-stickers/by-rarity'
-sp = json.load(open('data/species.json')); by = {s['name']: s for s in sp}
+sp = json.load(open('data/species.json'))
+by = {**{s['was']: s for s in sp if 'was' in s}, **{s['name']: s for s in sp}}  # former names still work
 def share_image(src, dst):
     im = Image.open(src).convert('RGBA')
     im = im.crop(im.getbbox())

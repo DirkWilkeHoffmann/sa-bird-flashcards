@@ -51,11 +51,17 @@ AREAS = [
     ("maputo", "Maputo & southern Mozambique", "MZ", (-26.90, 32.20, -25.50, 33.10)),
     ("inhambane", "Inhambane coast", "MZ", (-24.50, 34.50, -21.50, 35.60)),
     ("gorongosa", "Gorongosa", "MZ", (-19.20, 34.00, -18.40, 34.80)),
+    ("prince-edward-islands", "Prince Edward Islands (Marion Island)", "ZA", (-47.05, 37.50, -46.55, 38.10)),
 ]
+# Few people record birds on the islands, so one record is enough there; the checklist's
+# island-only birds (data/checklist.json, "pei") are always in.
+AREA_MIN_RECORDS = {"prince-edward-islands": 1}
 
 
 def main():
     ids = {s["id"] for s in json.loads((DATA / "species.json").read_text())}
+    checklist = json.loads((DATA / "checklist.json").read_text())["birds"]
+    island_only = [b["inat"] for b in checklist if b["pei"] and b["inat"] in ids]
     areas, birds = [], {}
     for area_id, name, country, (south, west, north, east) in AREAS:
         found, page = [], 1
@@ -63,10 +69,12 @@ def main():
             d = get("observations/species_counts", taxon_id=3, quality_grade="research", captive="false",
                     rank="species", swlat=south, swlng=west, nelat=north, nelng=east, per_page=500, page=page)
             found += [(r["count"], r["taxon"]["id"]) for r in d["results"]
-                      if r["count"] >= MIN_RECORDS and r["taxon"]["id"] in ids]
+                      if r["count"] >= AREA_MIN_RECORDS.get(area_id, MIN_RECORDS) and r["taxon"]["id"] in ids]
             if page * 500 >= d["total_results"]:
                 break
             page += 1
+        if area_id == "prince-edward-islands":
+            found += [(0, tid) for tid in island_only if tid not in {t for _, t in found}]
         areas.append({"id": area_id, "name": name, "country": country,
                       "center": [round((south + north) / 2, 2), round((west + east) / 2, 2)]})
         # Most-recorded first: the app's Beginner level takes the top of this list.

@@ -88,14 +88,6 @@
     </button>
   </div>
 
-  <p class="dev-line" id="devLine" hidden></p>
-  <p class="dev-tools"><button class="link-btn" id="devTour" type="button" hidden>▶ Walkthrough as on the home screen</button>
-    <button class="link-btn" id="devTourBrowser" type="button" hidden>▶ Walkthrough as in a phone's browser</button>
-    <button class="link-btn" id="devCoach" type="button" hidden>▶ First-card tips</button>
-    <button class="link-btn" id="devSticker" type="button" hidden>▶ Earn a sticker</button>
-    <button class="link-btn" id="devStickerRare" type="button" hidden>▶ Rare</button>
-    <button class="link-btn" id="devStickerLegend" type="button" hidden>▶ Legendary</button>
-    <button class="link-btn" id="devStickerClear" type="button" hidden>Clear stickers</button></p>
   <main class="card" id="card">
     <section class="media" id="media">
       <div class="carousel" id="carousel" aria-label="Bird photos"></div>
@@ -124,6 +116,7 @@
       <p class="result" id="result" hidden></p>
       <h2 id="name"></h2>
       <p class="alt-name" id="altName" hidden></p>
+      <p class="was-name" id="wasName" hidden></p>
       <p class="sci" id="sci"></p>
       <p class="family" id="family"></p>
       <div class="tags" id="tags"></div>
@@ -159,7 +152,7 @@
         <legend>Area</legend>
         <select class="select" id="areaSelect" name="area" aria-label="Area"></select>
       </fieldset>
-      <p class="note family-now" id="familyNow" hidden>Studying <b id="familyNowName"></b> in all areas.
+      <p class="note family-now" id="familyNow" hidden>Practising <b id="familyNowName"></b> in all areas (practice doesn't change your progress).
         Pick an area, or <button class="link-btn" id="familyStop" type="button">go back to the area</button>.</p>
       <fieldset>
         <legend>Bird names</legend>
@@ -276,17 +269,6 @@
         <p class="privacy-line"><a href="privacy.html" target="_blank" rel="noopener">How your data is used</a></p>
       </div>
       <div id="progressBody"></div>
-      <h2 class="sync-title">Other devices without an account</h2>
-      <details class="sync-details">
-        <summary>Sync code (without signing in)</summary>
-      <p class="note">Your progress is also saved online under this private code. Enter the same code on another
-        device to share progress without an account. Keep it to yourself, like a password.</p>
-      <p class="sync-code"><code id="syncCode"></code> <button class="btn ghost small" id="copyCode" type="button">Copy</button></p>
-      <p class="sync-use">
-        <input class="select" id="otherCode" placeholder="Code from another device" autocomplete="off" autocapitalize="off" spellcheck="false">
-        <button class="btn ghost small" id="useCode" type="button">Use this code</button>
-      </p>
-      </details>
       <p class="note" id="syncStatus"></p>
     </form>
   </dialog>

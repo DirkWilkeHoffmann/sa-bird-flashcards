@@ -155,7 +155,3 @@ for (const [id, steps] of Object.entries(readByTap)) {
 // nothing to do. Seen on this phone but not by this account: the tips play (maybeStartCoach). Seen
 // by the account but the phone's own flag got lost: nothing to do either way.
 
-if (IS_DEV) {
-  $("devCoach").hidden = false;
-  $("devCoach").addEventListener("click", () => startCoach({ fresh: true }));
-}

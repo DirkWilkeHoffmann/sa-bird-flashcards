@@ -140,11 +140,14 @@ function setAltName(el, s) {
   el.lang = afFirst ? "en" : "af";
   el.hidden = !el.textContent;
 }
-// The answer screen's two names, with a small "?" after the Afrikaans one to suggest a better name.
+// The answer screen's two names, with a small "?" after the Afrikaans one to suggest a better name,
+// and the bird's former English name if the IOC list renamed it ("Formerly Spotted Dikkop").
 function showNames(s) {
   $("name").textContent = nameOf(s);
   $("name").lang = afFirst && s.af ? "af" : "en";
   setAltName($("altName"), s);
+  $("wasName").textContent = s.was ? `Formerly ${s.was}` : "";
+  $("wasName").hidden = !s.was;
   if (!s.af) return;
   const q = document.createElement("button");
   q.type = "button";
@@ -285,16 +288,11 @@ const areaSplit = () => Learn.split(learn, eligibleIds());
 let speciesById = new Map();
 
 // Top up the pool (first visit: the 20 commonest Beginner birds). Returns the birds added.
-// A family is studied whole: all its birds join the pool at once (they're the learning group).
+// Practising a family adds nothing: it's practice only (see "Practising one family" below).
 function topUp() {
+  if (settings.family) return [];
   const info = areaInfo();
-  let added = [];
-  if (settings.family) {
-    added = eligibleIds().filter((id) => !Learn.bird(learn, id).added);
-    Learn.addBirds(learn, added);
-  } else {
-    added = Learn.maybeAdd(learn, eligibleIds(), info.groups, Date.now());
-  }
+  const added = Learn.maybeAdd(learn, eligibleIds(), info.groups, Date.now());
   if (added.length) {
     saveLearn();
     logEvent("added", null, { n: added.length, group: info.groupOf[added[0]], area: settings.area, family: settings.family || undefined });
@@ -311,6 +309,67 @@ function wakeLearn() {
   if (fresh) queue = [];
 }
 
+/* ---------- Practising one family ---------- */
+// Studying a family is practice only (Dirk, 21 Nov 2026): it goes round the family's birds and changes
+// nothing else. No weights, momentum, mastered birds, right/wrong counts, daily goal or stickers;
+// the only reward is the green tick. Each time round, every bird comes up until it's been named
+// (Got it, without a hint); a missed bird comes back after 3–5 cards, as when learning. A family of
+// one bird simply shows that bird again. Once all have been named: well done, and a way back to
+// the area, and the next time round starts.
+const FAMILY_KEY = "sabirds.familyRound.v1";
+let familyRound = load(FAMILY_KEY, null);  // { family, left: ids still to name, missed: { id: card n it's due }, n: cards shown }
+const saveFamilyRound = () => save(FAMILY_KEY, familyRound);
+
+function familyState() {
+  const ids = eligibleIds();
+  if (!familyRound || familyRound.family !== settings.family) familyRound = { family: settings.family, left: [...ids], missed: {}, n: 0 };
+  familyRound.left = familyRound.left.filter((id) => ids.includes(id));
+  if (!familyRound.left.length) familyRound.left = [...ids];
+  return familyRound;
+}
+
+function pickFamily(exclude, ahead) {
+  const st = familyState();
+  const at = st.n + ahead;
+  const missed = Object.entries(st.missed).map(([id, due]) => [Number(id), due]).sort((a, b) => a[1] - b[1]);
+  const due = missed.find(([id, when]) => when <= at && !exclude.has(id));
+  if (due) return { id: due[0], why: "missed" };
+  const waiting = new Set(missed.map(([id]) => id));
+  const fresh = st.left.filter((id) => !exclude.has(id) && !waiting.has(id));
+  if (fresh.length) return { id: fresh[Math.floor(Math.random() * fresh.length)], why: "family" };
+  // Only birds on screen or waiting to come back are left: the soonest one, or the same bird again.
+  const soon = missed.find(([id]) => !exclude.has(id));
+  if (soon) return { id: soon[0], why: "missed" };
+  const pool = st.left.length ? st.left : eligibleIds();
+  return { id: pool[Math.floor(Math.random() * pool.length)], why: "family" };
+}
+
+function familyAnswer(result) {
+  const st = familyState();
+  const id = card.s.id;
+  if (result === "right") {
+    st.left = st.left.filter((x) => x !== id);
+    delete st.missed[id];
+  } else {
+    st.missed[id] = st.n + 3 + Math.floor(Math.random() * 3);
+  }
+  lastAnswer = { before: 0, after: 0, mastered: false };
+  logEvent("answer", id, { r: result, kind: "family", family: settings.family });
+  queue = [];  // the next bird depends on this answer
+  session.seen++;
+  if (result === "right") session.right++;
+  if (!st.left.length) {
+    const total = eligibleIds().length;
+    st.left = [...eligibleIds()];
+    st.missed = {};
+    logEvent("all_mastered", null, { area: settings.area, family: settings.family, practice: true });
+    const what = total === 1 ? nameOf(card.s) : `all ${total} ${familyLabel(settings.family)}`;
+    showToast(`Well done! You've named ${what}. Go round again, or go back to ${areaNameOf(settings.area)}.`,
+      { action: { label: "Go back", run: () => applyArea(settings.area, settings.near, { family: "" }) }, ms: 10000 });
+  }
+  saveFamilyRound();
+}
+
 /* ---------- Choosing cards ---------- */
 
 // The Dirk Progression picks each bird (Learn.pick); birds hidden for a day ("Seeing this bird too
@@ -324,6 +383,10 @@ let snoozed = load(SNOOZE_KEY, {}); // { [speciesId]: hidden until (ms) }
 const isSnoozed = (id) => (snoozed[id] || 0) > Date.now() && (snoozed[id] || 0) > (snoozed[`undo:${id}`] || 0);
 
 function pickSpecies(exclude, ahead) {
+  if (settings.family && eligibleIds().length) {
+    const f = pickFamily(exclude, ahead);
+    return { s: speciesById.get(f.id), why: f.why };
+  }
   const ids = eligibleIds();
   const skip = new Set([...exclude, ...ids.filter(isSnoozed)]);
   const p = Learn.pick(learn, { ids, skip, ahead, rank: areaInfo().rank })
@@ -371,7 +434,9 @@ function fillQueue() {
 
 function devLine() {
   updateMomentum();
-  if (!IS_DEV || !species.length) return;
+  // The Dev line above the photos was taken out on 21 Nov 2026 (Dev looks like the main app now);
+  // the numbers are still on the progress screen (devProgress).
+  if (!IS_DEV || !species.length || !$("devLine")) return;
   const m = Learn.momentum(learn), parts = areaSplit();
   const w = card ? Learn.bird(learn, card.s.id).w : null;
   $("devLine").hidden = false;
@@ -1179,8 +1244,8 @@ function nextCard() {
   card.isNew ??= !Learn.bird(learn, card.s.id).seen && !seenBirds.has(card.s.id);
   seenBirds.add(card.s.id);
   save(SEEN_KEY, [...seenBirds]);
-  Learn.shown(learn, card.s.id, Date.now());
-  saveLearn();
+  if (settings.family) { familyState().n++; saveFamilyRound(); }
+  else { Learn.shown(learn, card.s.id, Date.now()); saveLearn(); }
   lastWhy = card.why || "";
   card.hintMiss = false;
   $("newTag").hidden = !card.isNew;
@@ -1312,6 +1377,7 @@ const KIND_ALIASES = {
 };
 
 function kindOf(s) {
+  if (/ Wood Hoopoe$/.test(s.name)) return "Wood Hoopoe";  // not the same family as Common Hoopoe
   const last = s.name.split(" ").pop();
   if (KIND_ALIASES[last]) return KIND_ALIASES[last];
   const tail = last.split("-").pop();
@@ -1425,6 +1491,7 @@ function choose(chosen, message) {
 // result: "right" | "wrong" | "hintRight" | "hintWrong". The Dirk Progression changes the bird's
 // weight and the momentum (learn.js); the old right / wrong counts are kept too (synced as before).
 function record(result, picked) {
+  if (settings.family) { familyAnswer(result); devLine(); return; }
   const st = stats[card.s.id] || { right: 0, wrong: 0, hint: 0, streak: 0 };
   const right = result === "right";
   st[right ? "right" : "wrong"] = (st[right ? "right" : "wrong"] || 0) + 1;
@@ -1467,6 +1534,7 @@ function record(result, picked) {
 // Every bird in the area (or family) is mastered: say so, with a way to the settings, so nobody is
 // left practising birds they already know. Once, until something here needs learning again.
 function allKnownMessage() {
+  if (settings.family) return;  // practising a family has its own "well done" (familyAnswer)
   const parts = areaSplit();
   const key = settings.family ? `family:${settings.family}` : settings.area;
   if (parts.l.length || parts.unadded.length) {
@@ -1748,6 +1816,10 @@ function compareColumn(s) {
   const alt = document.createElement("p");
   alt.className = "alt-name";
   setAltName(alt, s);
+  const was = document.createElement("p");
+  was.className = "was-name";
+  was.textContent = s.was ? `Formerly ${s.was}` : "";
+  was.hidden = !s.was;
   const sci = document.createElement("p");
   sci.className = "sci";
   sci.textContent = s.sci;
@@ -1758,7 +1830,7 @@ function compareColumn(s) {
     const d = w?.sections.find((x) => x.h === "Description")?.text || w?.intro || "";
     text.textContent = trimText(d, 420);
   });
-  col.append(photos, name, alt, sci);
+  col.append(photos, name, alt, was, sci);
   if (s.calls.length) {
     const audio = new Audio();
     audio.preload = "none";
@@ -1961,7 +2033,7 @@ $("settings").addEventListener("close", async () => {
 });
 
 // A new area or family: the birds already learned keep their weights everywhere; new birds come
-// from this area's own groups (Beginner first), or the whole family joins at once.
+// from this area's own groups (Beginner first). A family is practice only (familyAnswer).
 function applyArea(area, near, { family = "", fromSync = false } = {}) {
   settings = { v: 2, area, near, family, u: fromSync ? settings.u : new Date().toISOString() };
   save(SETTINGS_KEY, settings);
@@ -1970,7 +2042,9 @@ function applyArea(area, near, { family = "", fromSync = false } = {}) {
   topUp();
   const ids = areaInfo().ids;
   const known = ids.filter(mastered).length;
-  if (!fromSync) showToast(`${areaName()}: you've mastered ${known} of its ${ids.length} birds`);
+  if (family && !fromSync) { familyRound = null; saveFamilyRound(); }
+  if (!fromSync) showToast(family ? `${areaName()}: ${ids.length} bird${ids.length === 1 ? "" : "s"} to practise. Practice doesn't change your progress.`
+    : `${areaName()}: you've mastered ${known} of its ${ids.length} birds`);
   queue = [];
   nextCard();
   allKnownMessage();

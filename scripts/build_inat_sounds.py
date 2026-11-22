@@ -5,7 +5,9 @@ so birds still have calls when xeno-canto is unavailable.
 Takes up to SOUNDS_PER_SPECIES Creative Commons recordings from research-grade
 observations inside the region (best voted first). Existing xeno-canto entries are kept.
 
-Run after build_calls.py:  python3 scripts/build_inat_sounds.py
+Run after build_calls.py:  python3 scripts/build_inat_sounds.py [--missing-only]
+(--missing-only does only birds with no calls yet, and for those also takes recordings from
+outside the region when the region has none: rare visitors and island birds.)
 """
 import json
 import re
@@ -31,9 +33,15 @@ def main():
     calls = json.loads((DATA / "calls.json").read_text())
     places = ",".join(str(c["place_id"]) for c in COUNTRIES.values())
     added = 0
+    missing_only = "--missing-only" in sys.argv
     for n, s in enumerate(species, 1):
-        d = get("observations", taxon_id=s["id"], place_id=places, quality_grade="research", sounds="true",
-                sound_license=LICENSES, order_by="votes", per_page=20)
+        if missing_only and calls.get(str(s["id"])):
+            continue
+        query = dict(taxon_id=s["id"], quality_grade="research", sounds="true", sound_license=LICENSES,
+                     order_by="votes", per_page=20)
+        d = get("observations", place_id=places, **query)
+        if missing_only and not d["results"]:
+            d = get("observations", **query)
         sounds = []
         for o in d["results"]:
             for snd in o.get("sounds", []):

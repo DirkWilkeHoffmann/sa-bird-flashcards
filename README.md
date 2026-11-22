@@ -36,23 +36,25 @@ It is a Progressive Web App: no App Store needed.
 - **Easily confused with** on the info screen: birds people really mix up (from iNaturalist
   identifications), close relatives that share the range, and your own mix-ups. Tap one to
   compare the two side by side. The hints use the same look-alikes.
-- Regions: 35 named areas (Cape Town, Kruger, Okavango, Etosha…); **Near me** = birds recorded
+- Regions: 36 named areas (Cape Town, Kruger, Okavango, Etosha, the Prince Edward Islands…); **Near me** = birds recorded
   within about 50 km of you.
 - **⚑** on a photo hides it (e.g. a dead bird) on all your devices and emails the owner the photo
   with Keep / Remove buttons (`review.html`). Removed photos disappear for everyone.
 - **📊 Progress**: Mastered / Learning / To be seen in your area, by group and by family. Tap a
   number, group or family to see its birds (Mastered, then Learning, then To be seen, then the
   same for other areas), and tap a bird to see its photos, call, range and description.
-- **Study one family**: *Study only these birds* on a family's list studies that family
-  across all areas. When everything in the area or family is mastered, the app says so and points
-  to the settings. The Dev
-  build also shows momentum, the learning group and every pool bird's weight (and a line under the
-  area on the home screen).
+- **Practise one family**: *Practise only these birds* on a family's list goes round that family's
+  birds (all areas) as practice only: no weights, momentum, counts, daily goal or stickers change,
+  just the green tick. A missed bird comes back after 3–5 cards; once all are named the app says
+  well done and offers the way back to the area. When everything in the area is mastered, the app
+  says so and points to the settings. The Dev
+  build also shows momentum, the learning group and every pool bird's weight on the progress screen.
 - **Offline**: ⚙ → *Download this set for offline use* saves the chosen study set (1, 3 or all
   photos per bird, optionally a call, range data and Wikipedia text). Without signal the app shows
   only downloaded birds. Delete downloads from the same screen.
 - **Sign in with Google** (📊 screen): progress is saved to your account and follows you to any
-  device you sign in on. Without an account, a private sync code (same screen) does the same job.
+  device you sign in on. (Each phone still has a private sync code behind the scenes, which the account
+  links to; since 21 Nov it isn't shown, and Google is the only way to share progress between devices.)
 
 ## Data
 
@@ -60,11 +62,20 @@ It is a Progressive Web App: no App Store needed.
 wild, research-grade records in South Africa, Namibia, Botswana, Zimbabwe, Lesotho, Eswatini
 and Mozambique south of the Zambezi.
 
-- Vagrants (fewer than 5 records) and escaped cage birds are left out.
+- Every bird on BirdLife South Africa's checklist is in (`data/checklist.json`, built from BLSA's PDF by
+  `scripts/build_checklist.py`), including rare visitors, seabirds and the Prince Edward Islands birds;
+  rare birds with few photos from the region get photos from elsewhere. Other vagrants (fewer than 5
+  records) and escaped cage birds are left out. `python3 scripts/build_data.py --add-checklist` adds
+  checklist birds the list doesn't have yet without rebuilding the rest.
 - Levels: the 150 most-recorded birds are Easy, the next 300 Medium, the rest Hard (the old
   levels; the app now works out groups per area from records, `data/spread.json` and mix-ups).
 - `scripts/build_spread.py` builds `data/spread.json` (map cells per bird) from `data/near.json`.
 - Photos are the best-voted Creative Commons photos taken in the region.
+
+English names follow the IOC World Bird List (`scripts/build_names.py`, run by `build_data.py`;
+`python3 scripts/build_names.py` on its own refreshes only the names). iNaturalist's names are a mix
+of old Roberts and American names, so where the IOC name differs the old one is kept as `was`: the
+answer screen shows "Formerly Spotted Dikkop". BLSA's other names are kept in `aka` (for the Dev quizzes).
 
 `scripts/build_calls.py` builds `data/calls.json` from [xeno-canto](https://xeno-canto.org)
 (quality A/B, preferring Southern African recordings and MP3 files). Calls stream from xeno-canto.
@@ -89,11 +100,15 @@ and `data/map.json` (country outlines).
 
 To rebuild:
 
-    python3 scripts/build_data.py
+    python3 scripts/build_checklist.py BLSA-Checklist.pdf   # only when BLSA publishes a new list
+    python3 scripts/build_data.py      # also sets the IOC names (build_names.py)
+    python3 scripts/build_afrikaans.py --missing-only
     XC_API_KEY=your-key python3 scripts/build_calls.py --missing-only
+    python3 scripts/build_inat_sounds.py --missing-only
     python3 scripts/build_info.py
     python3 scripts/build_similar.py
     python3 scripts/build_areas.py
+    python3 scripts/build_spread.py
 
 ## Roadmap
 
