@@ -366,7 +366,9 @@
     <div class="qp-bar"><span id="qpBar"></span></div>
     <div class="qp-photo">
       <div class="cmp-strip" id="qpStrip" aria-label="Photos of the bird"></div>
-      <span class="cmp-count" id="qpCount"></span>
+      <div class="dots" id="qpDots" aria-hidden="true"></div>
+      <button class="photo-arrow prev" id="qpPhotoPrev" type="button" aria-label="Previous photo" hidden><svg class="i"><use href="#i-chevron"/></svg></button>
+      <button class="photo-arrow next" id="qpPhotoNext" type="button" aria-label="Next photo" hidden><svg class="i"><use href="#i-chevron"/></svg></button>
     </div>
     <form class="qp-form" id="qpForm" autocomplete="off">
       <input class="select qp-input" id="qpInput" type="text" placeholder="Which bird is this?" aria-label="Your answer"

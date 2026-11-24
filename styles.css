@@ -1377,6 +1377,8 @@ body.onboarding { background: var(--bg); }
 /* Quizzes to play: a friend's in the orange tint, your own in a cool green, so a long list reads at a glance. */
 .quiz-card.to-play.incoming { background: color-mix(in srgb, var(--tint) 14%, var(--bg-elev)); box-shadow: inset 3px 0 0 var(--tint); }
 .quiz-card.to-play.outgoing { background: color-mix(in srgb, var(--data) 12%, var(--bg-elev)); box-shadow: inset 3px 0 0 var(--data); }
+.quiz-card.following { background: var(--fill); }
+.quiz-card.following.ready { background: color-mix(in srgb, var(--data) 12%, var(--bg-elev)); box-shadow: inset 3px 0 0 var(--data); }
 .quiz-more { margin: 0 0 12px; }
 .quiz-invites { display: grid; gap: 6px; }
 .quiz-invite { display: flex; align-items: center; gap: 12px; min-height: var(--tap); padding: 0 14px;
@@ -1423,6 +1425,11 @@ body.quizzing { overflow: hidden; }
 .qp-photo { position: relative; flex: 1 1 auto; min-height: 90px; max-height: 460px; border-radius: var(--radius); overflow: hidden; background: #000; }
 .qp-photo .cmp-strip { height: 100%; }
 .qp-photo .cmp-strip img { height: 100%; aspect-ratio: auto; object-fit: contain; }
+.qp-photo .cmp-strip { cursor: auto; touch-action: pan-x; overscroll-behavior: contain; }
+.qp-photo .cmp-strip.zoomed { overflow: hidden; touch-action: none; }
+.qp-photo .cmp-strip img { transform-origin: 0 0; }
+.qp-photo .dots[hidden] { display: none; }
+.qp-photo .cmp-strip.zoomed ~ .photo-arrow, .qp-photo .cmp-strip.zoomed ~ .dots { display: none; }
 .qp-form { flex: none; display: grid; gap: 10px; }
 .qp-input { min-height: 52px; font-size: 1.1rem; }
 .qp-feedback { flex: none; display: grid; gap: 4px; padding: 14px 16px; border-radius: var(--radius); background: var(--fill); }

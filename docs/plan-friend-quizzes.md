@@ -57,3 +57,14 @@ no daily record, no running wins and losses. The only scores kept are the rounds
 ## Later
 - Groups (a club makes a group with a join code; quizzes go to the group).
 - Rematch button; native notifications once there's a store app.
+
+## After the first tester (24 Nov 2026)
+- **Photos in a quiz work as when studying:** swipe, dots under the photo, arrows on a computer, pinch or
+  double-tap to zoom (the study card's zoom, `enableZoom` in app.js, now works on the quiz photos too).
+  Tapping the photo no longer jumps to the next one (it clashed with double-tap).
+- **Your played quizzes stay at the top** while friends still have to play ("Waiting for Sam K." with
+  "Scores so far"), then with "Everyone's played" and an orange **See results**. Once you've looked at the
+  results (remembered on the phone), or a day after the quiz closes, it moves to "Your quizzes".
+- **A friend's quiz is clearly the thing to tap:** the card says "Sam K. sent you a quiz · 10 birds · Kruger
+  National Park · Easy" with **Play Sam's quiz**; while it waits, New quiz is a plain button (orange the rest
+  of the time). Tapping a quiz notification opens that quiz with what it is and one Play button.

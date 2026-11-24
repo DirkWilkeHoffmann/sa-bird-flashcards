@@ -134,9 +134,13 @@ function renderQuiz(problem = "") {
     for (const r of toPlay.slice(3)) more.append(roundCard(r, true));
     body.append(more);
   }
+  // Played, and waiting for the others or for you to see the results: stays up here till then.
+  for (const r of quizRounds.filter(following)) body.append(followingCard(r));
 
   if (quizFriends.length) {
-    body.append(qbutton("New quiz", "btn primary quiz-new", openNewQuiz));
+    // A friend's quiz waiting: its Play is the one orange button, so New quiz isn't mistaken for it.
+    const friendsQuiz = toPlay.some((r) => !r.mine);
+    body.append(qbutton("New quiz", `btn ${friendsQuiz ? "ghost" : "primary"} quiz-new`, openNewQuiz));
   } else {
     body.append(qel("p", "quiz-lead", "Send friends 10 birds and see who names the most. Start by inviting a friend."),
       qbutton("Invite a friend", "btn primary quiz-new", shareInvite));
@@ -155,7 +159,7 @@ function renderQuiz(problem = "") {
   if (push) body.append(push);
 
   // Past quizzes at the bottom, folded away until opened.
-  const rest = quizRounds.filter((r) => !waitingForMe(r));
+  const rest = quizRounds.filter((r) => !waitingForMe(r) && !following(r));
   if (rest.length) {
     const history = qel("details", "quiz-history");
     history.open = quizHistoryOpen;
@@ -189,19 +193,27 @@ function playerLine(r) {
   }).join(" · ");
 }
 
+// "Sam K." → "Sam's quiz"
+const quizOf = (name) => { const first = (name || "A friend").split(" ")[0]; return `${first}'${first.endsWith("s") ? "" : "s"} quiz`; };
+const playLabel = (r) => {
+  const done = r.my_answers?.length || 0;
+  if (r.my_status === "playing" && done) return `Carry on (${done}/10)`;
+  return r.mine ? "Play" : `Play ${quizOf(r.by)}`;
+};
+
 function roundCard(r, toPlay = false) {
   const card = qel("div", `quiz-card${toPlay ? ` to-play ${r.mine ? "outgoing" : "incoming"}` : ""}`);
   const head = qel("div", "quiz-card-head");
   const settled = !r.players.some((p) => p.status === "invited" || p.status === "playing");
-  head.append(qel("b", null, `${r.area_name} · ${levelName(r.level)}`),
+  const what = `${r.area_name} · ${levelName(r.level)}`;
+  head.append(qel("b", null, toPlay && !r.mine ? `${r.by} sent you a quiz` : what),
     qel("span", "quiz-when", roundOpen(r) && !settled ? timeLeft(r) : shortDate(r.created_at)));
   card.append(head);
   if (toPlay) {
     const sentTo = r.players.filter((p) => !p.me).map((p) => p.name).join(", ");
-    card.append(qel("p", "quiz-meta", r.mine ? `You sent this to ${sentTo}` : `From ${r.by}`));
+    card.append(qel("p", "quiz-meta", r.mine ? `You sent this to ${sentTo}` : `10 birds · ${what}`));
     const row = qel("div", "quiz-card-actions");
-    const done = r.my_answers?.length || 0;
-    row.append(qbutton(r.my_status === "playing" && done ? `Carry on (${done}/10)` : "Play", "btn primary small", () => startRound(r.id)));
+    row.append(qbutton(playLabel(r), "btn primary small", () => startRound(r.id)));
     if (!r.mine && r.my_status === "invited") row.append(qbutton("No thanks", "btn ghost small", () => declineRound(r)));
     card.append(row);
   } else {
@@ -211,6 +223,35 @@ function roundCard(r, toPlay = false) {
     card.setAttribute("role", "button");
     card.addEventListener("click", () => openResults(r.id));
   }
+  return card;
+}
+
+// A quiz you've played stays at the top while friends still have to play, then with "See results"
+// until you've looked at them (remembered on this phone), or for a day after it closes.
+const QUIZ_SEEN_KEY = "sabirds.quizSeen.v1";
+const settledRound = (r) => !roundOpen(r) || !r.players.some((p) => p.status === "invited" || p.status === "playing");
+const resultsSeen = (r) => load(QUIZ_SEEN_KEY, []).includes(r.id);
+function following(r) {
+  if (r.my_status !== "done" || (settledRound(r) && resultsSeen(r))) return false;
+  return roundOpen(r) || Date.now() - new Date(r.closes_at) < 24 * 3600e3;
+}
+function markResultsSeen(r) {
+  if (!settledRound(r) || resultsSeen(r)) return;
+  save(QUIZ_SEEN_KEY, [r.id, ...load(QUIZ_SEEN_KEY, [])].slice(0, 100));
+}
+
+function followingCard(r) {
+  const ready = settledRound(r);
+  const card = qel("div", `quiz-card to-play following${ready ? " ready" : ""}`);
+  const head = qel("div", "quiz-card-head");
+  head.append(qel("b", null, `${r.area_name} · ${levelName(r.level)}`), qel("span", "quiz-when", ready ? "" : timeLeft(r)));
+  const waiting = r.players.filter((p) => !p.me && (p.status === "invited" || p.status === "playing")).map((p) => p.name);
+  card.append(head,
+    qel("p", "quiz-meta", ready ? (roundOpen(r) ? "Everyone's played" : "The quiz has closed") : `Waiting for ${waiting.join(", ")}`),
+    qel("p", "quiz-players", playerLine(r)));
+  const row = qel("div", "quiz-card-actions");
+  row.append(qbutton(ready ? "See results" : "Scores so far", `btn ${ready ? "primary" : "ghost"} small`, () => openResults(r.id)));
+  card.append(row);
   return card;
 }
 
@@ -692,10 +733,11 @@ function showQuizBird() {
     img.src = photoUrl(p, "medium");
     return img;
   }));
+  resetZoom();
   strip.scrollLeft = 0;
-  const count = $("qpCount");
-  count.hidden = photos.length < 2;
-  count.textContent = `1 / ${photos.length}`;
+  $("qpDots").replaceChildren(...photos.map(() => document.createElement("span")));
+  $("qpDots").hidden = photos.length < 2;
+  showQuizPhoto(0);
   // the next bird's first photo, so it's there when needed
   const next = q.birds[q.i + 1];
   if (next) new Image().src = photoUrl(quizPhotos(next)[0], "medium");
@@ -800,6 +842,7 @@ async function resend(q) {
 function closeQuizPlay() {
   if (quizPlay) clearInterval(quizPlay.timer);
   quizPlay = null;
+  resetZoom();
   $("quizPlay").hidden = true;
   $("quizPlay").style.height = "";
   $("quizPlay").style.transform = "";
@@ -839,18 +882,30 @@ $("qpForm").addEventListener("submit", (e) => { e.preventDefault(); if ($("qpInp
 $("qpDontKnow").addEventListener("click", () => answerQuiz({ skip: true }));
 $("qpNext").addEventListener("click", nextQuizBird);
 $("qpClose").addEventListener("click", leaveQuiz);
+// The bird's photos work as when studying: swipe (arrows on a computer), dots, pinch or double-tap to zoom.
+const quizPhotoAt = () => Math.round($("qpStrip").scrollLeft / ($("qpStrip").clientWidth || 1));
+let quizPhotoShown = 0;
+function showQuizPhoto(i) {
+  const n = $("qpStrip").children.length;
+  if (i !== quizPhotoShown) resetZoom();
+  quizPhotoShown = i;
+  [...$("qpDots").children].forEach((d, j) => d.classList.toggle("on", j === i));
+  $("qpPhotoPrev").hidden = n < 2 || i <= 0;
+  $("qpPhotoNext").hidden = n < 2 || i >= n - 1;
+}
+function stepQuizPhoto(d) {
+  const strip = $("qpStrip");
+  const i = Math.max(0, Math.min(strip.children.length - 1, quizPhotoAt() + d));
+  strip.scrollTo({ left: i * strip.clientWidth, behavior: reducedMotion() ? "auto" : "smooth" });
+}
 $("qpStrip").addEventListener("scroll", () => {
-  const strip = $("qpStrip");
-  const n = strip.children.length;
-  $("qpCount").textContent = `${Math.round(strip.scrollLeft / (strip.clientWidth || 1)) + 1} / ${n}`;
+  const i = quizPhotoAt();
+  if (i !== quizPhotoShown) showQuizPhoto(i);
 }, { passive: true });
-$("qpStrip").addEventListener("click", () => {
-  const strip = $("qpStrip");
-  const n = strip.children.length;
-  if (n < 2) return;
-  const at = Math.round(strip.scrollLeft / (strip.clientWidth || 1));
-  strip.scrollTo({ left: ((at + 1) % n) * strip.clientWidth, behavior: reducedMotion() ? "auto" : "smooth" });
-});
+$("qpPhotoPrev").addEventListener("click", () => stepQuizPhoto(-1));
+$("qpPhotoNext").addEventListener("click", () => stepQuizPhoto(1));
+// (app.js has it; guarded so a phone briefly holding an older app.js still gets the rest of the quizzes)
+if (typeof enableZoom === "function") enableZoom($("qpStrip"), () => $("qpStrip").children[quizPhotoAt()]);
 
 /* ---------- Results ---------- */
 
@@ -865,6 +920,7 @@ async function openResults(id) {
   if (quizOpenRound !== id) return;
   if (!r) { $("quizResultBody").replaceChildren(qel("p", "note", "This quiz isn't there any more.")); return; }
   renderResults(r);
+  if (r.my_status === "done") markResultsSeen(r);
   loadQuiz(true).then(() => { if ($("quiz").open) renderQuiz(); }).catch(() => {});
 }
 
@@ -878,8 +934,16 @@ function renderResults(r) {
 
   const seeAll = r.my_status === "done" || !open;
   if (!seeAll) {
-    body.append(qel("p", "quiz-lead", "Play your 10 to see how everyone did."));
-    if (waitingForMe(r)) body.append(qbutton("Play", "btn primary", () => { closeSheet($("quizResult")); startRound(r.id); }));
+    if (waitingForMe(r)) {
+      // Straight from a notification: what this quiz is, and one button to start it.
+      body.append(qel("p", "quiz-lead", r.mine
+        ? `Your quiz: 10 birds from ${r.area_name}, ${levelName(r.level)}. You get a minute to name each bird.`
+        : `${r.by} sent you a quiz: 10 birds from ${r.area_name}, ${levelName(r.level)}. You get a minute to name each bird.`));
+      body.append(qbutton(playLabel(r), "btn primary quiz-new", () => { closeSheet($("quizResult")); startRound(r.id); }));
+      body.append(qel("p", "note", "Play your 10 to see how everyone did."));
+    } else {
+      body.append(qel("p", "quiz-lead", "Play your 10 to see how everyone did."));
+    }
   }
 
   const table = qel("ol", "quiz-scores");
@@ -959,9 +1023,8 @@ const QUIZ_FROM_URL = (() => {
 async function openRoundFromNotification(id) {
   if (!quizOn()) { openQuiz(); return; }
   await loadQuiz(true).catch(() => {});
-  const r = quizRounds.find((x) => x.id === id);
-  if (r && waitingForMe(r)) { renderQuiz(); openSheet($("quiz")); }
-  else openResults(id);
+  if ($("quiz").open) renderQuiz();
+  openResults(id);  // a quiz to play opens ready to start; a finished one on its results
 }
 
 navigator.serviceWorker?.addEventListener("message", (e) => {
