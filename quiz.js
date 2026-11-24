@@ -770,7 +770,8 @@ async function nextQuizBird() {
   $("qpNext").textContent = "Saving…";
   const last = await q.saving;
   $("qpNext").disabled = false;
-  if (last?.failed && !last.closed) {
+  // Not done after the 10th means an earlier answer never arrived (the server only takes them in order).
+  if ((last?.failed && !last.closed) || (last && !last.failed && last.done === false)) {
     $("qpNext").textContent = "Try again";
     $("qpTyped").textContent = "Couldn't save your answers. Check your signal, then try again.";
     q.saving = Promise.resolve().then(() => resend(q));

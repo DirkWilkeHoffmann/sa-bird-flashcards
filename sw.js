@@ -4,7 +4,7 @@
 // Offline downloads (offline.js) live in their own cache, which is never trimmed.
 // The Dev build (…/dev/) shares this site with the main app, so its caches get their own names.
 const PREFIX = self.registration.scope.includes("/dev/") ? "sabirds-dev-" : "sabirds-";
-const APP_CACHE = `${PREFIX}app-v99`;
+const APP_CACHE = `${PREFIX}app-v100`;
 const WIKI_CACHE = `${PREFIX}wiki-v1`;
 const INFO_CACHE = `${PREFIX}info-v1`;  // each bird's range/months file, kept across app updates
 const APP_FILES = [
@@ -173,8 +173,10 @@ self.addEventListener("notificationclick", (e) => {
   e.notification.close();
   const round = e.notification.data?.round || "";
   const url = new URL(round ? `./?quiz=${round}` : "./", self.registration.scope).href;
+  // On sabirds.co.za the main app's scope (/) also covers Dev (/dev/): only a window of this build.
+  const dev = (u) => new URL(u).pathname.includes("/dev/");
   e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
-    const open = list.find((w) => w.url.startsWith(self.registration.scope));
+    const open = list.find((w) => w.url.startsWith(self.registration.scope) && dev(w.url) === dev(self.registration.scope));
     if (open) { open.postMessage({ quiz: round }); return open.focus(); }
     return self.clients.openWindow(url);
   }));
