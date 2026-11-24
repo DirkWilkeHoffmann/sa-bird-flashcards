@@ -43,6 +43,46 @@ function stickerImage(id) {
   return img;
 }
 const stickerOf = (id) => stickerSet.find((x) => x.id === Number(id)) || null;
+const dayStickers = () => stickerSet.filter((x) => x.tier !== "quiz");
+
+/* ---------- Quiz stickers: three birds earned only in quizzes with friends ---------- */
+// Never drawn for a day (tier "quiz" in data/stickers.json). Earned once each, kept online with the
+// account (quiz_awards in Supabase, per build like the quizzes): finish your first quiz, finish 10,
+// win 50. A win is a finished quiz where at least one friend played too and nobody did better.
+const QUIZ_STICKERS = [
+  { award: "played_1", id: 19079, of: "played", goal: 1,
+    how: "Finish your first quiz with friends", kicker: "You finished your first quiz!" },
+  { award: "played_10", id: 507913, of: "played", goal: 10,
+    how: "Finish 10 quizzes", kicker: "You've finished 10 quizzes!" },
+  { award: "won_50", id: 144592, of: "won", goal: 50,
+    how: "Win 50 quizzes", kicker: "You've won 50 quizzes!" },
+];
+let quizAwards = { played: 0, won: 0, got: new Map() };  // got: award -> date earned
+const quizRevealQueue = [];
+
+// From quiz.js each time the quizzes load. A sticker reached since last time is shown big, once.
+function gotQuizAwards(res) {
+  if (!res) return;
+  quizAwards = { played: res.played || 0, won: res.won || 0,
+    got: new Map((res.awards || []).map((a) => [a.award, a.at])) };
+  for (const a of res.awards || []) {
+    const q = QUIZ_STICKERS.find((x) => x.award === a.award);
+    if (!a.fresh || !q) continue;
+    quizRevealQueue.push(q);
+    logEvent("sticker", q.id, { tier: "quiz", award: q.award });
+  }
+  setTimeout(showQuizReveal, 1200);
+  if ($("stickerAlbum").open) renderAlbum();
+}
+
+// Not while a quiz is being played or another sticker is showing; the next one follows on close.
+function showQuizReveal() {
+  if (!quizRevealQueue.length || $("stickerPop").open) return;
+  if (document.body.classList.contains("quizzing")) { setTimeout(showQuizReveal, 3000); return; }
+  const q = quizRevealQueue.shift();
+  showSticker(q.id, { earned: true, kicker: q.kicker });
+}
+$("stickerPop").addEventListener("close", () => setTimeout(showQuizReveal, 500));
 const stickerName = (id) => { const s = speciesById.get(Number(id)); return s ? nameOf(s) : "A bird"; };
 
 // Each collected sticker and the first day it was earned.
@@ -112,7 +152,9 @@ const REVEAL = {
   common: { ...SPIN_IN, sparks: 12, buzz: [12, 50, 25] },
   rare: { ...SPIN_IN, sparks: 16, buzz: [15, 50, 15, 50, 40] },
   legendary: { ...SPIN_IN, sparks: 22, buzz: [20, 50, 20, 50, 20, 50, 80] },
+  quiz: { ...SPIN_IN, sparks: 20, buzz: [20, 50, 20, 50, 60] },
 };
+const TIER_LABEL = (tier) => TIER_NAMES[tier] || "Quiz sticker";
 
 function sparkle(stage, n, color, at) {
   setTimeout(() => {
@@ -130,22 +172,22 @@ function sparkle(stage, n, color, at) {
   }, at);
 }
 
-function showSticker(id, { earned = false, day = null } = {}) {
+function showSticker(id, { earned = false, day = null, kicker = null } = {}) {
   const st = stickerOf(id);
   if (!st) return;
   const pop = $("stickerPop");
   pop.className = `sticker-pop ${st.tier}`;
   pop.dataset.id = String(st.id);
   prepareShare(st.id);
-  $("stickerPopKicker").textContent = earned
+  $("stickerPopKicker").textContent = kicker || (earned
     ? "Well done! You earned a sticker today."
-    : day ? new Date(`${day}T12:00`).toLocaleDateString("en-ZA", { weekday: "long", day: "numeric", month: "long" }) : "";
+    : day ? new Date(`${day}T12:00`).toLocaleDateString("en-ZA", { weekday: "long", day: "numeric", month: "long" }) : "");
   const title = $("stickerPopTitle");
   title.textContent = stickerName(st.id);
   const img = $("stickerPopImg");
   img.src = stickerUrl(st.id);
   img.alt = stickerName(st.id);
-  img.setAttribute("aria-description", TIER_NAMES[st.tier]);
+  img.setAttribute("aria-description", TIER_LABEL(st.tier));
   pop.querySelectorAll(".sp-spark, .sp-flash").forEach((x) => x.remove());
   if (!pop.open) pop.showModal();
   pop.querySelector("button[type=submit]").blur();
@@ -253,8 +295,8 @@ function stickerAlbumButton() {
   const b = document.createElement("button");
   b.type = "button";
   b.className = "sticker-album-btn";
-  const n = collectedStickers().size;
-  b.innerHTML = `<span>Stickers</span><b>${n} of ${stickerSet.length || 122}</b><span aria-hidden="true">›</span>`;
+  const n = collectedStickers().size + quizAwards.got.size;
+  b.innerHTML = `<span>Stickers</span><b>${n} of ${stickerSet.length || 124}</b><span aria-hidden="true">›</span>`;
   b.addEventListener("click", openAlbum);
   return b;
 }
@@ -262,6 +304,47 @@ function stickerAlbumButton() {
 function openAlbum() {
   renderAlbum();
   openSheet($("stickerAlbum"));
+}
+
+// A date earned (a timestamp from Supabase) as the YYYY-MM-DD the sticker card shows.
+const localDay = (iso) => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+
+// The three quiz stickers: earned ones in colour; the rest as a shape with how to earn it and how far
+// along you are ("3 of 10").
+function quizAlbum() {
+  const box = document.createElement("section");
+  box.className = "album-quiz";
+  const h = document.createElement("h3");
+  h.className = "album-quiz-h";
+  h.textContent = "From quizzes with friends";
+  const grid = document.createElement("div");
+  grid.className = "album-grid";
+  for (const q of QUIZ_STICKERS) {
+    const at = quizAwards.got.get(q.award);
+    const cell = document.createElement(at ? "button" : "div");
+    cell.className = `album-cell quiz${at ? "" : " missing"}`;
+    const img = stickerImage(q.id);
+    img.loading = "lazy";
+    const name = document.createElement("small");
+    if (at) {
+      name.textContent = stickerName(q.id);
+      cell.type = "button";
+      cell.setAttribute("aria-label", `${stickerName(q.id)}, quiz sticker`);
+      cell.addEventListener("click", () => showSticker(q.id, { day: localDay(at) }));
+      cell.append(img, name);
+    } else {
+      name.textContent = q.how;
+      const far = document.createElement("small");
+      far.className = "album-quiz-far";
+      far.textContent = `${Math.min(quizAwards[q.of], q.goal)} of ${q.goal}`;
+      cell.setAttribute("aria-label", `Quiz sticker, not collected yet. ${q.how}: ${far.textContent}`);
+      cell.append(img, name);
+      if (q.goal > 1) cell.append(far);
+    }
+    grid.append(cell);
+  }
+  box.append(h, grid);
+  return box;
 }
 
 // Collected stickers are in colour with their name. Not collected: a Common shows its shape and
@@ -272,7 +355,7 @@ function renderAlbum() {
   const got = collectedStickers();
   const count = document.createElement("p");
   count.className = "album-count";
-  count.textContent = `${got.size} of ${stickerSet.length} collected`;
+  count.textContent = `${got.size + quizAwards.got.size} of ${stickerSet.length} collected`;
   const intro = document.createElement("p");
   intro.className = "note";
   intro.textContent = `Get ${STICKER_GOAL} Right answers in a day and you earn a sticker, one a day. Some are harder to find than others.`;
@@ -280,7 +363,7 @@ function renderAlbum() {
   for (const tier of ALBUM_ORDER) {
     const grid = document.createElement("div");
     grid.className = "album-grid";
-    for (const st of stickerSet.filter((x) => x.tier === tier)) {
+    for (const st of dayStickers().filter((x) => x.tier === tier)) {
       const has = got.has(st.id);
       const cell = document.createElement(has ? "button" : "div");
       cell.className = `album-cell ${tier}${has ? "" : " missing"}`;
@@ -302,6 +385,7 @@ function renderAlbum() {
     }
     body.append(grid);
   }
+  body.append(quizAlbum());
   const credit = document.createElement("p");
   credit.className = "note album-credit";
   credit.innerHTML = 'Bird stickers: <a href="https://github.com/alchaincyf/huashu-bird-sticker" target="_blank" rel="noopener">huashu-bird-sticker</a> by Huashu, '

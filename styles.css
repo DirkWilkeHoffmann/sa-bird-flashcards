@@ -17,6 +17,7 @@
   --tier-common: rgba(60, 72, 62, .22);
   --tier-rare: #dcc27a;
   --tier-legend: #b7a3dc;
+  --tier-quiz: #8fc1e3;
   --glow-common: #7cc48f;  /* a Common's soft green glow when it's shown */
   --bad: #d63b2c;
   --data: #2f8f5b;
@@ -58,6 +59,7 @@
     --tier-common: rgba(170, 195, 178, .28);
     --tier-rare: #a8924f;
     --tier-legend: #8a76b8;
+    --tier-quiz: #5f8fb4;
     --glow-common: #4f9a63;
     --bad: #ff6a56;
     --data: #7fcc9c;
@@ -883,6 +885,13 @@ img.failed { visibility: hidden; }
   .album-cell.missing.rare img { filter: brightness(0) invert(1); opacity: .34; } }
 .album-cell.missing.rare small { font-weight: 700; }
 .album-cell.missing.legendary img { filter: blur(10px) saturate(.8); opacity: .5; transform: scale(.8); }
+/* Quiz stickers: a sky-blue outline; one not earned yet shows its shape, how to earn it and how far along. */
+.album-cell.quiz { box-shadow: inset 0 0 0 1.5px var(--tier-quiz); }
+.album-cell.missing.quiz img { filter: brightness(0); opacity: .22; }
+@media (prefers-color-scheme: dark) { .album-cell.missing.quiz img { filter: brightness(0) invert(1); opacity: .26; } }
+.album-cell.missing.quiz small { color: var(--label); }
+.album-cell .album-quiz-far { color: var(--label-2); font-variant-numeric: tabular-nums; }
+.album-quiz-h { margin: 0 0 8px; font-size: var(--fs-headline); font-weight: 700; }
 .album-credit { margin-top: 4px; }
 
 .sticker-pop { width: min(340px, calc(100% - 32px)); padding: 22px 20px 18px; border: 0; border-radius: 26px; text-align: center;
@@ -893,6 +902,7 @@ img.failed { visibility: hidden; }
 .sticker-pop { --glow: var(--glow-common); --glow-size: 210px; --glow-strength: 45%; }
 .sticker-pop.rare { --glow: var(--tier-rare); --glow-size: 245px; --glow-strength: 65%; }
 .sticker-pop.legendary { --glow: var(--tier-legend); --glow-size: 290px; --glow-strength: 100%; }
+.sticker-pop.quiz { --glow: var(--tier-quiz); --glow-size: 280px; --glow-strength: 90%; }
 /* Every sticker arrives with a soft glow and slowly turning rays: small and green for a Common,
    bigger and yellow for a Rare, biggest and purple for a Legendary. */
 .sticker-pop .sp-stage::before, .sticker-pop .sp-stage::after { content: ""; position: absolute; border-radius: 50%;

@@ -76,3 +76,17 @@ no daily record, no running wins and losses. The only scores kept are the rounds
   R." and the time left with ›, finished ones a Results capsule. Then New quiz, a Friends group (your
   friends ›, Invite a friend), notifications, and Past quizzes folded into one row. The
   Friends screen: your friends (✕ to remove), Invite a friend, and You (name friends see, new invite link).
+
+## Quiz stickers (Dev, 25 Nov 2026)
+- Three stickers you can only earn in quizzes with friends, never drawn as a day's sticker: **finish your
+  first quiz**, **finish 10 quizzes**, **win 50 quizzes**. A win is a finished quiz where at least one
+  friend played too and nobody did better (more Right, or as many in less time: the results' order).
+- Each arrives the big way once, with a sky-blue glow ("You finished your first quiz!"), when the quizzes
+  load (after finishing one, opening the app or the quiz page); never in the middle of playing. Two at once
+  follow each other. The album has a "From quizzes with friends" row: earned ones in colour, the rest as a
+  shape with how to earn it and how far along ("4 of 50").
+- Kept online with the account, per build like the quizzes (table `quiz_awards`, function `quiz_awards`,
+  `supabase/migrations/20261125_quiz_stickers.sql`), so they follow you to another phone and are shown
+  only once. Players who'd already finished quizzes get theirs the next time the quizzes load.
+- The birds: tier `quiz` in `data/stickers.json` (folder `4 Quiz` in the sticker source), and which one
+  is earned how in `QUIZ_STICKERS` (stickers.js); swapping a bird needs no database change.
