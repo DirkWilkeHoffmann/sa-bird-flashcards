@@ -1,5 +1,5 @@
 "use strict";
-// Friend quizzes (docs/plan-friend-quizzes.md): add friends with a friend code, send them a round of
+// Friend quizzes (docs/plan-friend-quizzes.md): add friends with an invite link, send them a round of
 // 10 birds from an area and level, everyone types the names (1 minute a bird), then sees how everyone
 // did. Rounds are open for 24 hours. Nothing is public and a quiz never changes learning progress.
 // Everything goes through the quiz_* database functions, as the signed-in player (auth.js).
@@ -11,7 +11,9 @@ const QUIZ_MAX_FRIENDS = 9;         // invited per round
 const PUSH_URL = `${SUPABASE_URL}/functions/v1/quiz-push`;
 const QUIZ_LEVELS = ["beginner", "easy", "medium", "hard"];
 
-let quizMe = null;          // { code, name }
+let quizMe = null;          // { link, name }
+let pendingInvite = null;   // { token, name }: someone's invite link, waiting for Add
+const INVITE_KEY = "sabirds.addFriend.v1";  // the link's token, kept across the Google sign-in
 let quizFriends = [];       // [{ id, name }]
 let quizRounds = [];        // rounds from quiz_list, newest first
 let quizLoaded = 0;         // when the lists were last fetched
@@ -103,7 +105,9 @@ function renderQuiz(problem = "") {
     return;
   }
   if (!account) {
-    body.append(qel("p", "quiz-lead", "Send friends 10 birds and see who names the most."));
+    body.append(qel("p", "quiz-lead", load(INVITE_KEY, null)
+      ? "A friend invited you to SA Birds. Sign in with Google to say yes."
+      : "Send friends 10 birds and see who names the most."));
     const b = qbutton("", "btn google", () => signInFrom("quiz"));
     b.innerHTML = `<span aria-hidden="true">G</span> Sign in with Google`;
     body.append(b);
@@ -114,6 +118,7 @@ function renderQuiz(problem = "") {
     if (!problem) body.append(qel("p", "note", "Loading…"));
     return;
   }
+  if (pendingInvite) body.append(inviteCard());
 
   // Quizzes from friends first, then your own; a long list shows 3 and folds the rest away.
   const toPlay = quizRounds.filter(waitingForMe).sort((a, b) => Number(a.mine) - Number(b.mine));
@@ -130,8 +135,8 @@ function renderQuiz(problem = "") {
   if (quizFriends.length) {
     body.append(qbutton("New quiz", "btn primary quiz-new", openNewQuiz));
   } else {
-    body.append(qel("p", "quiz-lead", "Send friends 10 birds and see who names the most. Start by adding a friend."),
-      qbutton("Add a friend", "btn primary quiz-new", openFriends));
+    body.append(qel("p", "quiz-lead", "Send friends 10 birds and see who names the most. Start by inviting a friend."),
+      qbutton("Invite a friend", "btn primary quiz-new", shareInvite));
   }
 
   // Friends have their own screen; here just who they are.
@@ -236,50 +241,80 @@ function friendsSection() {
     box.append(row);
   }
 
-  const add = qel("form", "quiz-add");
-  const input = qel("input", "select");
-  input.placeholder = "Add a friend's code";
-  input.autocomplete = "off";
-  input.autocapitalize = "characters";
-  input.spellcheck = false;
-  input.maxLength = 12;
-  input.setAttribute("aria-label", "Friend's code");
-  const go = qel("button", "btn ghost small", "Add");
-  go.type = "submit";
-  add.append(input, go);
-  add.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const value = input.value.trim();
-    if (!value) return;
-    go.disabled = true;
-    try {
-      const res = await qrpc("quiz_add_friend", { p_code: value });
-      if (res.error === "self") showToast("That's your own code.", { ms: 3000 });
-      else if (res.error === "too_many") showToast("Too many wrong codes. Try again in an hour.", { ms: 4000 });
-      else if (res.error) showToast("No one has that code. Check it and try again.", { ms: 3500 });
-      else {
-        showToast(`${res.name} is now your friend`, { ms: 3000 });
-        logEvent("quiz", null, { step: "friend" });
-        await loadQuiz(true);
-        renderQuiz();
-        renderFriends();
-        return;
-      }
-    } catch { showToast("Couldn't add your friend. Check your signal and try again.", { ms: 4000 }); }
-    go.disabled = false;
-  });
-  box.append(add);
+  box.append(qbutton("Invite a friend", "btn primary quiz-invite", shareInvite));
 
   const me = qel("p", "quiz-me");
-  me.append("Your code ", qel("b", "quiz-code", quizMe.code), " ",
-    qbutton("Copy", "link-btn", async () => {
-      try { await navigator.clipboard.writeText(quizMe.code); showToast("Code copied", { ms: 2000 }); }
-      catch { showToast(`Your code is ${quizMe.code}`, { ms: 4000 }); }
-    }),
-    qel("br"), "Friends see you as ", qel("b", null, quizMe.name), " ",
-    qbutton("Change", "link-btn", changeQuizName));
+  me.append("Friends see you as ", qel("b", null, quizMe.name), " ",
+    qbutton("Change", "link-btn", changeQuizName), qel("br"),
+    qbutton("Make a new invite link", "link-btn", newInviteLink));
   box.append(me);
   return box;
+}
+
+const inviteUrl = () => `${new URL(".", location.href).href}?add=${quizMe.link}`;
+
+// The phone's own share sheet (WhatsApp, messages…); elsewhere the link is copied.
+async function shareInvite() {
+  if (!quizMe) return;
+  const url = inviteUrl();
+  const text = "Be my friend on SA Birds and we can quiz each other on southern African birds:";
+  logEvent("quiz", null, { step: "invite_share" });
+  if (navigator.share) {
+    try { await navigator.share({ title: "SA Birds", text, url }); return; }
+    catch (e) { if (e?.name === "AbortError") return; }
+  }
+  try { await navigator.clipboard.writeText(`${text} ${url}`); showToast("Invite link copied. Paste it in a message.", { ms: 3500 }); }
+  catch { prompt("Send this link to your friend:", url); }
+}
+
+async function newInviteLink() {
+  if (!confirm("Make a new invite link? The old one stops working. Your friends stay your friends.")) return;
+  try { quizMe = await qrpc("quiz_new_link"); showToast("New invite link ready", { ms: 2500 }); }
+  catch { showToast("Couldn't make a new link. Check your signal.", { ms: 3500 }); }
+}
+
+// Opened from someone's invite link: ask before adding them.
+async function checkInvite() {
+  const token = load(INVITE_KEY, null);
+  if (!token || !quizOn()) return;
+  try {
+    const res = await qrpc("quiz_invite_peek", { p_token: token });
+    if (res.error || res.already) {
+      save(INVITE_KEY, null);
+      showToast(res.error === "self" ? "That's your own invite link." : res.already ? `You and ${res.name} are already friends.`
+        : "That invite link doesn't work any more. Ask your friend for a new one.", { ms: 4000 });
+      return;
+    }
+    pendingInvite = { token, name: res.name };
+    renderQuiz();
+    openSheet($("quiz"));
+  } catch { /* offline: the link is kept and checked next time */ }
+}
+
+function inviteCard() {
+  const card = qel("div", "quiz-card to-play incoming");
+  card.append(qel("div", "quiz-card-head", ""), qel("p", "quiz-lead", `${pendingInvite.name} invited you to be friends on SA Birds.`));
+  card.firstChild.append(qel("b", null, "Friend invite"));
+  const row = qel("div", "quiz-card-actions");
+  row.append(qbutton(`Add ${pendingInvite.name}`, "btn primary small", acceptInvite),
+    qbutton("Not now", "btn ghost small", () => { save(INVITE_KEY, null); pendingInvite = null; renderQuiz(); }));
+  card.append(row);
+  return card;
+}
+
+async function acceptInvite() {
+  const { token } = pendingInvite;
+  try {
+    const res = await qrpc("quiz_invite_accept", { p_token: token });
+    save(INVITE_KEY, null);
+    pendingInvite = null;
+    if (res.error) { showToast("That invite link doesn't work any more. Ask your friend for a new one.", { ms: 4000 }); renderQuiz(); return; }
+    logEvent("quiz", null, { step: "friend" });
+    const home = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+    showToast(`You and ${res.name} are friends.${home ? "" : " To play, open SA Birds from your Home Screen icon."}`, { ms: home ? 3500 : 6000 });
+    await loadQuiz(true);
+    renderQuiz();
+  } catch { showToast("Couldn't add your friend. Check your signal and try again.", { ms: 4000 }); }
 }
 
 async function changeQuizName() {
@@ -401,7 +436,7 @@ function openNewQuiz() {
   if (!species.length) { showToast("The birds are still loading. Try again in a moment.", { ms: 3000 }); return; }
   const wait = nextQuizAt();
   if (wait) { showToast(quizLimitText(wait), { ms: 5000 }); return; }
-  if (!quizFriends.length) { showToast("Add a friend first, with their friend code.", { ms: 3000 }); return; }
+  if (!quizFriends.length) { showToast("Invite a friend first.", { ms: 3000 }); return; }
   const sel = $("quizArea");
   sel.replaceChildren(...[...$("areaSelect").children].map((n) => n.cloneNode(true)));
   sel.querySelector('option[value="near"]')?.remove();  // quizzes are for named areas only
@@ -842,6 +877,17 @@ const QUIZ_FROM_URL = (() => {
   return /^[0-9a-f-]{36}$/.test(id || "") ? id : null;
 })();
 
+// Opened from a friend's invite link (?add=<token>): keep it through the Google sign-in.
+(() => {
+  const params = new URLSearchParams(location.search);
+  const token = params.get("add");
+  if (token === null) return;
+  const url = new URL(location.href);
+  url.searchParams.delete("add");
+  history.replaceState(history.state, "", url.pathname + url.search + url.hash);
+  if (/^[0-9a-f]{32}$/.test(token)) save(INVITE_KEY, token);
+})();
+
 async function openRoundFromNotification(id) {
   if (!quizOn()) { openQuiz(); return; }
   await loadQuiz(true).catch(() => {});
@@ -857,9 +903,9 @@ navigator.serviceWorker?.addEventListener("message", (e) => {
 if (authClient) {
   authClient.auth.onAuthStateChange((event, session) => {
     if (!session?.user) {
-      quizMe = null; quizFriends = []; quizRounds = []; quizLoaded = 0;
+      quizMe = null; quizFriends = []; quizRounds = []; quizLoaded = 0; pendingInvite = null;
       updateQuizDot();
-      if (event === "INITIAL_SESSION" && QUIZ_FROM_URL) setTimeout(openQuiz, 800);
+      if (event === "INITIAL_SESSION" && (QUIZ_FROM_URL || load(INVITE_KEY, null))) setTimeout(openQuiz, 800);
       return;
     }
     if (event !== "INITIAL_SESSION" && event !== "SIGNED_IN") return;
@@ -868,6 +914,7 @@ if (authClient) {
       try { await loadQuiz(true); } catch { /* offline: try again later */ }
       enablePush(false);
       if ($("quiz").open) renderQuiz();
+      checkInvite();
       if (event === "INITIAL_SESSION" && QUIZ_FROM_URL) openRoundFromNotification(QUIZ_FROM_URL);
     }, 0);
   });
