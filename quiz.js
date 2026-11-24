@@ -364,7 +364,9 @@ async function newInviteLink() {
 // (once signed in) and the quiz page says so. In a phone's browser it also says to go to the SA Birds
 // app on the Home Screen: iPhones open every link in Safari, never in the Home Screen app, and the two
 // don't share saved data or sign-in; the friendship is on the server, so the app has it too.
-let newFriend = null;  // { name, already }: the note at the top of the quiz page, until it's closed
+// Since there's no "Add?" question, the note has an Undo: a link someone else sent you to can't
+// leave you friends with them by accident.
+let newFriend = null;  // { name, id, already }: the note at the top of the quiz page, until it's closed
 async function checkInvite() {
   const token = load(INVITE_KEY, null);
   if (!token || !quizOn()) return;
@@ -384,9 +386,11 @@ async function checkInvite() {
         return;
       }
       logEvent("quiz", null, { step: "friend" });
+      newFriend = { name: peek.name, id: res.id, already: false };
+    } else {
+      newFriend = { name: peek.name, already: true };
     }
     save(INVITE_KEY, null);
-    newFriend = { name: peek.name, already: peek.already };
     await loadQuiz(true);
     renderQuiz();
     openSheet($("quiz"));
@@ -410,6 +414,20 @@ function newFriendNote() {
     text.append(qel("p", null, `Send ${name.split(" ")[0]} a quiz, or wait for theirs.`));
   }
   box.append(ic, text);
+  if (!already && newFriend.id) {
+    const undo = qbutton("Undo", "link-btn qnotice-undo", async () => {
+      undo.disabled = true;
+      try {
+        await qrpc("quiz_remove_friend", { p_id: newFriend.id });
+        showToast(`${name} is no longer your friend.`, { ms: 3000 });
+        newFriend = null;
+        await loadQuiz(true);
+        renderQuiz();
+      } catch { undo.disabled = false; showToast("Couldn't undo. Check your signal and try again.", { ms: 3500 }); }
+    });
+    undo.setAttribute("aria-label", `Undo: don't be friends with ${name}`);
+    box.append(undo);
+  }
   return box;
 }
 

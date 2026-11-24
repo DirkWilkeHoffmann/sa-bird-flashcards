@@ -21,7 +21,8 @@ no daily record, no running wins and losses. The only scores kept are the rounds
   from your Home Screen to play together": iPhones open every link in Safari, never in the Home Screen app,
   and the two don't share sign-in, but the friendship is on the server, so the app has it. (So on an iPhone
   the person signs in with Google once in Safari too.) Android: an app installed with Chrome opens the link
-  itself.
+  itself. The note has an Undo, since there is no "Add?" question: a link someone else sends you
+  to can't leave you friends with them by accident.
 - **Quizzes need a Google sign-in** (that's who you are to your friends).
 - **A round:** pick an area and a level (Beginner, Easy, Medium or Hard, the same groups the app works out
   for each area), invite 1–9 friends. The app draws **10 birds**; everyone gets the same 10, in the same
