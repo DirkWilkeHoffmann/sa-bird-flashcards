@@ -183,6 +183,9 @@
     .feed .row .what .tier { display: inline-block; margin-left: 4px; vertical-align: 1px; color: var(--label-2); font-size: .68rem; }
     .feed .row time { flex: none; color: var(--label-2); font-size: .78rem; text-align: right; }
     .feed .row.link { cursor: pointer; }
+    .feed .row.qrow .what .qp { display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 4px; font-size: .8rem; color: var(--label-2); }
+    .feed .row.qrow .what .qp i { font-style: normal; white-space: nowrap; }
+    .feed .row.qrow .what .qp b { display: inline; margin-left: 3px; color: var(--label); font-variant-numeric: tabular-nums; }
     .split { display: flex; height: 12px; overflow: hidden; border-radius: 999px; background: var(--fill); margin: 6px 0 8px; }
     .split i { display: block; } .split .common { background: rgba(60, 72, 62, .35); } .split .rare { background: #dcc27a; } .split .legendary { background: #b7a3dc; }
     .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .8rem; color: var(--label-2); }
@@ -216,6 +219,7 @@
         <button type="button" role="tab" data-tab="overview" aria-selected="true">Overview</button>
         <button type="button" role="tab" data-tab="players">Players <span id="playerCount"></span></button>
         <button type="button" role="tab" data-tab="stickers">Stickers <span id="stickerCount"></span></button>
+        <button type="button" role="tab" data-tab="quizzes">Quizzes <span id="quizCount"></span></button>
         <button type="button" role="tab" data-tab="birds">Birds</button>
         <button type="button" role="tab" data-tab="review">To review <span id="reviewBadge"></span></button>
       </nav>
@@ -286,6 +290,11 @@
         <div id="stickerBody"><p class="empty">Loading…</p></div>
       </section>
 
+      <section class="panel" data-panel="quizzes" hidden>
+        <h2>Quizzes with friends</h2>
+        <div id="quizAdmin"><p class="empty">Loading…</p></div>
+      </section>
+
       <section class="panel" data-panel="birds" hidden>
         <div class="grid2">
           <div><h2>Most-missed birds</h2><div class="card"><table id="missed"></table></div></div>
@@ -320,7 +329,7 @@
       names: "Switched name language", name_report: "Afrikaans names questioned", sticker: "Stickers earned",
       sticker_share: "Stickers shared", daily_goal: "Daily goal reached", onboard: "Walkthrough steps",
       installed: "Installed the app", install_reminder: "Install reminders shown", install_nudge: "Install nudges shown",
-      install_prompt: "Install prompts shown", app_installed: "App installs" };
+      install_prompt: "Install prompts shown", app_installed: "App installs", quiz: "Quiz with friends (every step)" };
     let env = "main", days = 30, names = new Map(), players = [];
     // Players list: search, filter, sort, and how many are shown (more on request).
     const PAGE = 30;
@@ -693,6 +702,59 @@
       renderFeed();
     }
 
+    // Quizzes with friends (admin_quizzes): what's sent and played, friendships made, who plays most.
+    const QUIZ_LEVEL = { beginner: "Beginner", easy: "Easy", medium: "Medium", hard: "Hard" };
+    const shortDay = (iso) => new Date(iso).toLocaleDateString("en-ZA", { day: "numeric", month: "short" });
+    const shortTime = (iso) => new Date(iso).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit" });
+    function quizPlayer(p) {
+      const who = esc(p.name || "?");
+      if (p.status === "done") return `${who} <b>${p.score ?? "✓"}</b>`;
+      if (p.status === "declined") return `${who} said no thanks`;
+      if (p.status === "playing") return `${who} playing`;
+      return `${who} still to play`;
+    }
+    function renderQuizzes(q) {
+      const box = $("quizAdmin");
+      $("quizCount").textContent = q?.totals?.quizzes ? `(${fmt(q.totals.quizzes)})` : "";
+      if (!q) {
+        box.innerHTML = `<p class="empty">Quiz numbers aren't available: the dashboard's quiz report (admin_quizzes) couldn't be loaded.</p>`;
+        return;
+      }
+      const t = q.totals;
+      const tile = (n, l, sub = "") => `<div class="tile"><b>${typeof n === "number" ? fmt(n) : esc(n)}</b><span>${l}</span>${sub ? `<small>${sub}</small>` : ""}</div>`;
+      const pct = t.invited ? `${Math.round((t.invited_played / t.invited) * 100)}%` : "–";
+      const byDay = (k) => q.by_day.map((d) => ({ day: d.day, n: d[k] }));
+      box.innerHTML = `
+        <div class="tiles">
+          ${tile(t.quizzes, "Quizzes sent", t.senders ? `by ${fmt(t.senders)} player${t.senders === 1 ? "" : "s"}` : "")}
+          ${tile(t.plays, "Quizzes played", t.avg_score != null ? `average ${t.avg_score} of 10` : "")}
+          ${tile(pct, "Invited friends who played", t.invited ? `${fmt(t.invited_played)} of ${fmt(t.invited)}${t.declined ? `, ${fmt(t.declined)} said no thanks` : ""}` : "")}
+          ${tile(t.friendships_new, "Friendships made", `${fmt(t.friendships)} in all`)}
+          ${tile(t.with_friends, "Players with a friend", `${fmt(t.quiz_players)} have opened quizzes`)}
+          ${tile(t.invites_shared, "Invite links shared")}
+          ${tile(t.notifications, "Notifications on")}
+        </div>
+        <p class="sub" style="margin-top:8px">Last ${days} days, ${env === "dev" ? "Dev" : "the live app"}. Friendships are shared by the live app and Dev, so they're the same in both.</p>
+        <h2>Over time</h2>
+        <div class="grid2">${chart("Quizzes sent", byDay("quizzes"))}${chart("Quizzes played", byDay("plays"))}${chart("New friendships", byDay("friends"))}</div>
+        <h2>Latest quizzes</h2>
+        <div class="feed">${q.recent.length ? q.recent.map((r) => `
+          <div class="row qrow"><div class="what"><b>${esc(r.area)} · ${QUIZ_LEVEL[r.level] || esc(r.level)}</b>
+            <span>From ${esc(r.by || "?")} · ${shortDay(r.at)} · ${r.open ? "open" : "closed"}</span>
+            <div class="qp">${(r.players || []).map((p) => `<i>${quizPlayer(p)}</i>`).join("")}</div></div></div>`).join("")
+          : `<p class="empty">No quizzes in this period.</p>`}</div>
+        <div class="grid2">
+          <div><h2>New friendships</h2><div class="feed">${q.friendships.length ? q.friendships.map((f) => `
+            <div class="row"><div class="what"><b>${esc(f.a || "?")} + ${esc(f.b || "?")}</b></div>
+              <time>${shortDay(f.at)}<br>${shortTime(f.at)}</time></div>`).join("")
+            : `<p class="empty">No new friendships in this period.</p>`}</div></div>
+          <div><h2>Most active</h2><div class="card">${q.top.length
+            ? `<table><tr><th>Player</th><th class="num">Sent</th><th class="num">Played</th><th class="num">Average</th></tr>${q.top.map((p) =>
+              `<tr><td>${esc(p.name)}</td><td class="num">${fmt(p.sent)}</td><td class="num">${fmt(p.played)}</td><td class="num">${p.avg ?? "–"}</td></tr>`).join("")}</table>`
+            : `<p class="empty">Nobody yet.</p>`}</div></div>
+        </div>`;
+    }
+
     function renderFeed() {
       const all = stickers.filter(inEnv);
       $("stickerFeed").innerHTML = all.slice(0, shownFeed).map((x) => `
@@ -816,12 +878,13 @@
       if (!key()) { $("keyForm").hidden = false; $("report").hidden = true; return; }
       $("msg").textContent = "Loading…";
       try {
-        const [r, pl, st, so, ret, times] = await Promise.all([rpcRetry("admin_report", { p_key: key(), p_env: env, p_days: days }),
+        const [r, pl, st, so, ret, times, qz] = await Promise.all([rpcRetry("admin_report", { p_key: key(), p_env: env, p_days: days }),
           rpcRetry("admin_players", { p_key: key(), p_env: env }),
           rpcRetry("admin_stickers", { p_key: key() }).catch(() => null),
           rpcRetry("admin_sources", { p_key: key(), p_env: env, p_days: days }).catch(() => null),
           rpcRetry("admin_retention", { p_key: key(), p_env: env, p_days: days }).catch(() => null),
-          rpcRetry("admin_play_times", { p_key: key(), p_env: env, p_days: days }).catch(() => null)]);
+          rpcRetry("admin_play_times", { p_key: key(), p_env: env, p_days: days }).catch(() => null),
+          rpcRetry("admin_quizzes", { p_key: key(), p_env: env, p_days: days }).catch(() => null)]);
         retention = ret;
         $("msg").textContent = "";
         $("keyForm").hidden = true;
@@ -836,6 +899,7 @@
         shownPlayers = PAGE; shownFeed = 20;
         renderPlayers();
         renderStickers();
+        renderQuizzes(qz);
         loadHistory();
         loadNames();
       } catch (e) {
