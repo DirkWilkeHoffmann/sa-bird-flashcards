@@ -275,12 +275,18 @@ async function prepareShare(id) {
 }
 
 // The words that go with a shared sticker: what it is and a link to the live app, for whoever gets it.
+// Signed in, the link is your invite link (quiz.js), so whoever opens it becomes your friend; it always
+// points at the live app, also from Dev (friendships are shared by both).
 const SHARE_LINK = "https://sabirds.co.za";
+function shareInviteToken() { return typeof quizMe !== "undefined" && quizMe?.link ? quizMe.link : null; }
 function shareText(id) {
   const q = QUIZ_STICKERS.find((x) => x.id === Number(id));
   const got = q ? `I earned the ${stickerName(id)} sticker in a bird quiz with friends on SA Birds`
     : `I earned the ${stickerName(id)} sticker on SA Birds`;
-  return `${got}. Learn to recognise South Africa's birds and quiz your friends: ${SHARE_LINK}`;
+  const token = shareInviteToken();
+  return token
+    ? `${got}. Be my friend there and we can quiz each other on South Africa's birds: ${SHARE_LINK}/?add=${token}`
+    : `${got}. Learn to recognise South Africa's birds and quiz your friends: ${SHARE_LINK}`;
 }
 
 async function shareSticker() {
@@ -293,6 +299,7 @@ async function shareSticker() {
     try {
       await navigator.share(data);
       logEvent("sticker_share", id);
+      if (data.text && shareInviteToken()) logEvent("quiz", null, { step: "invite_share", via: "sticker" });
     } catch (e) {
       if (e.name !== "AbortError") showToast("Couldn't share the sticker");
     }

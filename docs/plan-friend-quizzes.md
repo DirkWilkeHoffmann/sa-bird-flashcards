@@ -97,4 +97,7 @@ no daily record, no running wins and losses. The only scores kept are the rounds
   them (and "4 of 50"), the secret three show a ?.
 - **Sharing any sticker** (daily or quiz) now sends words with it where the share sheet allows: "I earned
   the Rosy-faced Lovebird sticker on SA Birds. Learn to recognise South Africa's birds and quiz your
-  friends: https://sabirds.co.za" (always the live app's address, also from Dev).
+  friends: https://sabirds.co.za" (always the live app's address, also from Dev). Signed in, it's your
+  invite link instead: "…Be my friend there and we can quiz each other on South Africa's birds:
+  https://sabirds.co.za/?add=…", so whoever opens it becomes your friend (with Undo, as for any invite);
+  it counts as an invite link shared on the dashboard.
