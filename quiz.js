@@ -123,54 +123,52 @@ function renderQuiz(problem = "") {
   }
   if (pendingInvite) body.append(inviteCard());
 
-  // Quizzes from friends first, then your own; a long list shows 3 and folds the rest away.
+  // Laid out like iOS Settings: labelled groups of rows. Quizzes to play first (friends' before your own).
   const toPlay = quizRounds.filter(waitingForMe).sort((a, b) => Number(a.mine) - Number(b.mine));
-  for (const r of toPlay.slice(0, 3)) body.append(roundCard(r, true));
-  if (toPlay.length > 3) {
-    const more = qel("details", "quiz-history quiz-more");
-    more.open = quizMoreOpen;
-    more.addEventListener("toggle", () => { quizMoreOpen = more.open; });
-    more.append(qel("summary", null, `${toPlay.length - 3} more to play`));
-    for (const r of toPlay.slice(3)) more.append(roundCard(r, true));
-    body.append(more);
-  }
+  if (toPlay.length) body.append(qgroup("To play", toPlay.map(playRow)));
   // Played, and waiting for the others or for you to see the results: stays up here till then.
-  for (const r of quizRounds.filter(following)) body.append(followingCard(r));
+  const played = quizRounds.filter(following);
+  if (played.length) body.append(qgroup("Results", played.map(resultRow)));
 
   if (quizFriends.length) {
     // A friend's quiz waiting: its Play is the one orange button, so New quiz isn't mistaken for it.
     const friendsQuiz = toPlay.some((r) => !r.mine);
-    body.append(qbutton("New quiz", `btn ${friendsQuiz ? "ghost" : "primary"} quiz-new`, openNewQuiz));
+    const b = qbutton("", `btn ${friendsQuiz ? "ghost" : "primary"} quiz-new`, openNewQuiz);
+    b.innerHTML = `${icon("plus")}<span>New quiz</span>`;
+    body.append(b);
   } else {
     body.append(qel("p", "quiz-lead", "Send friends 10 birds and see who names the most. Start by inviting a friend."),
       qbutton("Invite a friend", "btn primary quiz-new", shareInvite));
   }
-  if (!pendingInvite) body.append(pasteRow());
 
-  // Friends have their own screen; here just who they are.
+  const friendRows = [];
   if (quizFriends.length) {
-    const row = qbutton("", "quiz-row", openFriends);
-    row.append(qel("b", null, "Friends"), qel("span", "quiz-row-list", quizFriends.map((f) => f.name).join(", ")));
-    row.insertAdjacentHTML("beforeend", icon("chevron", "small"));
-    body.append(row);
+    friendRows.push(qrow({ icon: "friends", tone: "neutral", title: `${quizFriends.length} friend${quizFriends.length === 1 ? "" : "s"}`,
+      sub: quizFriends.map((f) => f.name).join(", "), chevron: true, onClick: openFriends }));
+    friendRows.push(actionRow("share", "Invite a friend", shareInvite));
   }
+  if (!pendingInvite) friendRows.push(actionRow("paste", "Paste an invite", pasteInvite));
+  if (friendRows.length) body.append(qgroup("Friends", friendRows));
 
-  const push = pushButton();
-  if (push) body.append(push);
+  const push = pushRow();
+  if (push) body.append(qgroup("", [push], "Get a notification when a friend sends you a quiz."));
 
-  // Past quizzes at the bottom, folded away until opened.
+  // Past quizzes at the bottom, folded into one row until opened.
   const rest = quizRounds.filter((r) => !waitingForMe(r) && !following(r));
   if (rest.length) {
-    const history = qel("details", "quiz-history");
-    history.open = quizHistoryOpen;
-    history.addEventListener("toggle", () => { quizHistoryOpen = history.open; });
-    history.append(qel("summary", null, `Your quizzes (${rest.length})`));
-    for (const r of rest) history.append(roundCard(r));
-    body.append(history);
+    const past = qel("details", "qgroup qpast");
+    past.open = quizHistoryOpen;
+    past.addEventListener("toggle", () => { quizHistoryOpen = past.open; });
+    const sum = qel("summary", "qrow tap noicon");
+    sum.append(qel("span", "qrow-text"), qel("span", "qrow-end", String(rest.length)));
+    sum.firstChild.append(qel("b", null, "Past quizzes"));
+    sum.insertAdjacentHTML("beforeend", icon("chevron", "qrow-chev"));
+    past.append(sum, ...rest.map(pastRow));
+    body.append(qel("div", "qsection"));
+    body.lastChild.append(past);
   }
 }
 let quizHistoryOpen = false;
-let quizMoreOpen = false;
 
 function openFriends() {
   renderFriends();
@@ -189,8 +187,8 @@ function playerLine(r) {
     const who = p.me ? "You" : p.name;
     if (p.status === "done") return p.score != null ? `${who} ${p.score}` : `${who} ✓`;
     if (p.status === "declined") return `${who} –`;
-    return open ? `${who} …` : `${who} –`;
-  }).join(" · ");
+    return open ? "" : `${who} –`;
+  }).filter(Boolean).join(" · ");
 }
 
 // "Sam K." → "Sam's quiz"
@@ -201,29 +199,92 @@ const playLabel = (r) => {
   return r.mine ? "Play" : `Play ${quizOf(r.by)}`;
 };
 
-function roundCard(r, toPlay = false) {
-  const card = qel("div", `quiz-card${toPlay ? ` to-play ${r.mine ? "outgoing" : "incoming"}` : ""}`);
-  const head = qel("div", "quiz-card-head");
-  const settled = !r.players.some((p) => p.status === "invited" || p.status === "playing");
-  const what = `${r.area_name} · ${levelName(r.level)}`;
-  head.append(qel("b", null, toPlay && !r.mine ? `${r.by} sent you a quiz` : what),
-    qel("span", "quiz-when", roundOpen(r) && !settled ? timeLeft(r) : shortDate(r.created_at)));
-  card.append(head);
-  if (toPlay) {
-    const sentTo = r.players.filter((p) => !p.me).map((p) => p.name).join(", ");
-    card.append(qel("p", "quiz-meta", r.mine ? `You sent this to ${sentTo}` : `10 birds · ${what}`));
-    const row = qel("div", "quiz-card-actions");
-    row.append(qbutton(playLabel(r), "btn primary small", () => startRound(r.id)));
-    if (!r.mine && r.my_status === "invited") row.append(qbutton("No thanks", "btn ghost small", () => declineRound(r)));
-    card.append(row);
-  } else {
-    card.append(qel("p", "quiz-players", playerLine(r)));
-    card.classList.add("tap");
-    card.tabIndex = 0;
-    card.setAttribute("role", "button");
-    card.addEventListener("click", () => openResults(r.id));
+/* ---------- Rows and groups (iOS grouped-list style) ---------- */
+
+// A labelled group of rows, with an optional note under it.
+function qgroup(title, rows, foot = "") {
+  const sec = qel("section", "qsection");
+  if (title) sec.append(qel("h3", "qgroup-h", title));
+  const group = qel("div", "qgroup");
+  group.append(...rows);
+  sec.append(group);
+  if (foot) sec.append(qel("p", "qgroup-foot", foot));
+  return sec;
+}
+
+// One row: an icon in a coloured square, a title and a line under it, something at the end, maybe a ›.
+// The whole row is the tap target; a button at its end (Play, Results) does its own thing.
+function qrow({ icon: name, tone = "neutral", title, sub, end, chevron = false, onClick, cls = "" }) {
+  const row = qel("div", `qrow${onClick ? " tap" : ""}${name ? "" : " noicon"}${cls ? ` ${cls}` : ""}`);
+  if (onClick) {
+    row.tabIndex = 0;
+    row.setAttribute("role", "button");
+    row.addEventListener("click", onClick);
+    row.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick(e); } });
   }
-  return card;
+  if (name) {
+    const ic = qel("span", `qrow-icon ${tone}`);
+    ic.innerHTML = icon(name);
+    row.append(ic);
+  }
+  const text = qel("span", "qrow-text");
+  text.append(qel("b", null, title));
+  if (sub) text.append(qel("span", null, sub));
+  row.append(text);
+  if (end != null) row.append(typeof end === "string" ? qel("span", "qrow-end", end) : end);
+  if (chevron) row.insertAdjacentHTML("beforeend", icon("chevron", "qrow-chev"));
+  return row;
+}
+
+// A row that does something (Invite a friend…): tint icon and title, no ›.
+const actionRow = (name, title, onClick) => qrow({ icon: name, tone: "action", title, onClick, cls: "action" });
+
+// The small capsule at a row's end, like the App Store's Get button.
+function qcapsule(text, onClick, soft = false) {
+  const b = qbutton(text, `qcap${soft ? " soft" : ""}`, (e) => { e.stopPropagation(); onClick(); });
+  return b;
+}
+
+// The capsule with a small note under it ("22 h left"), as the App Store does under Get.
+function capsuleWithNote(cap, note) {
+  const box = qel("span", "qcap-stack");
+  box.append(cap, qel("small", null, note));
+  return box;
+}
+
+const what = (r) => `${r.area_name} · ${levelName(r.level)}`;
+
+// To play: "Quiz from Sam K. / Kruger National Park · Easy · 22 h left   [Play]". The row opens the
+// quiz's page (what it is, Play, No thanks); the capsule starts it.
+function playRow(r) {
+  const done = r.my_answers?.length || 0;
+  const going = r.my_status === "playing" && done;
+  const sentTo = r.players.filter((p) => !p.me).map((p) => p.name).join(", ");
+  return qrow({
+    icon: r.mine ? "person" : "friends", tone: r.mine ? "mine" : "friend",
+    title: r.mine ? `Your quiz to ${sentTo}` : `Quiz from ${r.by}`,
+    sub: going ? `${done} of 10 done · ${what(r)}` : what(r),
+    end: capsuleWithNote(qcapsule(going ? "Carry on" : "Play", () => startRound(r.id)), timeLeft(r)),
+    onClick: () => openResults(r.id),
+  });
+}
+
+// Played: waiting for friends (scores so far), or everyone's done ([Results]).
+function resultRow(r) {
+  const ready = settledRound(r);
+  const waiting = r.players.filter((p) => !p.me && (p.status === "invited" || p.status === "playing")).map((p) => p.name);
+  return qrow({
+    icon: ready ? "check" : "clock", tone: ready ? "mine" : "wait",
+    title: what(r),
+    sub: ready ? playerLine(r) : `Waiting for ${waiting.join(", ")}`,
+    end: ready ? qcapsule("Results", () => openResults(r.id)) : timeLeft(r),
+    chevron: !ready,
+    onClick: () => openResults(r.id),
+  });
+}
+
+function pastRow(r) {
+  return qrow({ title: what(r), sub: `${shortDate(r.created_at)} · ${playerLine(r)}`, chevron: true, onClick: () => openResults(r.id) });
 }
 
 // A quiz you've played stays at the top while friends still have to play, then with "See results"
@@ -240,59 +301,44 @@ function markResultsSeen(r) {
   save(QUIZ_SEEN_KEY, [r.id, ...load(QUIZ_SEEN_KEY, [])].slice(0, 100));
 }
 
-function followingCard(r) {
-  const ready = settledRound(r);
-  const card = qel("div", `quiz-card to-play following${ready ? " ready" : ""}`);
-  const head = qel("div", "quiz-card-head");
-  head.append(qel("b", null, `${r.area_name} · ${levelName(r.level)}`), qel("span", "quiz-when", ready ? "" : timeLeft(r)));
-  const waiting = r.players.filter((p) => !p.me && (p.status === "invited" || p.status === "playing")).map((p) => p.name);
-  card.append(head,
-    qel("p", "quiz-meta", ready ? (roundOpen(r) ? "Everyone's played" : "The quiz has closed") : `Waiting for ${waiting.join(", ")}`),
-    qel("p", "quiz-players", playerLine(r)));
-  const row = qel("div", "quiz-card-actions");
-  row.append(qbutton(ready ? "See results" : "Scores so far", `btn ${ready ? "primary" : "ghost"} small`, () => openResults(r.id)));
-  card.append(row);
-  return card;
-}
-
 function shortDate(iso) {
   return new Date(iso).toLocaleDateString("en-ZA", { day: "numeric", month: "short" });
 }
 
 async function declineRound(r) {
-  if (!confirm(`Skip ${r.by}'s quiz?`)) return;
+  if (!confirm(`Skip ${r.by}'s quiz?`)) return false;
   try {
     await qrpc("quiz_decline", { p_round: r.id });
     await loadQuiz(true);
     renderQuiz();
-  } catch { showToast("Couldn't do that. Check your signal and try again.", { ms: 4000 }); }
+    return true;
+  } catch { showToast("Couldn't do that. Check your signal and try again.", { ms: 4000 }); return false; }
 }
 
 /* ---------- Friends ---------- */
 
 function friendsSection() {
-  const box = qel("section", "quiz-friends");
-
-  for (const f of quizFriends) {
-    const row = qel("div", "quiz-friend");
-    const remove = qbutton("", "quiz-remove", async () => {
-      if (!confirm(`Remove ${f.name} from your friends?`)) return;
-      try { await qrpc("quiz_remove_friend", { p_id: f.id }); await loadQuiz(true); renderQuiz(); renderFriends(); }
-      catch { showToast("Couldn't remove them. Check your signal.", { ms: 3500 }); }
-    });
-    remove.innerHTML = icon("xmark");
-    remove.setAttribute("aria-label", `Remove ${f.name}`);
-    row.append(qel("span", null, f.name), remove);
-    box.append(row);
+  const box = qel("div", "quiz-friends");
+  if (quizFriends.length) {
+    box.append(qgroup("", quizFriends.map((f) => {  // the screen is called Friends already
+      const remove = qbutton("", "qrow-remove", async (e) => {
+        e.stopPropagation();
+        if (!confirm(`Remove ${f.name} from your friends?`)) return;
+        try { await qrpc("quiz_remove_friend", { p_id: f.id }); await loadQuiz(true); renderQuiz(); renderFriends(); }
+        catch { showToast("Couldn't remove them. Check your signal.", { ms: 3500 }); }
+      });
+      remove.innerHTML = icon("xmark");
+      remove.setAttribute("aria-label", `Remove ${f.name}`);
+      return qrow({ icon: "person", tone: "neutral", title: f.name, end: remove });
+    })));
   }
-
-  box.append(qbutton("Invite a friend", "btn primary quiz-invite", shareInvite), pasteRow());
-
-  const me = qel("p", "quiz-me");
-  me.append("Friends see you as ", qel("b", null, quizMe.name), " ",
-    qbutton("Change", "link-btn", changeQuizName), qel("br"),
-    qbutton("Make a new invite link", "link-btn", newInviteLink));
-  box.append(me);
+  box.append(qgroup("",
+    [actionRow("share", "Invite a friend", shareInvite), actionRow("paste", "Paste an invite", pasteInvite)],
+    "Your invite link works for anyone you send it to. Friends are friends both ways."));
+  box.append(qgroup("You", [
+    qrow({ title: "Name friends see", end: quizMe.name, chevron: true, onClick: changeQuizName }),
+    qrow({ title: "Make a new invite link", cls: "action", onClick: newInviteLink }),
+  ], "A new link stops the old one from working. Your friends stay your friends."));
   return box;
 }
 
@@ -436,12 +482,14 @@ async function changeQuizName() {
 
 const pushSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
 
-// Only while notifications could be turned on and aren't yet: one button. (Without them, a dot on the
+// Only while notifications could be turned on and aren't yet: one row. (Without them, a dot on the
 // quiz button shows new invites.)
-function pushButton() {
+function pushRow() {
   if (!pushSupported() || Notification.permission !== "default") return null;
-  return qbutton("🔔 Tell me when friends send a quiz", "btn ghost quiz-push-btn", async (e) => {
-    e.currentTarget.disabled = true;
+  let busy = false;
+  return actionRow("bell", "Turn on notifications", async () => {
+    if (busy) return;
+    busy = true;
     await enablePush(true);
     renderQuiz();
   });
@@ -940,6 +988,9 @@ function renderResults(r) {
         ? `Your quiz: 10 birds from ${r.area_name}, ${levelName(r.level)}. You get a minute to name each bird.`
         : `${r.by} sent you a quiz: 10 birds from ${r.area_name}, ${levelName(r.level)}. You get a minute to name each bird.`));
       body.append(qbutton(playLabel(r), "btn primary quiz-new", () => { closeSheet($("quizResult")); startRound(r.id); }));
+      if (!r.mine && r.my_status === "invited") {
+        body.append(qbutton("No thanks", "btn ghost quiz-new", async () => { if (await declineRound(r)) closeSheet($("quizResult")); }));
+      }
       body.append(qel("p", "note", "Play your 10 to see how everyone did."));
     } else {
       body.append(qel("p", "quiz-lead", "Play your 10 to see how everyone did."));

@@ -68,3 +68,10 @@ no daily record, no running wins and losses. The only scores kept are the rounds
 - **A friend's quiz is clearly the thing to tap:** the card says "Sam K. sent you a quiz · 10 birds · Kruger
   National Park · Easy" with **Play Sam's quiz**; while it waits, New quiz is a plain button (orange the rest
   of the time). Tapping a quiz notification opens that quiz with what it is and one Play button.
+- **The quiz page and Friends screen look like iOS Settings** (24 Nov 2026, with the Apple design skill):
+  labelled groups of rows with thin inset lines, instead of cards, slabs and loose links. To play: "Quiz
+  from Sam K. / Kruger National Park · Easy" with an App Store style Play capsule and the time left under
+  it; tapping the row opens the quiz's page (Play, No thanks). Results: waiting ones show "Waiting for Anni
+  R." and the time left with ›, finished ones a Results capsule. Then New quiz, a Friends group (your
+  friends ›, Invite a friend, Paste an invite), notifications, and Past quizzes folded into one row. The
+  Friends screen: your friends (✕ to remove), Invite / Paste, and You (name friends see, new invite link).
