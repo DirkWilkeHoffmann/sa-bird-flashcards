@@ -52,6 +52,11 @@ It is a Progressive Web App: no App Store needed.
 - **Offline**: ⚙ → *Download this set for offline use* saves the chosen study set (1, 3 or all
   photos per bird, optionally a call, range data and Wikipedia text). Without signal the app shows
   only downloaded birds. Delete downloads from the same screen.
+- **Quiz with friends** (the 👥 button; [docs/plan-friend-quizzes.md](docs/plan-friend-quizzes.md)): add
+  friends with an invite link (share it on WhatsApp or messages; opening it makes you friends), send them 10 birds from an area and level (Beginner–Hard), everyone types the
+  names with a minute per bird (typos, Afrikaans and common SA names count), then sees how everyone did.
+  Rounds are open for 24 hours, nothing is public, and quizzes don't change learning progress. Needs Google
+  sign-in. Notifications for invites and results are web push (`quiz.js`, `sw.js`, Edge Function `quiz-push`).
 - **Sign in with Google** (📊 screen): progress is saved to your account and follows you to any
   device you sign in on. (Each phone still has a private sync code behind the scenes, which the account
   links to; since 21 Nov it isn't shown, and Google is the only way to share progress between devices.)
@@ -75,7 +80,7 @@ and Mozambique south of the Zambezi.
 English names follow the IOC World Bird List (`scripts/build_names.py`, run by `build_data.py`;
 `python3 scripts/build_names.py` on its own refreshes only the names). iNaturalist's names are a mix
 of old Roberts and American names, so where the IOC name differs the old one is kept as `was`: the
-answer screen shows "Formerly Spotted Dikkop". BLSA's other names are kept in `aka` (for the Dev quizzes).
+answer screen shows "Formerly Spotted Dikkop" and quizzes accept it. BLSA's other names are kept in `aka` and count in quizzes too.
 
 `scripts/build_calls.py` builds `data/calls.json` from [xeno-canto](https://xeno-canto.org)
 (quality A/B, preferring Southern African recordings and MP3 files). Calls stream from xeno-canto.

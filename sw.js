@@ -4,11 +4,11 @@
 // Offline downloads (offline.js) live in their own cache, which is never trimmed.
 // The Dev build (…/dev/) shares this site with the main app, so its caches get their own names.
 const PREFIX = self.registration.scope.includes("/dev/") ? "sabirds-dev-" : "sabirds-";
-const APP_CACHE = `${PREFIX}app-v97`;
+const APP_CACHE = `${PREFIX}app-v105`;
 const WIKI_CACHE = `${PREFIX}wiki-v1`;
 const INFO_CACHE = `${PREFIX}info-v1`;  // each bird's range/months file, kept across app updates
 const APP_FILES = [
-  "./", "index.html", "styles.css", "motion.js", "learn.js", "app.js", "progress.js", "offline.js", "auth.js", "onboard.js", "coach.js", "streak.js", "stickers.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
+  "./", "index.html", "styles.css", "motion.js", "learn.js", "app.js", "progress.js", "offline.js", "auth.js", "onboard.js", "coach.js", "streak.js", "stickers.js", "quiz.js", "vendor/supabase-2.45.4.js", "manifest.webmanifest",
   "data/species.json", "data/calls.json", "data/map.json", "data/similar.json", "data/areas.json", "data/near.json", "data/spread.json", "data/stickers.json", "icons/icon-192.png",
 ];
 
@@ -157,4 +157,27 @@ self.addEventListener("fetch", (e) => {
   } else if (url.origin === self.location.origin) {
     e.respondWith(appFile(e.request));
   }
+});
+
+// Quiz notifications (quiz.js subscribes; the quiz-push Edge Function sends them).
+self.addEventListener("push", (e) => {
+  let m = {};
+  try { m = e.data ? e.data.json() : {}; } catch { m = { body: e.data?.text() || "" }; }
+  e.waitUntil(self.registration.showNotification(m.title || "SA Birds", {
+    body: m.body || "", icon: "icons/icon-192.png", tag: m.tag || undefined, data: { round: m.round || null },
+  }));
+});
+
+// Tapping one opens the app (or the open window) on that round.
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const round = e.notification.data?.round || "";
+  const url = new URL(round ? `./?quiz=${round}` : "./", self.registration.scope).href;
+  // On sabirds.co.za the main app's scope (/) also covers Dev (/dev/): only a window of this build.
+  const dev = (u) => new URL(u).pathname.includes("/dev/");
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+    const open = list.find((w) => w.url.startsWith(self.registration.scope) && dev(w.url) === dev(self.registration.scope));
+    if (open) { open.postMessage({ quiz: round }); return open.focus(); }
+    return self.clients.openWindow(url);
+  }));
 });

@@ -657,17 +657,20 @@ carousel.addEventListener("scroll", () => {
   if (i !== slideIndex) { resetZoom(); onSlide(i); }
 }, { passive: true });
 
-const zoom = { scale: 1, x: 0, y: 0, img: null, start: null, lastTap: 0, track: null };
+// Pinch and double-tap zoom, for the study card (carousel) and the quiz photos (quiz.js): the strip
+// touched last is zoom.host.
+const zoom = { scale: 1, x: 0, y: 0, img: null, start: null, lastTap: 0, track: null, host: null };
+const zoomHost = () => zoom.host || carousel;
 const MAX_ZOOM = 5;
 
 function applyZoom() {
   if (zoom.img) zoom.img.style.transform = `translate(${zoom.x}px, ${zoom.y}px) scale(${zoom.scale})`;
-  carousel.classList.toggle("zoomed", zoom.scale > 1.01 || Boolean(zoom.start?.dist));
+  zoomHost().classList.toggle("zoomed", zoom.scale > 1.01 || Boolean(zoom.start?.dist));
 }
 
 // Where the photo may sit at a given zoom: edges stay on screen; smaller than the frame = centred.
 function zoomBounds(scale) {
-  const w = carousel.clientWidth, h = carousel.clientHeight;
+  const w = zoomHost().clientWidth, h = zoomHost().clientHeight;
   const bx = w - w * scale, by = h - h * scale;
   return scale >= 1 ? { minX: bx, maxX: 0, minY: by, maxY: 0 } : { minX: bx / 2, maxX: bx / 2, minY: by / 2, maxY: by / 2 };
 }
@@ -675,13 +678,13 @@ function zoomBounds(scale) {
 // While a finger is down, going past an edge or past full zoom stretches instead of stopping.
 function softZoom() {
   const b = zoomBounds(zoom.scale);
-  zoom.x = soften(zoom.x, b.minX, b.maxX, carousel.clientWidth);
-  zoom.y = soften(zoom.y, b.minY, b.maxY, carousel.clientHeight);
+  zoom.x = soften(zoom.x, b.minX, b.maxX, zoomHost().clientWidth);
+  zoom.y = soften(zoom.y, b.minY, b.maxY, zoomHost().clientHeight);
 }
 
 // Fingers up: spring back inside the limits, carrying a pan's momentum.
 function settleZoom(velocity = { x: 0, y: 0 }) {
-  const w = carousel.clientWidth, h = carousel.clientHeight;
+  const w = zoomHost().clientWidth, h = zoomHost().clientHeight;
   const scale = Math.min(MAX_ZOOM, Math.max(1, zoom.scale));
   const k = scale / zoom.scale;
   let x = w / 2 - (w / 2 - zoom.x) * k + project(velocity.x);
@@ -705,85 +708,90 @@ function resetZoom() {
   stopAnim("zoom");
   if (zoom.img) zoom.img.style.transform = "";
   Object.assign(zoom, { scale: 1, x: 0, y: 0, img: null, start: null });
-  carousel.classList.remove("zoomed");
+  zoomHost().classList.remove("zoomed");
 }
 
 function point(t) {
-  const r = carousel.getBoundingClientRect();
+  const r = zoomHost().getBoundingClientRect();
   return { x: t.clientX - r.left, y: t.clientY - r.top };
 }
 
-carousel.addEventListener("touchstart", (e) => {
-  const img = carousel.children[slideIndex]?.querySelector("img");
-  if (!img) return;
-  if (zoom.img !== img) { resetZoom(); zoom.img = img; }
-  stopAnim("zoom");  // catch a settling photo mid-flight
-  const ts = [...e.touches].map(point);
-  if (ts.length === 2) {
-    const mid = { x: (ts[0].x + ts[1].x) / 2, y: (ts[0].y + ts[1].y) / 2 };
-    zoom.start = { dist: Math.hypot(ts[0].x - ts[1].x, ts[0].y - ts[1].y), mid,
-                   scale: zoom.scale, x: zoom.x, y: zoom.y };
-    carousel.classList.add("zoomed");
-  } else if (ts.length === 1) {
-    const now = Date.now();
-    if (now - zoom.lastTap < 300) {           // double-tap zooms in on that spot, or back out
-      if (zoom.scale > 1.01) animateZoom({ scale: 1, x: 0, y: 0 });
-      else {
-        const b = zoomBounds(2.5);
-        animateZoom({ scale: 2.5,
-                      x: Math.min(b.maxX, Math.max(b.minX, ts[0].x - ts[0].x * 2.5)),
-                      y: Math.min(b.maxY, Math.max(b.minY, ts[0].y - ts[0].y * 2.5)) });
+// shownImg: the photo on screen in that strip.
+function enableZoom(host, shownImg) {
+  host.addEventListener("touchstart", (e) => {
+    const img = shownImg();
+    if (!img) return;
+    if (zoom.img !== img || zoom.host !== host) { resetZoom(); zoom.host = host; zoom.img = img; }
+    stopAnim("zoom");  // catch a settling photo mid-flight
+    const ts = [...e.touches].map(point);
+    if (ts.length === 2) {
+      const mid = { x: (ts[0].x + ts[1].x) / 2, y: (ts[0].y + ts[1].y) / 2 };
+      zoom.start = { dist: Math.hypot(ts[0].x - ts[1].x, ts[0].y - ts[1].y), mid,
+                     scale: zoom.scale, x: zoom.x, y: zoom.y };
+      host.classList.add("zoomed");
+    } else if (ts.length === 1) {
+      const now = Date.now();
+      if (now - zoom.lastTap < 300) {           // double-tap zooms in on that spot, or back out
+        if (zoom.scale > 1.01) animateZoom({ scale: 1, x: 0, y: 0 });
+        else {
+          const b = zoomBounds(2.5);
+          animateZoom({ scale: 2.5,
+                        x: Math.min(b.maxX, Math.max(b.minX, ts[0].x - ts[0].x * 2.5)),
+                        y: Math.min(b.maxY, Math.max(b.minY, ts[0].y - ts[0].y * 2.5)) });
+        }
+        host.classList.add("zoomed");
+        zoom.lastTap = 0;
+        zoom.start = null;
+        e.preventDefault();
+        return;
       }
-      carousel.classList.add("zoomed");
-      zoom.lastTap = 0;
-      zoom.start = null;
-      e.preventDefault();
-      return;
+      zoom.lastTap = now;
+      zoom.start = { pan: ts[0], x: zoom.x, y: zoom.y };
+      zoom.track = tracker();
     }
-    zoom.lastTap = now;
-    zoom.start = { pan: ts[0], x: zoom.x, y: zoom.y };
-    zoom.track = tracker();
-  }
-}, { passive: false });
+  }, { passive: false });
 
-carousel.addEventListener("touchmove", (e) => {
-  if (!zoom.start) return;
-  const ts = [...e.touches].map(point);
-  if (ts.length === 2 && zoom.start.dist) {
-    e.preventDefault();
-    const dist = Math.hypot(ts[0].x - ts[1].x, ts[0].y - ts[1].y);
-    const mid = { x: (ts[0].x + ts[1].x) / 2, y: (ts[0].y + ts[1].y) / 2 };
-    const st = zoom.start;
-    const raw = st.scale * dist / st.dist;
-    zoom.scale = raw > MAX_ZOOM ? MAX_ZOOM + rubberband(raw - MAX_ZOOM, 2)
-      : raw < 1 ? 1 - rubberband(1 - raw, 0.6) : raw;
-    const k = zoom.scale / st.scale;
-    zoom.x = mid.x - (st.mid.x - st.x) * k;
-    zoom.y = mid.y - (st.mid.y - st.y) * k;
-    softZoom();
-    applyZoom();
-  } else if (ts.length === 1 && zoom.scale > 1.01 && zoom.start.pan) {
-    e.preventDefault();
-    zoom.x = zoom.start.x + ts[0].x - zoom.start.pan.x;
-    zoom.y = zoom.start.y + ts[0].y - zoom.start.pan.y;
-    softZoom();
-    zoom.track?.add(zoom.x, zoom.y);
-    applyZoom();
-  }
-}, { passive: false });
+  host.addEventListener("touchmove", (e) => {
+    if (!zoom.start || zoom.host !== host) return;
+    const ts = [...e.touches].map(point);
+    if (ts.length === 2 && zoom.start.dist) {
+      e.preventDefault();
+      const dist = Math.hypot(ts[0].x - ts[1].x, ts[0].y - ts[1].y);
+      const mid = { x: (ts[0].x + ts[1].x) / 2, y: (ts[0].y + ts[1].y) / 2 };
+      const st = zoom.start;
+      const raw = st.scale * dist / st.dist;
+      zoom.scale = raw > MAX_ZOOM ? MAX_ZOOM + rubberband(raw - MAX_ZOOM, 2)
+        : raw < 1 ? 1 - rubberband(1 - raw, 0.6) : raw;
+      const k = zoom.scale / st.scale;
+      zoom.x = mid.x - (st.mid.x - st.x) * k;
+      zoom.y = mid.y - (st.mid.y - st.y) * k;
+      softZoom();
+      applyZoom();
+    } else if (ts.length === 1 && zoom.scale > 1.01 && zoom.start.pan) {
+      e.preventDefault();
+      zoom.x = zoom.start.x + ts[0].x - zoom.start.pan.x;
+      zoom.y = zoom.start.y + ts[0].y - zoom.start.pan.y;
+      softZoom();
+      zoom.track?.add(zoom.x, zoom.y);
+      applyZoom();
+    }
+  }, { passive: false });
 
-carousel.addEventListener("touchend", (e) => {
-  if (e.touches.length === 1 && (zoom.scale > 1.01 || zoom.start?.dist)) {
-    zoom.start = { pan: point(e.touches[0]), x: zoom.x, y: zoom.y };
-    zoom.track = tracker();
-  } else if (!e.touches.length) {
-    const wasPan = zoom.start?.pan;
-    zoom.start = null;
-    if (!zoom.img) return;
-    if (zoom.scale > 1.01 || zoom.scale < 0.99 || zoom.x || zoom.y) settleZoom(wasPan && zoom.track ? zoom.track.velocity() : undefined);
-    else resetZoom();
-  }
-});
+  host.addEventListener("touchend", (e) => {
+    if (zoom.host !== host) return;
+    if (e.touches.length === 1 && (zoom.scale > 1.01 || zoom.start?.dist)) {
+      zoom.start = { pan: point(e.touches[0]), x: zoom.x, y: zoom.y };
+      zoom.track = tracker();
+    } else if (!e.touches.length) {
+      const wasPan = zoom.start?.pan;
+      zoom.start = null;
+      if (!zoom.img) return;
+      if (zoom.scale > 1.01 || zoom.scale < 0.99 || zoom.x || zoom.y) settleZoom(wasPan && zoom.track ? zoom.track.velocity() : undefined);
+      else resetZoom();
+    }
+  });
+}
+enableZoom(carousel, () => carousel.children[slideIndex]?.querySelector("img"));
 
 /* ---------- Call buttons ---------- */
 // Every call button shows what its recording is doing: idle, loading, playing (moving bars and
@@ -2135,13 +2143,13 @@ $("snooze").addEventListener("click", () => {
   });
 });
 
-// Keep the page itself from zooming or rubber-banding; only the carousel,
-// the info panel and the settings sheet may move.
+// Keep the page itself from zooming or rubber-banding; only the carousel, the info panel, the
+// sheets and the quiz photos (.qp-photo, quiz.js) may move.
 // iOS only shows :active (pressed) styles when the page listens for touches.
 document.addEventListener("touchstart", () => {}, { passive: true });
 document.addEventListener("gesturestart", (e) => e.preventDefault());
 document.addEventListener("touchmove", (e) => {
-  if (!e.target.closest(".carousel, .info, .sheet")) e.preventDefault();
+  if (!e.target.closest(".carousel, .info, .sheet, .qp-photo")) e.preventDefault();
 }, { passive: false });
 
 // The app opens from the copy on the phone (sw.js), so it asks for a new version itself rather than
