@@ -56,8 +56,8 @@ It is a Progressive Web App: no App Store needed.
   friends with an invite link (share it on WhatsApp or messages; opening it makes you friends), send them 10 birds from an area and level (Beginner–Hard), everyone types the
   names with a minute per bird (typos, Afrikaans and common SA names count), then sees how everyone did.
   Rounds are open for 24 hours, nothing is public, and quizzes don't change learning progress. Needs Google
-  sign-in. Notifications for invites and results are web push (`quiz.js`, `sw.js`, Edge Function `quiz-push`). Three quiz stickers
-  (first quiz finished, 10 finished, 50 won) are earned only here.
+  sign-in. Notifications for invites and results are web push (`quiz.js`, `sw.js`, Edge Function `quiz-push`). Six quiz stickers
+  (first quiz finished, 10 finished, 50 won, and three secret ones) are earned only here.
 - **Sign in with Google** (📊 screen): progress is saved to your account and follows you to any
   device you sign in on. (Each phone still has a private sync code behind the scenes, which the account
   links to; since 21 Nov it isn't shown, and Google is the only way to share progress between devices.)

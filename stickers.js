@@ -48,7 +48,8 @@ const dayStickers = () => stickerSet.filter((x) => x.tier !== "quiz");
 /* ---------- Quiz stickers: three birds earned only in quizzes with friends ---------- */
 // Never drawn for a day (tier "quiz" in data/stickers.json). Earned once each, kept online with the
 // account (quiz_awards in Supabase, per build like the quizzes): finish your first quiz, finish 10,
-// win 50. A win is a finished quiz where at least one friend played too and nobody did better.
+// win 50; and three secret ones: win 20 on Hard, win 10 on Easy, get all 10 right in a quiz. A win
+// is a finished quiz where at least one friend played too and nobody did better.
 const QUIZ_STICKERS = [
   { award: "played_1", id: 19079, of: "played", goal: 1,
     how: "Finish your first quiz with friends", kicker: "You finished your first quiz!" },
@@ -56,6 +57,13 @@ const QUIZ_STICKERS = [
     how: "Finish 10 quizzes", kicker: "You've finished 10 quizzes!" },
   { award: "won_50", id: 144592, of: "won", goal: 50,
     how: "Win 50 quizzes", kicker: "You've won 50 quizzes!" },
+  // Secret ones: the album shows a ? until they're earned.
+  { award: "won_hard_20", id: 7196, of: "won_hard", goal: 20, secret: true,
+    how: "Win 20 quizzes on Hard", kicker: "You've won 20 quizzes on Hard!" },
+  { award: "won_easy_10", id: 2279, of: "won_easy", goal: 10, secret: true,
+    how: "Win 10 quizzes on Easy", kicker: "You've won 10 quizzes on Easy!" },
+  { award: "perfect_1", id: 20445, of: "perfect", goal: 1, secret: true,
+    how: "Get all 10 right in a quiz", kicker: "All 10 right in a quiz!" },
 ];
 let quizAwards = { played: 0, won: 0, got: new Map() };  // got: award -> date earned
 const quizRevealQueue = [];
@@ -63,7 +71,8 @@ const quizRevealQueue = [];
 // From quiz.js each time the quizzes load. A sticker reached since last time is shown big, once.
 function gotQuizAwards(res) {
   if (!res) return;
-  quizAwards = { played: res.played || 0, won: res.won || 0,
+  quizAwards = { played: res.played || 0, won: res.won || 0, won_hard: res.won_hard || 0,
+    won_easy: res.won_easy || 0, perfect: res.perfect || 0,
     got: new Map((res.awards || []).map((a) => [a.award, a.at])) };
   for (const a of res.awards || []) {
     const q = QUIZ_STICKERS.find((x) => x.award === a.award);
@@ -265,11 +274,21 @@ async function prepareShare(id) {
   } catch { /* offline and never fetched: Share says so */ }
 }
 
+// The words that go with a shared sticker: what it is and a link to the live app, for whoever gets it.
+const SHARE_LINK = "https://sabirds.co.za";
+function shareText(id) {
+  const q = QUIZ_STICKERS.find((x) => x.id === Number(id));
+  const got = q ? `I earned the ${stickerName(id)} sticker in a bird quiz with friends on SA Birds`
+    : `I earned the ${stickerName(id)} sticker on SA Birds`;
+  return `${got}. Learn to recognise South Africa's birds and quiz your friends: ${SHARE_LINK}`;
+}
+
 async function shareSticker() {
   const id = Number($("stickerPop").dataset.id);
   const ready = shareReady?.id === id ? shareReady : null;
   if (!ready) { showToast("The sticker isn't ready to share yet. Try again in a moment."); prepareShare(id); return; }
-  const data = { files: [ready.file] };
+  let data = { files: [ready.file], text: shareText(id) };
+  if (!navigator.canShare?.(data)) data = { files: [ready.file] };  // a share sheet that takes no words with a file
   if (navigator.canShare?.(data)) {
     try {
       await navigator.share(data);
@@ -309,8 +328,8 @@ function openAlbum() {
 // A date earned (a timestamp from Supabase) as the YYYY-MM-DD the sticker card shows.
 const localDay = (iso) => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 
-// The three quiz stickers: earned ones in colour; the rest as a shape with how to earn it and how far
-// along you are ("3 of 10").
+// The quiz stickers: earned ones in colour; the rest blurred like a Legendary, the first three with how
+// to earn them and how far along you are ("3 of 10"), the secret ones with a ?.
 function quizAlbum() {
   const box = document.createElement("section");
   box.className = "album-quiz";
@@ -332,11 +351,16 @@ function quizAlbum() {
       cell.setAttribute("aria-label", `${stickerName(q.id)}, quiz sticker`);
       cell.addEventListener("click", () => showSticker(q.id, { day: localDay(at) }));
       cell.append(img, name);
+    } else if (q.secret) {
+      name.textContent = "?";
+      cell.classList.add("secret");
+      cell.setAttribute("aria-label", "Secret quiz sticker, not collected yet");
+      cell.append(img, name);
     } else {
       name.textContent = q.how;
       const far = document.createElement("small");
       far.className = "album-quiz-far";
-      far.textContent = `${Math.min(quizAwards[q.of], q.goal)} of ${q.goal}`;
+      far.textContent = `${Math.min(quizAwards[q.of] || 0, q.goal)} of ${q.goal}`;
       cell.setAttribute("aria-label", `Quiz sticker, not collected yet. ${q.how}: ${far.textContent}`);
       cell.append(img, name);
       if (q.goal > 1) cell.append(far);

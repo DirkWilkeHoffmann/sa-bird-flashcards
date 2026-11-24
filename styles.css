@@ -885,11 +885,12 @@ img.failed { visibility: hidden; }
   .album-cell.missing.rare img { filter: brightness(0) invert(1); opacity: .34; } }
 .album-cell.missing.rare small { font-weight: 700; }
 .album-cell.missing.legendary img { filter: blur(10px) saturate(.8); opacity: .5; transform: scale(.8); }
-/* Quiz stickers: a sky-blue outline; one not earned yet shows its shape, how to earn it and how far along. */
+/* Quiz stickers: a sky-blue outline. One not earned yet is a blur like a Legendary, with how to earn it
+   and how far along (the first three) or a ? (the secret ones). */
 .album-cell.quiz { box-shadow: inset 0 0 0 1.5px var(--tier-quiz); }
-.album-cell.missing.quiz img { filter: brightness(0); opacity: .22; }
-@media (prefers-color-scheme: dark) { .album-cell.missing.quiz img { filter: brightness(0) invert(1); opacity: .26; } }
+.album-cell.missing.quiz img { filter: blur(10px) saturate(.8); opacity: .5; transform: scale(.8); }
 .album-cell.missing.quiz small { color: var(--label); }
+.album-cell.missing.quiz.secret small { font-weight: 700; color: var(--label-2); }
 .album-cell .album-quiz-far { color: var(--label-2); font-variant-numeric: tabular-nums; }
 .album-quiz-h { margin: 0 0 8px; font-size: var(--fs-headline); font-weight: 700; }
 .album-credit { margin-top: 4px; }

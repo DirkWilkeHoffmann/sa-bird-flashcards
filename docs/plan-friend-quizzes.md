@@ -90,3 +90,11 @@ no daily record, no running wins and losses. The only scores kept are the rounds
   only once. Players who'd already finished quizzes get theirs the next time the quizzes load.
 - The birds: tier `quiz` in `data/stickers.json` (folder `4 Quiz` in the sticker source), and which one
   is earned how in `QUIZ_STICKERS` (stickers.js); swapping a bird needs no database change.
+  Rosy-faced Lovebird (first quiz), Trumpeter Hornbill (10 finished), Southern White-faced Owl (50 won).
+- Three secret ones (`20261125_quiz_stickers_more.sql`): Livingstone's Turaco for winning 20 quizzes on
+  Hard, Racket-tailed Roller for winning 10 on Easy, Western Barn Owl for getting all 10 right in a quiz.
+- In the album, quiz stickers not earned yet are a blur like a Legendary: the first three say how to earn
+  them (and "4 of 50"), the secret three show a ?.
+- **Sharing any sticker** (daily or quiz) now sends words with it where the share sheet allows: "I earned
+  the Rosy-faced Lovebird sticker on SA Birds. Learn to recognise South Africa's birds and quiz your
+  friends: https://sabirds.co.za" (always the live app's address, also from Dev).
