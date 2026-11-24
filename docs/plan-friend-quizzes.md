@@ -14,8 +14,14 @@ no daily record, no running wins and losses. The only scores kept are the rounds
   you to be friends. Add Sam K.?", and one tap makes you friends both ways. Each player has one reusable
   link (fine for a group chat); "Make a new invite link" kills the old one and keeps existing friends.
   People see your Google first name and surname initial ("Sam K."), which you can change. The link
-  survives the Google sign-in (kept on the phone). On iPhone the link opens in Safari; the Home Screen
-  app is a separate place, so the app says to open SA Birds from the icon to play.
+  survives the Google sign-in (kept on the phone).
+- **iPhone: copy and paste the invite** (24 Nov 2026). iPhones open every link in Safari, never in the
+  Home Screen app, and the two share no saved data or sign-in, so the link can't go straight to the app.
+  They do share the clipboard: in Safari the link shows "Copy invite" and three steps (copy, open SA Birds
+  from the Home Screen, tap 👥 then Paste invite), with no sign-in in Safari. In the app, "Got an invite
+  from a friend? Paste invite" (quiz page and Friends screen) reads the link from the clipboard (iPhone
+  shows its Paste bubble), or asks for it, then shows "Add Sam K.?". "Or add your friend here in Safari"
+  keeps the old way. Android needs none of this: an app installed with Chrome opens the link itself.
 - **Quizzes need a Google sign-in** (that's who you are to your friends).
 - **A round:** pick an area and a level (Beginner, Easy, Medium or Hard, the same groups the app works out
   for each area), invite 1–9 friends. The app draws **10 birds**; everyone gets the same 10, in the same

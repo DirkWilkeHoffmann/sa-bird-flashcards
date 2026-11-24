@@ -105,12 +105,15 @@ function renderQuiz(problem = "") {
     return;
   }
   if (!account) {
-    body.append(qel("p", "quiz-lead", load(INVITE_KEY, null)
+    const token = load(INVITE_KEY, null);
+    if (token && iphoneBrowser()) { body.append(iphoneInvite(token)); return; }
+    body.append(qel("p", "quiz-lead", token
       ? "A friend invited you to SA Birds. Sign in with Google to say yes."
       : "Send friends 10 birds and see who names the most."));
     const b = qbutton("", "btn google", () => signInFrom("quiz"));
     b.innerHTML = `<span aria-hidden="true">G</span> Sign in with Google`;
     body.append(b);
+    if (!token) body.append(pasteRow());
     return;
   }
   if (problem) body.append(qel("p", "note quiz-problem", problem));
@@ -138,6 +141,7 @@ function renderQuiz(problem = "") {
     body.append(qel("p", "quiz-lead", "Send friends 10 birds and see who names the most. Start by inviting a friend."),
       qbutton("Invite a friend", "btn primary quiz-new", shareInvite));
   }
+  if (!pendingInvite) body.append(pasteRow());
 
   // Friends have their own screen; here just who they are.
   if (quizFriends.length) {
@@ -241,7 +245,7 @@ function friendsSection() {
     box.append(row);
   }
 
-  box.append(qbutton("Invite a friend", "btn primary quiz-invite", shareInvite));
+  box.append(qbutton("Invite a friend", "btn primary quiz-invite", shareInvite), pasteRow());
 
   const me = qel("p", "quiz-me");
   me.append("Friends see you as ", qel("b", null, quizMe.name), " ",
@@ -251,7 +255,7 @@ function friendsSection() {
   return box;
 }
 
-const inviteUrl = () => `${new URL(".", location.href).href}?add=${quizMe.link}`;
+const inviteUrl = (token = quizMe.link) => `${new URL(".", location.href).href}?add=${token}`;
 
 // The phone's own share sheet (WhatsApp, messages…); elsewhere the link is copied.
 async function shareInvite() {
@@ -273,22 +277,85 @@ async function newInviteLink() {
   catch { showToast("Couldn't make a new link. Check your signal.", { ms: 3500 }); }
 }
 
-// Opened from someone's invite link: ask before adding them.
+// iPhones open every link in Safari, never in the Home Screen app, and the two don't share saved
+// data or the Google sign-in. What they do share is the clipboard, so in Safari the invite is
+// copied, and the Home Screen app pastes it (Paste invite) instead of signing in again in Safari.
+const iphoneBrowser = () => typeof isIOS !== "undefined" && isIOS && !standalone();
+
+function iphoneInvite(token) {
+  const box = qel("div", "quiz-iphone");
+  box.append(qel("p", "quiz-lead", "A friend invited you to be friends on SA Birds."),
+    qel("p", "quiz-lead", "iPhones open links in Safari, not in the SA Birds app, so take the invite with you:"));
+  const how = qel("ol", "quiz-steps");
+  for (const html of ["Tap <b>Copy invite</b>.", "Open <b>SA Birds</b> from your Home Screen.",
+    `Tap ${icon("friends", "small")} at the top, then <b>Paste invite</b>.`]) {
+    const li = qel("li");
+    li.innerHTML = `<span>${html}</span>`;
+    how.append(li);
+  }
+  const copy = qbutton("Copy invite", "btn primary quiz-new", async () => {
+    const url = inviteUrl(token);
+    try { await navigator.clipboard.writeText(url); }
+    catch { prompt("Copy this invite link:", url); return; }
+    logEvent("quiz", null, { step: "invite_copy" });
+    save(INVITE_KEY, null);  // it travels on the clipboard now; Safari won't show it again
+    copy.textContent = "Invite copied ✓";
+    showToast("Copied. Now open SA Birds from your Home Screen and tap Paste invite.", { ms: 6000 });
+  });
+  box.append(how, copy,
+    qel("p", "note", "New to SA Birds? Copy the invite first, then add SA Birds to your Home Screen, open it, sign in and paste the invite."));
+  const here = qel("p", "note");
+  here.append(qbutton("Or add your friend here in Safari", "link-btn", () => { save(INVITE_KEY, token); signInFrom("quiz"); }));
+  box.append(here);
+  return box;
+}
+
+// "Got an invite from a friend? Paste invite": the link from the clipboard, or typed in.
+function pasteRow() {
+  const p = qel("p", "quiz-paste");
+  p.append("Got an invite from a friend? ", qbutton("Paste invite", "link-btn", pasteInvite));
+  return p;
+}
+
+function inviteToken(text) {
+  const t = (text || "").trim();
+  return t.match(/[?&]add=([0-9a-f]{32})(?![0-9a-f])/)?.[1] || (/^[0-9a-f]{32}$/.test(t) ? t : null);
+}
+
+async function pasteInvite() {
+  let text = null;
+  try { text = await navigator.clipboard.readText(); } catch { /* not allowed here: ask for it */ }
+  let token = inviteToken(text);
+  if (!token) {
+    const typed = prompt("Paste the invite link from your friend's message:");
+    if (typed == null) return;
+    token = inviteToken(typed);
+  }
+  if (!token) { showToast("That isn't an SA Birds invite link. Copy the link in your friend's message and try again.", { ms: 4500 }); return; }
+  logEvent("quiz", null, { step: "invite_paste" });
+  save(INVITE_KEY, token);
+  closeSheet($("quizFriendsSheet"));
+  if (!quizOn()) { renderQuiz(); openSheet($("quiz")); return; }
+  if (!(await checkInvite())) showToast("Couldn't check the invite. Check your signal and try again.", { ms: 4000 });
+}
+
+// Opened from someone's invite link (or pasted): ask before adding them. False when offline.
 async function checkInvite() {
   const token = load(INVITE_KEY, null);
-  if (!token || !quizOn()) return;
+  if (!token || !quizOn()) return true;
   try {
     const res = await qrpc("quiz_invite_peek", { p_token: token });
     if (res.error || res.already) {
       save(INVITE_KEY, null);
       showToast(res.error === "self" ? "That's your own invite link." : res.already ? `You and ${res.name} are already friends.`
         : "That invite link doesn't work any more. Ask your friend for a new one.", { ms: 4000 });
-      return;
+      return true;
     }
     pendingInvite = { token, name: res.name };
     renderQuiz();
     openSheet($("quiz"));
-  } catch { /* offline: the link is kept and checked next time */ }
+    return true;
+  } catch { return false; /* offline: the link is kept and checked next time */ }
 }
 
 function inviteCard() {

@@ -1352,6 +1352,15 @@ body.onboarding { background: var(--bg); }
 .quiz-me { margin: 0; font-size: var(--fs-footnote); line-height: 1.7; color: var(--label-2); }
 .quiz-me b { color: var(--label); font-weight: 600; }
 .quiz-me .link-btn { font-size: inherit; font-weight: 600; text-decoration: none; }
+.quiz-steps { display: grid; gap: 8px; margin: 0 0 16px; padding: 0; list-style: none; counter-reset: step; }
+.quiz-steps li { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm);
+  background: var(--fill); font-size: var(--fs-body); line-height: 1.35; counter-increment: step; }
+.quiz-steps li::before { content: counter(step); flex: none; width: 18px; font-weight: 700; color: var(--tint); }
+.quiz-steps li .i { width: 20px; height: 20px; vertical-align: -4px; color: var(--tint); }
+.quiz-iphone .note { margin: 12px 0 0; }
+.quiz-paste { margin: 10px 0 0; font-size: var(--fs-subhead); color: var(--label-2); }
+.quiz-paste .link-btn { font-weight: 600; text-decoration: none; }
+.quiz-friends .quiz-paste { margin: -4px 0 14px; }
 .quiz-push-btn { margin-top: 18px; font-size: var(--fs-subhead); }
 .quiz-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; margin: 14px 0 0; padding: 0 14px;
   border: 0; border-radius: var(--radius-sm); font: inherit; text-align: left; color: var(--label); background: var(--fill); }
