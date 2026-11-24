@@ -2143,13 +2143,13 @@ $("snooze").addEventListener("click", () => {
   });
 });
 
-// Keep the page itself from zooming or rubber-banding; only the carousel,
-// the info panel and the settings sheet may move.
+// Keep the page itself from zooming or rubber-banding; only the carousel, the info panel, the
+// sheets and the quiz photos (.qp-photo, quiz.js) may move.
 // iOS only shows :active (pressed) styles when the page listens for touches.
 document.addEventListener("touchstart", () => {}, { passive: true });
 document.addEventListener("gesturestart", (e) => e.preventDefault());
 document.addEventListener("touchmove", (e) => {
-  if (!e.target.closest(".carousel, .info, .sheet")) e.preventDefault();
+  if (!e.target.closest(".carousel, .info, .sheet, .qp-photo")) e.preventDefault();
 }, { passive: false });
 
 // The app opens from the copy on the phone (sw.js), so it asks for a new version itself rather than
