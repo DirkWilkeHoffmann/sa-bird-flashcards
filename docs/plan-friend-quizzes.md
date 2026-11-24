@@ -15,13 +15,13 @@ no daily record, no running wins and losses. The only scores kept are the rounds
   link (fine for a group chat); "Make a new invite link" kills the old one and keeps existing friends.
   People see your Google first name and surname initial ("Sam K."), which you can change. The link
   survives the Google sign-in (kept on the phone).
-- **iPhone: copy and paste the invite** (24 Nov 2026). iPhones open every link in Safari, never in the
-  Home Screen app, and the two share no saved data or sign-in, so the link can't go straight to the app.
-  They do share the clipboard: in Safari the link shows "Copy invite" and three steps (copy, open SA Birds
-  from the Home Screen, tap 👥 then Paste invite), with no sign-in in Safari. In the app, "Got an invite
-  from a friend? Paste invite" (quiz page and Friends screen) reads the link from the clipboard (iPhone
-  shows its Paste bubble), or asks for it, then shows "Add Sam K.?". "Or add your friend here in Safari"
-  keeps the old way. Android needs none of this: an app installed with Chrome opens the link itself.
+- **Opening the link makes you friends** (24 Nov 2026, replacing a short-lived copy-and-paste way for
+  iPhones that was hard to explain). Tapping an invite link adds the friend straight away, once signed in,
+  and the quiz page says "You and Sam K. are now friends". In a phone's browser it adds "Now open SA Birds
+  from your Home Screen to play together": iPhones open every link in Safari, never in the Home Screen app,
+  and the two don't share sign-in, but the friendship is on the server, so the app has it. (So on an iPhone
+  the person signs in with Google once in Safari too.) Android: an app installed with Chrome opens the link
+  itself.
 - **Quizzes need a Google sign-in** (that's who you are to your friends).
 - **A round:** pick an area and a level (Beginner, Easy, Medium or Hard, the same groups the app works out
   for each area), invite 1–9 friends. The app draws **10 birds**; everyone gets the same 10, in the same
@@ -73,5 +73,5 @@ no daily record, no running wins and losses. The only scores kept are the rounds
   from Sam K. / Kruger National Park · Easy" with an App Store style Play capsule and the time left under
   it; tapping the row opens the quiz's page (Play, No thanks). Results: waiting ones show "Waiting for Anni
   R." and the time left with ›, finished ones a Results capsule. Then New quiz, a Friends group (your
-  friends ›, Invite a friend, Paste an invite), notifications, and Past quizzes folded into one row. The
-  Friends screen: your friends (✕ to remove), Invite / Paste, and You (name friends see, new invite link).
+  friends ›, Invite a friend), notifications, and Past quizzes folded into one row. The
+  Friends screen: your friends (✕ to remove), Invite a friend, and You (name friends see, new invite link).

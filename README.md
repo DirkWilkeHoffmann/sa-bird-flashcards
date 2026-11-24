@@ -53,7 +53,7 @@ It is a Progressive Web App: no App Store needed.
   photos per bird, optionally a call, range data and Wikipedia text). Without signal the app shows
   only downloaded birds. Delete downloads from the same screen.
 - **Quiz with friends** (Dev, the 👥 button; [docs/plan-friend-quizzes.md](docs/plan-friend-quizzes.md)): add
-  friends with an invite link (share it on WhatsApp or messages; on iPhone it's copied in Safari and pasted in the Home Screen app), send them 10 birds from an area and level (Beginner–Hard), everyone types the
+  friends with an invite link (share it on WhatsApp or messages; opening it makes you friends), send them 10 birds from an area and level (Beginner–Hard), everyone types the
   names with a minute per bird (typos, Afrikaans and common SA names count), then sees how everyone did.
   Rounds are open for 24 hours, nothing is public, and quizzes don't change learning progress. Needs Google
   sign-in. Notifications for invites and results are web push (`quiz.js`, `sw.js`, Edge Function `quiz-push`).

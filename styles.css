@@ -1331,23 +1331,7 @@ body.onboarding { background: var(--bg); }
   text-transform: uppercase; color: var(--label-2); }
 .quiz-new { margin: 0 0 6px; }
 .quiz-problem { color: var(--bad); }
-.quiz-card { display: grid; gap: 4px; margin: 0 0 10px; padding: 12px 14px; border-radius: var(--radius-sm); background: var(--fill); }
-.quiz-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-.quiz-card-head b { font-size: var(--fs-headline); font-weight: 600; }
-.quiz-card-actions { display: flex; gap: 8px; margin-top: 6px; }
-.sheet .quiz-card-actions .btn { width: auto; flex: 1; }
 .btn.small { min-height: 40px; padding: 0 14px; font-size: var(--fs-subhead); }
-.quiz-steps { display: grid; gap: 8px; margin: 0 0 16px; padding: 0; list-style: none; counter-reset: step; }
-.quiz-steps li { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--radius-sm);
-  background: var(--fill); font-size: var(--fs-body); line-height: 1.35; counter-increment: step; }
-.quiz-steps li::before { content: counter(step); flex: none; width: 18px; font-weight: 700; color: var(--tint); }
-.quiz-steps li .i { width: 20px; height: 20px; vertical-align: -4px; color: var(--tint); }
-.quiz-iphone .note { margin: 12px 0 0; }
-.quiz-paste { margin: 10px 0 0; font-size: var(--fs-subhead); color: var(--label-2); }
-.quiz-paste .link-btn { font-weight: 600; text-decoration: none; }
-.quiz-friends .quiz-paste { margin: -4px 0 14px; }
-/* Quizzes to play: a friend's in the orange tint, your own in a cool green, so a long list reads at a glance. */
-.quiz-card.to-play.incoming { background: color-mix(in srgb, var(--tint) 14%, var(--bg-elev)); box-shadow: inset 3px 0 0 var(--tint); }
 .quiz-invites { display: grid; gap: 6px; }
 .quiz-invite { display: flex; align-items: center; gap: 12px; min-height: var(--tap); padding: 0 14px;
   border-radius: var(--radius-sm); background: var(--fill); font-size: var(--fs-body); }
@@ -1404,6 +1388,12 @@ body.onboarding { background: var(--bg); }
 .qrow-end { flex: none; max-width: 45%; overflow: hidden; font-size: var(--fs-body); color: var(--label-2);
   white-space: nowrap; text-overflow: ellipsis; }
 .qrow-chev { flex: none; width: 14px; height: 14px; margin-right: -2px; color: var(--label-3); stroke-width: 2.6; }
+/* "You and Sam K. are now friends", after opening an invite link */
+.qnotice { display: grid; grid-template-columns: 32px 1fr; gap: 12px; margin: 0 0 22px; padding: 14px;
+  border-radius: var(--radius-sm); background: color-mix(in srgb, var(--data) 12%, var(--bg-elev)); }
+.qnotice-text b { display: block; font-size: var(--fs-body); font-weight: 600; line-height: 1.3; }
+.qnotice-text p { margin: 4px 0 0; font-size: var(--fs-subhead); line-height: 1.4; }
+.qnotice-text p.note { font-size: var(--fs-footnote); }
 /* App Store style capsule at the end of a row */
 .qcap { flex: none; min-width: 72px; min-height: 30px; padding: 0 14px; border: 0; border-radius: 999px;
   font: inherit; font-size: var(--fs-subhead); font-weight: 700; color: var(--on-tint); background: var(--tint);

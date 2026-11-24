@@ -12,7 +12,6 @@ const PUSH_URL = `${SUPABASE_URL}/functions/v1/quiz-push`;
 const QUIZ_LEVELS = ["beginner", "easy", "medium", "hard"];
 
 let quizMe = null;          // { link, name }
-let pendingInvite = null;   // { token, name }: someone's invite link, waiting for Add
 const INVITE_KEY = "sabirds.addFriend.v1";  // the link's token, kept across the Google sign-in
 let quizFriends = [];       // [{ id, name }]
 let quizRounds = [];        // rounds from quiz_list, newest first
@@ -106,14 +105,12 @@ function renderQuiz(problem = "") {
   }
   if (!account) {
     const token = load(INVITE_KEY, null);
-    if (token && iphoneBrowser()) { body.append(iphoneInvite(token)); return; }
     body.append(qel("p", "quiz-lead", token
-      ? "A friend invited you to SA Birds. Sign in with Google to say yes."
+      ? "A friend invited you to be friends on SA Birds. Sign in with Google and you're friends."
       : "Send friends 10 birds and see who names the most."));
     const b = qbutton("", "btn google", () => signInFrom("quiz"));
     b.innerHTML = `<span aria-hidden="true">G</span> Sign in with Google`;
     body.append(b);
-    if (!token) body.append(pasteRow());
     return;
   }
   if (problem) body.append(qel("p", "note quiz-problem", problem));
@@ -121,7 +118,7 @@ function renderQuiz(problem = "") {
     if (!problem) body.append(qel("p", "note", "Loading…"));
     return;
   }
-  if (pendingInvite) body.append(inviteCard());
+  if (newFriend) body.append(newFriendNote());
 
   // Laid out like iOS Settings: labelled groups of rows. Quizzes to play first (friends' before your own).
   const toPlay = quizRounds.filter(waitingForMe).sort((a, b) => Number(a.mine) - Number(b.mine));
@@ -147,7 +144,6 @@ function renderQuiz(problem = "") {
       sub: quizFriends.map((f) => f.name).join(", "), chevron: true, onClick: openFriends }));
     friendRows.push(actionRow("share", "Invite a friend", shareInvite));
   }
-  if (!pendingInvite) friendRows.push(actionRow("paste", "Paste an invite", pasteInvite));
   if (friendRows.length) body.append(qgroup("Friends", friendRows));
 
   const push = pushRow();
@@ -333,7 +329,7 @@ function friendsSection() {
     })));
   }
   box.append(qgroup("",
-    [actionRow("share", "Invite a friend", shareInvite), actionRow("paste", "Paste an invite", pasteInvite)],
+    [actionRow("share", "Invite a friend", shareInvite)],
     "Your invite link works for anyone you send it to. Friends are friends both ways."));
   box.append(qgroup("You", [
     qrow({ title: "Name friends see", end: quizMe.name, chevron: true, onClick: changeQuizName }),
@@ -364,111 +360,57 @@ async function newInviteLink() {
   catch { showToast("Couldn't make a new link. Check your signal.", { ms: 3500 }); }
 }
 
-// iPhones open every link in Safari, never in the Home Screen app, and the two don't share saved
-// data or the Google sign-in. What they do share is the clipboard, so in Safari the invite is
-// copied, and the Home Screen app pastes it (Paste invite) instead of signing in again in Safari.
-const iphoneBrowser = () => typeof isIOS !== "undefined" && isIOS && !standalone();
-
-function iphoneInvite(token) {
-  const box = qel("div", "quiz-iphone");
-  box.append(qel("p", "quiz-lead", "A friend invited you to be friends on SA Birds."),
-    qel("p", "quiz-lead", "iPhones open links in Safari, not in the SA Birds app, so take the invite with you:"));
-  const how = qel("ol", "quiz-steps");
-  for (const html of ["Tap <b>Copy invite</b>.", "Open <b>SA Birds</b> from your Home Screen.",
-    `Tap ${icon("friends", "small")} at the top, then <b>Paste invite</b>.`]) {
-    const li = qel("li");
-    li.innerHTML = `<span>${html}</span>`;
-    how.append(li);
-  }
-  const copy = qbutton("Copy invite", "btn primary quiz-new", async () => {
-    const url = inviteUrl(token);
-    try { await navigator.clipboard.writeText(url); }
-    catch { prompt("Copy this invite link:", url); return; }
-    logEvent("quiz", null, { step: "invite_copy" });
-    save(INVITE_KEY, null);  // it travels on the clipboard now; Safari won't show it again
-    copy.textContent = "Invite copied ✓";
-    showToast("Copied. Now open SA Birds from your Home Screen and tap Paste invite.", { ms: 6000 });
-  });
-  box.append(how, copy,
-    qel("p", "note", "New to SA Birds? Copy the invite first, then add SA Birds to your Home Screen, open it, sign in and paste the invite."));
-  const here = qel("p", "note");
-  here.append(qbutton("Or add your friend here in Safari", "link-btn", () => { save(INVITE_KEY, token); signInFrom("quiz"); }));
-  box.append(here);
-  return box;
-}
-
-// "Got an invite from a friend? Paste invite": the link from the clipboard, or typed in.
-function pasteRow() {
-  const p = qel("p", "quiz-paste");
-  p.append("Got an invite from a friend? ", qbutton("Paste invite", "link-btn", pasteInvite));
-  return p;
-}
-
-function inviteToken(text) {
-  const t = (text || "").trim();
-  return t.match(/[?&]add=([0-9a-f]{32})(?![0-9a-f])/)?.[1] || (/^[0-9a-f]{32}$/.test(t) ? t : null);
-}
-
-async function pasteInvite() {
-  let text = null;
-  try { text = await navigator.clipboard.readText(); } catch { /* not allowed here: ask for it */ }
-  let token = inviteToken(text);
-  if (!token) {
-    const typed = prompt("Paste the invite link from your friend's message:");
-    if (typed == null) return;
-    token = inviteToken(typed);
-  }
-  if (!token) { showToast("That isn't an SA Birds invite link. Copy the link in your friend's message and try again.", { ms: 4500 }); return; }
-  logEvent("quiz", null, { step: "invite_paste" });
-  save(INVITE_KEY, token);
-  closeSheet($("quizFriendsSheet"));
-  if (!quizOn()) { renderQuiz(); openSheet($("quiz")); return; }
-  if (!(await checkInvite())) showToast("Couldn't check the invite. Check your signal and try again.", { ms: 4000 });
-}
-
-// Opened from someone's invite link (or pasted): ask before adding them. False when offline.
+// Opened from someone's invite link. Tapping the link is the yes, so they're added straight away
+// (once signed in) and the quiz page says so. In a phone's browser it also says to go to the SA Birds
+// app on the Home Screen: iPhones open every link in Safari, never in the Home Screen app, and the two
+// don't share saved data or sign-in; the friendship is on the server, so the app has it too.
+let newFriend = null;  // { name, already }: the note at the top of the quiz page, until it's closed
 async function checkInvite() {
   const token = load(INVITE_KEY, null);
-  if (!token || !quizOn()) return true;
+  if (!token || !quizOn()) return;
   try {
-    const res = await qrpc("quiz_invite_peek", { p_token: token });
-    if (res.error || res.already) {
+    const peek = await qrpc("quiz_invite_peek", { p_token: token });
+    if (peek.error) {
       save(INVITE_KEY, null);
-      showToast(res.error === "self" ? "That's your own invite link." : res.already ? `You and ${res.name} are already friends.`
+      showToast(peek.error === "self" ? "That's your own invite link."
         : "That invite link doesn't work any more. Ask your friend for a new one.", { ms: 4000 });
-      return true;
+      return;
     }
-    pendingInvite = { token, name: res.name };
-    renderQuiz();
-    openSheet($("quiz"));
-    return true;
-  } catch { return false; /* offline: the link is kept and checked next time */ }
-}
-
-function inviteCard() {
-  const card = qel("div", "quiz-card to-play incoming");
-  card.append(qel("div", "quiz-card-head", ""), qel("p", "quiz-lead", `${pendingInvite.name} invited you to be friends on SA Birds.`));
-  card.firstChild.append(qel("b", null, "Friend invite"));
-  const row = qel("div", "quiz-card-actions");
-  row.append(qbutton(`Add ${pendingInvite.name}`, "btn primary small", acceptInvite),
-    qbutton("Not now", "btn ghost small", () => { save(INVITE_KEY, null); pendingInvite = null; renderQuiz(); }));
-  card.append(row);
-  return card;
-}
-
-async function acceptInvite() {
-  const { token } = pendingInvite;
-  try {
-    const res = await qrpc("quiz_invite_accept", { p_token: token });
+    if (!peek.already) {
+      const res = await qrpc("quiz_invite_accept", { p_token: token });
+      if (res.error) {
+        save(INVITE_KEY, null);
+        showToast("That invite link doesn't work any more. Ask your friend for a new one.", { ms: 4000 });
+        return;
+      }
+      logEvent("quiz", null, { step: "friend" });
+    }
     save(INVITE_KEY, null);
-    pendingInvite = null;
-    if (res.error) { showToast("That invite link doesn't work any more. Ask your friend for a new one.", { ms: 4000 }); renderQuiz(); return; }
-    logEvent("quiz", null, { step: "friend" });
-    const home = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
-    showToast(`You and ${res.name} are friends.${home ? "" : " To play, open SA Birds from your Home Screen icon."}`, { ms: home ? 3500 : 6000 });
+    newFriend = { name: peek.name, already: peek.already };
     await loadQuiz(true);
     renderQuiz();
-  } catch { showToast("Couldn't add your friend. Check your signal and try again.", { ms: 4000 }); }
+    openSheet($("quiz"));
+  } catch { /* offline: the link is kept and tried next time */ }
+}
+$("quiz").addEventListener("close", () => { newFriend = null; });
+
+const inPhoneBrowser = () => typeof isPhone !== "undefined" && isPhone && !standalone();
+
+function newFriendNote() {
+  const { name, already } = newFriend;
+  const box = qel("section", "qnotice");
+  const ic = qel("span", "qrow-icon mine");
+  ic.innerHTML = icon("check");
+  const text = qel("div", "qnotice-text");
+  text.append(qel("b", null, already ? `You and ${name} are already friends` : `You and ${name} are now friends`));
+  if (inPhoneBrowser()) {
+    text.append(qel("p", null, "Now open SA Birds from your Home Screen to play together."),
+      qel("p", "note", "Not on your Home Screen yet? Add it from this page first, then open it and sign in."));
+  } else {
+    text.append(qel("p", null, `Send ${name.split(" ")[0]} a quiz, or wait for theirs.`));
+  }
+  box.append(ic, text);
+  return box;
 }
 
 async function changeQuizName() {
@@ -1085,7 +1027,7 @@ navigator.serviceWorker?.addEventListener("message", (e) => {
 if (authClient) {
   authClient.auth.onAuthStateChange((event, session) => {
     if (!session?.user) {
-      quizMe = null; quizFriends = []; quizRounds = []; quizLoaded = 0; pendingInvite = null;
+      quizMe = null; quizFriends = []; quizRounds = []; quizLoaded = 0; newFriend = null;
       updateQuizDot();
       if (event === "INITIAL_SESSION" && (QUIZ_FROM_URL || load(INVITE_KEY, null))) setTimeout(openQuiz, 800);
       return;
