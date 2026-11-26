@@ -921,6 +921,8 @@ img.failed { visibility: hidden; }
 @keyframes sp-pulse { 50% { transform: scale(1.08); opacity: .8; } }
 .sticker-pop img { position: relative; width: 220px; height: 220px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .3)); }
 .sticker-pop h2 { margin: 6px 0 16px; font-size: var(--fs-title2); transition: opacity .35s, transform .35s; }
+.sticker-pop .sp-tier { margin: -12px 0 16px; font-weight: 700; color: var(--label-2); transition: opacity .35s; }
+.sticker-pop .sp-tier.waiting { opacity: 0; }
 .sticker-pop h2.waiting { opacity: 0; transform: translateY(6px); }
 .sticker-pop .sp-actions { display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
 .sticker-pop .btn { width: 100%; }

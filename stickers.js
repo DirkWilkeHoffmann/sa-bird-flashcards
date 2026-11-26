@@ -197,6 +197,9 @@ function showSticker(id, { earned = false, day = null, kicker = null } = {}) {
   img.src = stickerUrl(st.id);
   img.alt = stickerName(st.id);
   img.setAttribute("aria-description", TIER_LABEL(st.tier));
+  const tierEl = $("stickerPopTier");
+  tierEl.textContent = TIER_NAMES[st.tier] || "";
+  tierEl.hidden = !TIER_NAMES[st.tier];
   pop.querySelectorAll(".sp-spark, .sp-flash").forEach((x) => x.remove());
   if (!pop.open) pop.showModal();
   pop.querySelector("button[type=submit]").blur();
@@ -204,6 +207,7 @@ function showSticker(id, { earned = false, day = null, kicker = null } = {}) {
   stopAnim("stickerPopSpin");
   if (!earned || reducedMotion()) {
     title.classList.remove("waiting");
+    tierEl.classList.remove("waiting");
     animate("stickerPop", { s: 0.85, o: 0 }, { s: 1, o: 1 }, {
       damping: 0.8, response: 0.4,
       onUpdate: ({ s, o }) => { img.style.transform = `scale(${s})`; img.style.opacity = String(Math.max(0, Math.min(1, o))); },
@@ -214,7 +218,8 @@ function showSticker(id, { earned = false, day = null, kicker = null } = {}) {
   const r = REVEAL[st.tier];
   haptic(r.buzz);
   title.classList.add("waiting");
-  setTimeout(() => title.classList.remove("waiting"), r.name);
+  tierEl.classList.add("waiting");
+  setTimeout(() => { title.classList.remove("waiting"); tierEl.classList.remove("waiting"); }, r.name);
   if (r.flash) {
     const f = document.createElement("div");
     f.className = "sp-flash";
@@ -335,7 +340,7 @@ function openAlbum() {
 // A date earned (a timestamp from Supabase) as the YYYY-MM-DD the sticker card shows.
 const localDay = (iso) => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 
-// The quiz stickers: earned ones in colour; the rest blurred like a Legendary, the first three with how
+// The quiz stickers: earned ones in colour with the bird's name and what they were for; the rest blurred like a Legendary, the first three with how
 // to earn them and how far along you are ("3 of 10"), the secret ones with a ?.
 function quizAlbum() {
   const box = document.createElement("section");
@@ -355,9 +360,12 @@ function quizAlbum() {
     if (at) {
       name.textContent = stickerName(q.id);
       cell.type = "button";
-      cell.setAttribute("aria-label", `${stickerName(q.id)}, quiz sticker`);
+      const how = document.createElement("small");
+      how.className = "album-quiz-far";
+      how.textContent = q.how;
+      cell.setAttribute("aria-label", `${stickerName(q.id)}, quiz sticker. ${q.how}`);
       cell.addEventListener("click", () => showSticker(q.id, { day: localDay(at) }));
-      cell.append(img, name);
+      cell.append(img, name, how);
     } else if (q.secret) {
       name.textContent = "?";
       cell.classList.add("secret");
