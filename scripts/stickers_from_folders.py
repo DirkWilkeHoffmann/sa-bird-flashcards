@@ -1,7 +1,8 @@
 # Run from the repo root: python3 scripts/stickers_from_folders.py (needs cwebp: brew install webp, and Pillow)
 # Rebuilds data/stickers.json, the app's sticker images (stickers/<id>.webp, 400px wide), the
 # share images (stickers/share/<id>.webp: 512x512 with a 16px margin, under 100 KB, as WhatsApp
-# wants stickers) and rarity.csv from the by-rarity folders.
+# wants stickers) and rarity.csv from the by-rarity folders. "4 Quiz" holds the three quiz stickers
+# (tier quiz: never drawn for a day; stickers.js says which is earned how).
 import json, os, subprocess, csv, sys, io
 from PIL import Image
 root = '/Users/dwhoffmann/Developer/sa-bird-stickers/by-rarity'
@@ -19,7 +20,7 @@ def share_image(src, dst):
     open(dst, 'wb').write(buf.getvalue())
 
 os.makedirs('stickers/share', exist_ok=True)
-tiers = {'1 Legendary': 'legendary', '2 Rare': 'rare', '3 Common': 'common'}
+tiers = {'1 Legendary': 'legendary', '2 Rare': 'rare', '3 Common': 'common', '4 Quiz': 'quiz'}
 out, rows, seen = [], [], {}
 for folder, tier in tiers.items():
     for f in sorted(os.listdir(f'{root}/{folder}')):

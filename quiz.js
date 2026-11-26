@@ -48,6 +48,8 @@ async function loadQuiz(force = false) {
   })();
   try { await quizBusy; } finally { quizBusy = null; }
   updateQuizDot();
+  // Quiz stickers (stickers.js): reached ones are saved and shown on the way. Never holds up the quizzes.
+  if (typeof gotQuizAwards === "function") qrpc("quiz_awards", { p_env: QUIZ_ENV }).then(gotQuizAwards).catch(() => {});
 }
 
 const roundOpen = (r) => r.open && new Date(r.closes_at) > new Date();
@@ -1046,6 +1048,7 @@ if (authClient) {
   authClient.auth.onAuthStateChange((event, session) => {
     if (!session?.user) {
       quizMe = null; quizFriends = []; quizRounds = []; quizLoaded = 0; newFriend = null;
+      if (typeof quizAwards !== "undefined") quizAwards = { played: 0, won: 0, got: new Map() };
       updateQuizDot();
       if (event === "INITIAL_SESSION" && (QUIZ_FROM_URL || load(INVITE_KEY, null))) setTimeout(openQuiz, 800);
       return;
